@@ -1,5 +1,7 @@
 # OXID Console
 
+[![Build Status](https://travis-ci.org/EllisV/oxid-console.svg?branch=master)](https://travis-ci.org/EllisV/oxid-console)
+
 OXID Console is php console application for OXID Shop. It provides an API for writting various commands.
 
 By default there are following commands included:
@@ -14,6 +16,19 @@ By default there are following commands included:
 
 This OXID Console repository has **Migration Handler** and **Module State Fixer** included.
 
+## Which version to get?
+
+| OXID Version     | OXID Console version | Source Code link | Download link |
+|------------------|----------------------|------------------|---------------|
+| <4.9.0, <5.2.0   | 1.1.X                | [Source Code](https://github.com/EllisV/oxid-console/tree/1.1) | [Download ZIP](https://github.com/EllisV/oxid-console/archive/1.1.zip) |
+| =>4.9.0, =>5.2.0 | 1.2.X                | [Source Code](https://github.com/EllisV/oxid-console/tree/1.2) | [Download ZIP](https://github.com/EllisV/oxid-console/archive/1.2.zip) |
+
+## Installation
+
+This package is following a structure which OXID introduced with their update packages.
+* Copy contents of `copy_this` to your OXID eShop project
+* Check the difference between your OXID eShop files and files which are in `changed_full` and update files according to the difference
+
 ## Getting started
 
 The entry point of console application is `php oxid`. It will execute default command which is `list`. To call a specific command run `php oxid [command]`. If you need help about specific command run `php oxid [command] -h` or `php oxid [command] --help`
@@ -23,7 +38,7 @@ The entry point of console application is `php oxid`. It will execute default co
 * Commands get autoloaded from `application/commands/` and `[module_path]/commands/` directories. But you can always add or remove commands with `add()` or `remove()` methods of console application
 * You can access console application `$this->getConsoleApplication()` and input object `$this->getInput()` in your command class
 * Command filename must follow `[your_command]command.php` format
-* Class name must be the same as filename, e.g. CacheClearCommand.php
+* Class name must be the same as filename, e.g. CacheClearCommand
 * Class must extend oxConsoleCommand abstract class
 * You must set name of your command on configure() method
 
@@ -280,3 +295,7 @@ When you change information of module in metadata you need to reactivate the mod
 oxModuleStateFixer which is an extension of oxModuleInstaller has method `fix()` which will fix all the states.
 
 We have provided you with `fix:states` command to work with oxModuleStateFixer. Type in `php oxid fix:states --help` for more information.
+
+## Credits
+
+This project was inspired by [Symfony/Console](https://github.com/symfony/Console) component.

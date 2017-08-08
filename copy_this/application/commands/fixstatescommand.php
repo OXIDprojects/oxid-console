@@ -1,23 +1,12 @@
 <?php
-/**
- * This file is part of OXID Console.
+
+/*
+ * This file is part of the OXID Console package.
  *
- * OXID Console is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
  *
- * OXID Console is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OXID Console.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @author    OXID Professional services
- * @link      http://www.oxid-esales.com
- * @copyright (C) OXID eSales AG 2003-2014
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 /**
@@ -187,12 +176,13 @@ class FixStatesCommand extends oxConsoleCommand
     {
         if ($this->_aAvailableModuleIds === null) {
             $oConfig = oxRegistry::getConfig();
-            $this->_aAvailableModuleIds = array_keys($oConfig->getConfigParam('aModulePaths'));
 
-            // Protection for passing incorrect type of data
-            if (!is_array($this->_aAvailableModuleIds)) {
-                $this->_aAvailableModuleIds = array();
-            }
+            // We are calling getModulesFromDir() because we want to refresh
+            // the list of available modules. This is a workaround for OXID
+            // bug.
+            oxNew('oxModuleList')->getModulesFromDir($oConfig->getModulesDir());
+
+            $this->_aAvailableModuleIds = array_keys($oConfig->getConfigParam('aModulePaths'));
         }
 
         return $this->_aAvailableModuleIds;

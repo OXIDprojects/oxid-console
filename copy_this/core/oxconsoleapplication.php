@@ -1,23 +1,12 @@
 <?php
-/**
- * This file is part of OXID Console.
+
+/*
+ * This file is part of the OXID Console package.
  *
- * OXID Console is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
  *
- * OXID Console is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OXID Console.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @author    OXID Professional services
- * @link      http://www.oxid-esales.com
- * @copyright (C) OXID eSales AG 2003-2014
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 /**
@@ -28,10 +17,10 @@
  *  - [module_path]/commands
  *
  * Sample usage:
- *      $oMyInput = oxNew( 'myConsoleInput' );
- *      $oConsole = oxNew( 'oxConsoleApplication' );
- *      $oConsole->add( oxNew( 'myCustomCommand' ) );
- *      $oConsole->run( $oMyInput );
+ *      $oMyInput = oxNew('myConsoleInput');
+ *      $oConsole = oxNew('oxConsoleApplication');
+ *      $oConsole->add(oxNew('myCustomCommand'));
+ *      $oConsole->run($oMyInput);
  */
 class oxConsoleApplication
 {
@@ -39,7 +28,7 @@ class oxConsoleApplication
     /**
      * OXID Console application version
      */
-    const VERSION = 'v1.2.0';
+    const VERSION = 'v1.2.5';
 
     /**
      * @var oxConsoleCommand[] Available commands in console
@@ -245,7 +234,7 @@ class oxConsoleApplication
         $oDirectory = new RecursiveDirectoryIterator($sDirectory);
         $oFlattened = new RecursiveIteratorIterator($oDirectory);
 
-        $aFiles = new RegexIterator($oFlattened, '/.*command\.php$/');
+        $aFiles = new RegexIterator($oFlattened, '/.*command\.php$/i');
         foreach ($aFiles as $sFilePath) {
             require_once $sFilePath;
 

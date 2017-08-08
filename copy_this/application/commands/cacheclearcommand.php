@@ -1,23 +1,12 @@
 <?php
-/**
- * This file is part of OXID Console.
+
+/*
+ * This file is part of the OXID Console package.
  *
- * OXID Console is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
  *
- * OXID Console is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with OXID Console.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @author    OXID Professional services
- * @link      http://www.oxid-esales.com
- * @copyright (C) OXID eSales AG 2003-2014
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 /**
@@ -50,7 +39,9 @@ class CacheClearCommand extends oxConsoleCommand
         $oOutput->writeLn(' * Does not delete smarty directory but its contents by default');
         $oOutput->writeln();
         $oOutput->writeLn('Available options:');
-        $oOutput->writeLn('  -s, --smarty     Clears out only smarty cache');
+        $oOutput->writeLn('  -s, --smarty   Clears out smarty cache');
+        $oOutput->writeLn('  -f, --files    Clears out files cache');
+        $oOutput->writeLn('  -o, --oxcache  Clears out oxCache (EE versions)');
     }
 
     /**
@@ -59,16 +50,24 @@ class CacheClearCommand extends oxConsoleCommand
     public function execute(oxIOutput $oOutput)
     {
         $oInput = $this->getInput();
+        $blAll = !$oInput->hasOption(array('s', 'smarty', 'f', 'files', 'o', 'oxcache'));
         $sTmpDir = $this->_appendDirectorySeparator(oxRegistry::getConfig()->getConfigParam('sCompileDir'));
         if (!is_dir($sTmpDir)) {
             $oOutput->writeLn('Seems that compile directory does not exist');
+            return;
         }
 
         $oOutput->writeLn('Clearing OXID cache...');
 
-        $this->_clearDirectory($sTmpDir . 'smarty');
-        if (!$oInput->hasOption(array('s', 'smarty'))) {
-            // If there are no options for clearing smarty cache only
+        if (($blAll || $oInput->hasOption(array('o', 'oxcache'))) && class_exists('oxCache')) {
+            oxRegistry::get('oxCache')->reset(false);
+        }
+
+        if ($blAll || $oInput->hasOption(array('s', 'smarty'))) {
+            $this->_clearDirectory($sTmpDir . 'smarty');
+        }
+
+        if ($blAll || $oInput->hasOption(array('f', 'files'))) {
             $this->_clearDirectory($sTmpDir, array('.htaccess', 'smarty'));
         }
 
