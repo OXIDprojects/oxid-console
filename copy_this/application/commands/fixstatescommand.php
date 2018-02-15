@@ -16,11 +16,6 @@ class FixStatesCommand extends oxConsoleCommand
 {
 
     /**
-     * @var array|null Available module ids
-     */
-    protected $_aAvailableModuleIds = null;
-
-    /**
      * {@inheritdoc}
      */
     public function configure()
@@ -56,34 +51,59 @@ class FixStatesCommand extends oxConsoleCommand
             : $oOutput;
 
         try {
-            $aModuleIds = $this->_parseModuleIds();
             $aShopConfigs = $this->_parseShopConfigs();
         } catch (oxInputException $oEx) {
             $oOutput->writeLn($oEx->getMessage());
+
             return;
         }
 
         /** @var oxModuleStateFixer $oModuleStateFixer */
         $oModuleStateFixer = oxRegistry::get('oxModuleStateFixer');
+        $oModuleStateFixer->setDebugOutput($oDebugOutput);
 
         /** @var oxModule $oModule */
         $oModule = oxNew('oxModule');
-
         foreach ($aShopConfigs as $oConfig) {
+            try {
+                $aModuleIds = $this->_parseModuleIds($oConfig);
+            } catch (oxInputException $oEx) {
+                $oOutput->writeLn($oEx->getMessage());
 
-            $oDebugOutput->writeLn('[DEBUG] Working on shop id ' . $oConfig->getShopId());
+                return;
+            }
+            $sShopId = $oConfig->getShopId();
+            $oDebugOutput->writeLn('[DEBUG] Working on shop id ' . $sShopId);
+            $oModuleStateFixer->setConfig($oConfig);
+            $oModuleStateFixer->setDebugOutput($oDebugOutput);
 
             foreach ($aModuleIds as $sModuleId) {
                 if (!$oModule->load($sModuleId)) {
-                    $oDebugOutput->writeLn("[DEBUG] {$sModuleId} does not exist - skipping");
+                    $oDebugOutput->writeLn("[DEBUG] {$sModuleId} can not be loaded - skipping");
                     continue;
                 }
 
-                $oDebugOutput->writeLn("[DEBUG] Fixing {$sModuleId} module");
-                $oModuleStateFixer->fix($oModule, $oConfig);
+                //$oDebugOutput->writeLn("[DEBUG] Fixing {$sModuleId} module");
+                $blWasActive = $oModule->isActive();
+
+                try {
+                    if ($oModuleStateFixer->fix($oModule, $oConfig)) {
+                        $oDebugOutput->writeLn("[DEBUG] {$sModuleId} extensions fixed");
+                        if (!$blWasActive && $oModule->isActive()) {
+                            $oDebugOutput->writeLn("[WARN] {$sModuleId} is now activated again!");
+                        }
+                    }
+                } catch (oxShopException $ex) {
+                    $oDebugOutput->writeLn();
+                    $oOutput->writeLn("[ERROR]:" . $ex->getMessage());
+                    $oOutput->writeLn("No success! You have to fix that errors manually!!\n");
+                    exit(1);
+                }
             }
 
             $oDebugOutput->writeLn();
+
+            $this->cleanup($oConfig, $oDebugOutput);
         }
 
         $oOutput->writeLn('Fixed module states successfully');
@@ -96,12 +116,12 @@ class FixStatesCommand extends oxConsoleCommand
      *
      * @throws oxInputException
      */
-    protected function _parseModuleIds()
+    protected function _parseModuleIds($oConfig)
     {
         $oInput = $this->getInput();
 
         if ($oInput->hasOption(array('a', 'all'))) {
-            return $this->_getAvailableModuleIds();
+            return $this->_getAvailableModuleIds($oConfig);
         }
 
         if (count($oInput->getArguments()) < 2) { // Note: first argument is command name
@@ -114,11 +134,10 @@ class FixStatesCommand extends oxConsoleCommand
         $aModuleIds = $oInput->getArguments();
         array_shift($aModuleIds); // Getting rid of command name argument
 
-        $aAvailableModuleIds = $this->_getAvailableModuleIds();
+        $aAvailableModuleIds = $this->_getAvailableModuleIds($oConfig);
 
         // Checking if all provided module ids exist
         foreach ($aModuleIds as $sModuleId) {
-
             if (!in_array($sModuleId, $aAvailableModuleIds)) {
                 /** @var oxInputException $oEx */
                 $oEx = oxNew('oxInputException');
@@ -146,8 +165,8 @@ class FixStatesCommand extends oxConsoleCommand
         }
 
         if ($mShopId = $oInput->getOption('shop')) {
-
-            if (is_bool($mShopId)) { // No value for option were passed
+            // No value for option were passed
+            if (is_bool($mShopId)) {
                 /** @var oxInputException $oEx */
                 $oEx = oxNew('oxInputException');
                 $oEx->setMessage('Please specify shop id in option following this format --shop=<shop_id>');
@@ -172,19 +191,52 @@ class FixStatesCommand extends oxConsoleCommand
      *
      * @return array
      */
-    protected function _getAvailableModuleIds()
+    protected function _getAvailableModuleIds($oConfig)
     {
-        if ($this->_aAvailableModuleIds === null) {
-            $oConfig = oxRegistry::getConfig();
+        // We are calling getModulesFromDir() because we want to refresh
+        // the list of available modules. This is a workaround for OXID
+        // bug.
+        $oModuleList = oxNew('oxModuleList');
+        $oModuleList->setConfig($oConfig);
+        $oModuleList->getModulesFromDir($oConfig->getModulesDir());
 
-            // We are calling getModulesFromDir() because we want to refresh
-            // the list of available modules. This is a workaround for OXID
-            // bug.
-            oxNew('oxModuleList')->getModulesFromDir($oConfig->getModulesDir());
-
-            $this->_aAvailableModuleIds = array_keys($oConfig->getConfigParam('aModulePaths'));
+        $_aAvailableModuleIds = array_keys($oConfig->getConfigParam('aModulePaths'));
+        if (!is_array($_aAvailableModuleIds)) {
+            $_aAvailableModuleIds = array();
         }
 
-        return $this->_aAvailableModuleIds;
+        return $_aAvailableModuleIds;
+    }
+
+
+    /**
+     * @param $oDebugOutput
+     * @param $oModuleList
+     */
+    protected function cleanup($oConfig, $oDebugOutput)
+    {
+        $oModuleList = oxNew("oxModuleList");
+        $oModuleList->setConfig($oConfig);
+
+        $aDeletedExt = $oModuleList->getDeletedExtensions();
+        if ($aDeletedExt) {
+            //collecting deleted extension IDs
+            $aDeletedExtIds = array_keys($aDeletedExt);
+            foreach ($aDeletedExtIds as $sIdIndex => $sId) {
+                $oDebugOutput->writeLn(
+                    "[ERROR] Module $sId has errors so module will be removed, including all settings"
+                );
+                if (isset($aDeletedExt[$sId]['extensions'])) {
+                    foreach ($aDeletedExt[$sId]['extensions'] as $sClass => $aExtensions) {
+                        foreach ($aExtensions as $sExtension) {
+                            $sExtPath = $oConfig->getModulesDir() . $sExtension . '.php';
+                            $oDebugOutput->writeLn("[ERROR] $sExtPath not found");
+                        }
+                    }
+                }
+            }
+        }
+
+        $oModuleList->cleanup();
     }
 }

@@ -50,7 +50,7 @@ class GenerateMigrationCommand extends oxConsoleCommand
      */
     public function execute(oxIOutput $oOutput)
     {
-        $sMigrationsDir = OX_BASE_PATH . 'migration' . DIRECTORY_SEPARATOR;
+        $sMigrationsDir = OX_BASE_PATH  . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'migrations' . DIRECTORY_SEPARATOR;
         $sTemplatePath = $this->_getTemplatePath();
 
         $sMigrationName = $this->_parseMigrationNameFromInput();
