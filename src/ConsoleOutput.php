@@ -13,6 +13,8 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Console output, based on Symfony\Component\Console\Output\ConsoleOutput
  *
@@ -20,7 +22,7 @@
  * @link    https://github.com/symfony/Console/blob/v2.6.0/Output/ConsoleOutput.php
  * @license https://github.com/symfony/Console/blob/v2.6.0/LICENSE
  */
-class oxConsoleOutput implements oxIOutput
+class ConsoleOutput implements IOutput
 {
     /**
      * @var resource

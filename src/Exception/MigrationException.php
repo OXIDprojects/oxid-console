@@ -9,10 +9,12 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Exception;
+
 /**
  * Any exception thrown in migration process
  */
-class oxMigrationException extends oxException
+class MigrationException extends oxException
 {
 
 }

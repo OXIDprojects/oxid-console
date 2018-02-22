@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Command;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\ConsoleCommand;
+
 /**
  * Generate migration console command
  */
@@ -31,9 +36,9 @@ class GenerateMigrationCommand extends ConsoleCommand
     /**
      * Output help text of command
      *
-     * @param oxIOutput $oOutput
+     * @param IOutput $oOutput
      */
-    public function help(oxIOutput $oOutput)
+    public function help(IOutput $oOutput)
     {
         $oOutput->writeLn('Usage: g:migration <word> [<second_word>...]');
         $oOutput->writeLn();
@@ -48,7 +53,7 @@ class GenerateMigrationCommand extends ConsoleCommand
      *
      * @param oxIOutput $oOutput
      */
-    public function execute(oxIOutput $oOutput)
+    public function execute(IOutput $oOutput)
     {
         $sMigrationsDir = OX_BASE_PATH  . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'migrations' . DIRECTORY_SEPARATOR;
         $sTemplatePath = $this->_getTemplatePath();

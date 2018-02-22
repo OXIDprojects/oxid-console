@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Command;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\ConsoleCommand;
+
 /**
  * List command
  *
@@ -29,7 +34,7 @@ class ListCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function help(IOutput $oOutput)
     {
         $this->execute($oOutput);
     }
@@ -37,7 +42,7 @@ class ListCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function execute(oxIOutput $oOutput)
+    public function execute(IOutput $oOutput)
     {
         $aCommands = $this->getConsoleApplication()
             ->getLoadedCommands();

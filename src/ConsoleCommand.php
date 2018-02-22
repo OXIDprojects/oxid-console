@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\Contract\IConsoleInput;
+
 /**
  * Abstract Console Command class
  *
@@ -70,14 +75,14 @@ abstract class ConsoleCommand
      *
      * @param oxIOutput $oOutput
      */
-    abstract public function help(oxIOutput $oOutput);
+    abstract public function help(IOutput $oOutput);
 
     /**
      * Execute current command
      *
      * @param oxIOutput $oOutput
      */
-    abstract public function execute(oxIOutput $oOutput);
+    abstract public function execute(IOutput $oOutput);
 
     /**
      * Set current console command name
@@ -124,7 +129,7 @@ abstract class ConsoleCommand
      *
      * @param oxConsoleApplication $oConsoleApplication
      */
-    public function setConsoleApplication(oxConsoleApplication $oConsoleApplication)
+    public function setConsoleApplication(ConsoleApplication $oConsoleApplication)
     {
         $this->_oConsoleApplication = $oConsoleApplication;
     }
@@ -134,7 +139,7 @@ abstract class ConsoleCommand
      *
      * @param oxIConsoleInput $oInput
      */
-    public function setInput(oxIConsoleInput $oInput)
+    public function setInput(IConsoleInput $oInput)
     {
         $this->_oInput = $oInput;
     }

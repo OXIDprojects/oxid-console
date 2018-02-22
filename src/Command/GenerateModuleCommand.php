@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Command;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\ConsoleCommand;
+
 /**
  * Generate module command
  */
@@ -48,7 +53,7 @@ class GenerateModuleCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function help(IOutput $oOutput)
     {
         $oOutput->writeLn('Usage: g:module');
         $oOutput->writeLn();
@@ -58,7 +63,7 @@ class GenerateModuleCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function execute(oxIOutput $oOutput)
+    public function execute(IOutput $oOutput)
     {
         $oScaffold = $this->_buildScaffold($oOutput);
         $this->_generateModule($oScaffold);
@@ -176,7 +181,7 @@ class GenerateModuleCommand extends ConsoleCommand
      *
      * @return stdClass
      */
-    protected function _buildScaffold(oxIOutput $oOutput)
+    protected function _buildScaffold(IOutput $oOutput)
     {
         $oScaffold = new stdClass();
         $oScaffold->sVendor = strtolower($this->_getUserInput('Vendor Prefix', true));

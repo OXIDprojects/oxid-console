@@ -9,10 +9,12 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Contract;
+
 /**
  * Input interface is implemented by all console input classes
  */
-interface oxIConsoleInput
+interface IConsoleInput
 {
 
     /**

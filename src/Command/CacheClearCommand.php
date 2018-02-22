@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Command;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\ConsoleCommand;
+
 /**
  * Cache Clear command
  *
@@ -29,7 +34,7 @@ class CacheClearCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function help(IOutput $oOutput)
     {
         $oOutput->writeLn('Usage: cache:clear [options]');
         $oOutput->writeLn();
@@ -47,7 +52,7 @@ class CacheClearCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function execute(oxIOutput $oOutput)
+    public function execute(IOutput $oOutput)
     {
         $oInput = $this->getInput();
         $blAll = !$oInput->hasOption(array('s', 'smarty', 'f', 'files', 'o', 'oxcache'));

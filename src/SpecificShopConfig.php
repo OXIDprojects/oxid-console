@@ -14,10 +14,12 @@
  *
  * Helper class for generating oxConfig instance for specific shop
  */
- 
-use \OxidEsales\EshopEnterprise\Core\Base;
- 
-class oxSpecificShopConfig extends Base
+
+namespace OxidCommunity\OxidConsole;
+
+use \OxidEsales\Eshop\Core\Base;
+
+class SpecificShopConfig extends Base
 {
 
     /**

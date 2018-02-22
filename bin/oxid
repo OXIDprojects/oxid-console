@@ -10,6 +10,13 @@
  * file that was distributed with this source code.
  */
 
+print dirname(__FILE__);
+
+$installationRootPath = dirname(dirname(dirname(dirname(__FILE__))));
+$vendorPath = $installationRootPath . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR;
+
+require_once $vendorPath . 'autoload.php';
+
 require_once __DIR__ . '/bootstrap.php';
 
 // OXID Bug: Smarty gets loaded only with oxUtils class

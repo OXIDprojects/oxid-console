@@ -9,12 +9,14 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Null output
  *
  * It is very useful for ignoring command output
  */
-class oxNullOutput implements oxIOutput
+class NullOutput implements IOutput
 {
 
     /**

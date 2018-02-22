@@ -9,10 +9,12 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Contract;
+
 /**
  * Output interface implemented by any output class
  */
-interface oxIOutput
+interface IOutput
 {
 
     /**

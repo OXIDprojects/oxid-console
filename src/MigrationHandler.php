@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Migration handler for migration queries
  *
@@ -18,7 +20,7 @@
  *      $oMigrationHandler = oxMigrationHandler::getInstance()
  *      $oMigrationHandler->run( '2014030709325468' );
  */
-class oxMigrationHandler
+class MigrationHandler
 {
 
     /**

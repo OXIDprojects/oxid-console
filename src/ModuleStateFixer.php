@@ -9,10 +9,12 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Module state fixer
  */
-class oxModuleStateFixer extends oxModuleInstaller
+class ModuleStateFixer extends oxModuleInstaller
 {
 
     /** @var oxIOutput $_debugOutput */

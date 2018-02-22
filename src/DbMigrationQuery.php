@@ -8,12 +8,14 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Migration query class. All migration queries must extend this class
  *
  * Migration class filename must match timestamp_classname.php format
  */
-abstract class oxDbMigrationQuery extends oxMigrationQuery
+abstract class DbMigrationQuery extends MigrationQuery
 {
 
     /**

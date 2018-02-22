@@ -13,6 +13,8 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Argv Input, based on Symfony\Component\Console\Input\ArgvInput
  *
@@ -20,7 +22,7 @@
  * @link    https://github.com/symfony/Console/blob/v2.6.0/Input/ArgvInput.php
  * @license https://github.com/symfony/Console/blob/v2.6.0/LICENSE
  */
-class oxArgvInput implements oxIConsoleInput
+class ArgvInput implements IConsoleInput
 {
 
     /**

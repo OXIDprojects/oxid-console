@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Command;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\ConsoleCommand;
+
 /**
  * Migrate command
  *
@@ -30,7 +35,7 @@ class MigrateCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function help(IOutput $oOutput)
     {
         $oOutput->writeLn('Usage: migrate [<timestamp>]');
         $oOutput->writeLn();
@@ -44,7 +49,7 @@ class MigrateCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function execute(oxIOutput $oOutput)
+    public function execute(IOutput $oOutput)
     {
         try {
             $sTimestamp = $this->_parseTimestamp();

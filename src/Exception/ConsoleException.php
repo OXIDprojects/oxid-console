@@ -9,12 +9,14 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole\Exception;
+
 /**
  * Console Exception
  *
  * Any exception thrown in Console application
  */
-class oxConsoleException extends oxException
+class ConsoleException extends oxException
 {
 
 }

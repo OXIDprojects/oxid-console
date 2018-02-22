@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Console Application is a container for collections of commands
  *
@@ -22,7 +24,7 @@
  *      $oConsole->add(oxNew('myCustomCommand'));
  *      $oConsole->run($oMyInput);
  */
-class oxConsoleApplication
+class ConsoleApplication
 {
 
     /**

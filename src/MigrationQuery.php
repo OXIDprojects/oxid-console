@@ -14,7 +14,7 @@
  *
  * Migration class filename must match timestamp_classname.php format
  */
-abstract class oxMigrationQuery
+abstract class MigrationQuery
 {
 
     /**

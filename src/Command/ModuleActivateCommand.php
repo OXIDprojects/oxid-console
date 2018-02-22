@@ -20,6 +20,10 @@
  * @copyright (C) OXID eSales AG 2003-2015
  */
 
+namespace OxidCommunity\OxidConsole\Command;
+
+use OxidCommunity\OxidConsole\Contract\IOutput;
+use OxidCommunity\OxidConsole\ConsoleCommand;
 
 /**
  * Class ModuleActivateCommand
@@ -39,7 +43,7 @@ class ModuleActivateCommand extends ConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function help(IOutput $oOutput)
     {
         $oOutput->writeLn('Usage: module:activate [options] moduleid');
         $oOutput->writeLn();
@@ -55,7 +59,7 @@ class ModuleActivateCommand extends ConsoleCommand
      *
      * @param oxIOutput $oOutput
      */
-    public function execute(oxIOutput $oOutput)
+    public function execute(IOutput $oOutput)
     {
         $oInput = $this->getInput();
 

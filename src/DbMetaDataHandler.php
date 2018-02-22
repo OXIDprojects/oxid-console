@@ -12,11 +12,13 @@
  * @version   OXID eShop EE
  */
 
+namespace OxidCommunity\OxidConsole;
+
 /**
  * Class for handling database related operations
  *
  */
-class oxDbMetaDataHandler extends oxSuperCfg
+class DbMetaDataHandler extends oxSuperCfg
 {
 
     /**
