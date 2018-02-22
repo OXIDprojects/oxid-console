@@ -12,7 +12,7 @@
 /**
  * Fix States command
  */
-class FixStatesCommand extends oxConsoleCommand
+class FixStatesCommand extends ConsoleCommand
 {
 
     /**

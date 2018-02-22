@@ -14,7 +14,7 @@
  *
  * All console application commands must extend this class
  */
-abstract class oxConsoleCommand
+abstract class ConsoleCommand
 {
 
     /**

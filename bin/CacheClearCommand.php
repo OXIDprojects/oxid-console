@@ -14,7 +14,7 @@
  *
  * Clears out OXID cache from tmp folder
  */
-class CacheClearCommand extends oxConsoleCommand
+class CacheClearCommand extends ConsoleCommand
 {
 
     /**

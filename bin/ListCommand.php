@@ -14,7 +14,7 @@
  *
  * Display all available commands in console application
  */
-class ListCommand extends oxConsoleCommand
+class ListCommand extends ConsoleCommand
 {
 
     /**

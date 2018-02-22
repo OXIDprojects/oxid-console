@@ -14,7 +14,10 @@
  *
  * Helper class for generating oxConfig instance for specific shop
  */
-class oxSpecificShopConfig extends oxConfig
+ 
+use \OxidEsales\EshopEnterprise\Core\Base;
+ 
+class oxSpecificShopConfig extends Base
 {
 
     /**
@@ -85,7 +88,6 @@ class oxSpecificShopConfig extends oxConfig
         $this->_blInit = true;
 
         $this->_loadVarsFromFile();
-        include getShopBasePath() . 'core/oxconfk.php';
 
         $this->_setDefaults();
 
