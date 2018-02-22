@@ -15,7 +15,7 @@
  * Runs migration handler with input timestamp. If no timestamp were passed
  * runs with current timestamp instead
  */
-class MigrateCommand extends oxConsoleCommand
+class MigrateCommand extends ConsoleCommand
 {
 
     /**

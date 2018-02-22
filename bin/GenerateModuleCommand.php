@@ -12,7 +12,7 @@
 /**
  * Generate module command
  */
-class GenerateModuleCommand extends oxConsoleCommand
+class GenerateModuleCommand extends ConsoleCommand
 {
 
     /**

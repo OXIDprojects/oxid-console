@@ -24,7 +24,7 @@
 /**
  * Class ModuleActivateCommand
  */
-class ModuleActivateCommand extends oxConsoleCommand
+class ModuleActivateCommand extends ConsoleCommand
 {
 
     /**

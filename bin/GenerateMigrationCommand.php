@@ -12,7 +12,7 @@
 /**
  * Generate migration console command
  */
-class GenerateMigrationCommand extends oxConsoleCommand
+class GenerateMigrationCommand extends ConsoleCommand
 {
 
     /**
