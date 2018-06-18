@@ -1,11 +1,17 @@
 # OXID Console
 
-[![Build Status](https://travis-ci.org/EllisV/oxid-console.svg?branch=master)](https://travis-ci.org/EllisV/oxid-console)
+OXID Console is a symfony console application for OXID Shop.
 
-OXID Console is php console application for OXID Shop. It provides an API for writting various commands.
+The following commands are available:
 
-By default there are following commands included:
+* `cache:clear` - Clear OXID cache
+* `database:views` - Regenerate database views
+* `module:generate` - Generate new module scaffold
+* `module:states` - Fixes modules metadata states
+* `migration:generate` - Generate new migration file
+* `migration:run` - Run migration scripts
 
+For backwords compatibility the following commands are still available (*but are deprecated*):
 * `cache:clear` - Clear OXID cache from tmp folder
 * `db:update` - Updates database views
 * `fix:states` - Fixes modules metadata states
@@ -14,45 +20,48 @@ By default there are following commands included:
 * `list` - *(default)* List of all available commands
 * `migrate` - Run migration scripts
 
-This OXID Console repository has **Migration Handler** and **Module State Fixer** included.
-
 ## Which version to get?
 
-| OXID Version     | OXID Console version | Source Code link | Download link |
-|------------------|----------------------|------------------|---------------|
-| <4.9.0, <5.2.0   | 1.1.X                | [Source Code](https://github.com/EllisV/oxid-console/tree/1.1) | [Download ZIP](https://github.com/EllisV/oxid-console/archive/1.1.zip) |
-| =>4.9.0, =>5.2.0 | 1.2.X                | [Source Code](https://github.com/EllisV/oxid-console/tree/1.2) | [Download ZIP](https://github.com/EllisV/oxid-console/archive/1.2.zip) |
+| OXID Version      | OXID Console version | Source Code link | Download link |
+|-------------------|----------------------|------------------|---------------|
+| <4.9.0, <5.2.0    | 1.1.5                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/3e28bba67649c01156c6e97f1b99aa7538b1a32e) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.1.5.zip) |
+| \>=4.9.0, >=5.2.0 | 1.2.6                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/f7dedca4d831bf5cb52e1b17024f2b70cf789b2c) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.2.6.zip) |
+| \>=6.0.0          | 2.x.y                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/quick-port-6.0-wip) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v2.0.0.zip) |
 
 ## Installation
 
-This package is following a structure which OXID introduced with their update packages.
-* Copy contents of `copy_this` to your OXID eShop project
-* Check the difference between your OXID eShop files and files which are in `changed_full` and update files according to the difference
+```bash
+composer require oxid-professional-services/oxid-console
+```
 
 ## Getting started
 
-The entry point of console application is `php oxid`. It will execute default command which is `list`. To call a specific command run `php oxid [command]`. If you need help about specific command run `php oxid [command] -h` or `php oxid [command] --help`
+```bash
+vendor/bin/oxid list
+```
 
 ## Defining your own command
 
-* Commands get autoloaded from `application/commands/` and `[module_path]/commands/` directories. But you can always add or remove commands with `add()` or `remove()` methods of console application
-* You can access console application `$this->getConsoleApplication()` and input object `$this->getInput()` in your command class
-* Command filename must follow `[your_command]command.php` format
-* Class name must be the same as filename, e.g. CacheClearCommand
-* Class must extend oxConsoleCommand abstract class
-* You must set name of your command on configure() method
+* Commands get autoloaded from `[module_path]/Commands/` directory
+* Command filename must follow `[your_command]Command.php` format
+* Class name must be the same as filename, e.g. `CacheClearCommand`
+* Class must extend `Symfony\Component\Console\Command\Command` class
 
 ### Template for your command:
 
 ```php
 <?php
 
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+
 /**
  * My own command
  *
  * Demo command for learning
  */
-class MyOwnCommand extends oxConsoleCommand
+class MyOwnCommand extends Command
 {
 
     /**
@@ -67,113 +76,22 @@ class MyOwnCommand extends oxConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $oOutput->writeLn('This is my help output');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(oxIOutput $oOutput)
-    {
-        $oInput = $this->getInput();
-        $oInput->hasOption(array('demo', 'd')) {
-            $oOutput->writeLn('You typed in --demo or -d also');
+        if ($input->getOption('demo')) {
+            $output->writeLn('You typed in --demo or -d also');
         }
 
-        $oOutput->writeLn('My demo command finished');
+        $output->writeLn('My demo command finished');
     }
 }
 ```
 
-## Working with arguments and options
-
-First of all You must know that `-abc` is the same as `-a -b -c` and it is a good practice to have long version of option too, e.g. `-a` is the same as `--all`.
-Console Input provides you with various methods to work with options. There is nothing better than a good example:
-
-### Command class
-
-```php
-<?php
-
-/**
- * My own command
- *
- * Demo command for learning
- */
-class MyOwnCommand extends oxConsoleCommand
-{
-
-    /**
-     * {@inheritdoc}
-     */
-    public function configure()
-    {
-        $this->setName('my:own');
-        $this->setDescription('Demo command for learning');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function help(oxIOutput $oOutput)
-    {
-        // TODO: Implement help() method
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(oxIOutput $oOutput)
-    {
-        $oInput = $this->getInput();
-
-        var_dump($oInput->hasOption(array('a', 'all')));
-        var_dump($oInput->hasOption('b'));
-        var_dump($oInput->hasOption('not-valid'));
-
-        var_dump($oInput->getOption('word'));
-
-        var_dump($oInput->getOptions());
-        var_dump($oInput->getArguments());
-
-        var_dump($oInput->getArgument(2));
-    }
-}
-```
-
-### php oxid my:own -o cat --all tree -bzg house --word=nice dog
-
-```
-bool(true)
-bool(true)
-bool(false)
-
-string(4) "nice"
-
-array(6) {
-  'o'    => bool(true)
-  'all'  => bool(true)
-  'b'    => bool(true)
-  'z'    => bool(true)
-  'g'    => bool(true)
-  'word' => string(4) "nice"
-}
-array(5) {
-  [0] => string(6) "my:own"
-  [1] => string(3) "cat"
-  [2] => string(4) "tree"
-  [3] => string(5) "house"
-  [4] => string(3) "dog"
-}
-
-string(4) "tree"
-```
+For more examples please see https://symfony.com/doc/current/components/console.html
 
 ## Migrations
 
-OXID Console project includes migration handling. Lets generate sample migration by running `php oxid g:migration add amount field to demo module`.
+OXID Console project includes migration handling. Lets generate sample migration by running `vendor/bin/oxid migration:generate "add amount field to demo module"`.
 
 Console application generated `migration/20140312161434_addamountfieldtodemomodule.php` file with its contents:
 
@@ -203,7 +121,7 @@ class AddAmountFieldToDemoModuleMigration extends oxMigrationQuery
 
 Migration handler can run migrations with your given timestamp *(if no timestamp provided than it assumes timestamp as current timestamp)*. Inside it saves which migration queries were executed and knows which migration queries go up or go down.
 
-Once we generated this file we run `php oxid migrate`
+Once we generated this file we run `vendor/bin/oxid migration:run`
 
 ```
 Running migration scripts
@@ -220,7 +138,7 @@ Migration finished successfully
 
 *Note: No migration scripts were ran*
 
-Ok, now lets run migrations with given timestamp of the past with `php oxid migrate 2013-01-01` command
+Ok, now lets run migrations with given timestamp of the past with `vendor/bin/oxid migration:run 2013-01-01` command
 
 ```
 Running migration scripts
@@ -279,7 +197,7 @@ class AddDemoCulumnToOxUserMigration extends oxMigrationQuery
 ### Migration Query Law
 
 * Filename must follow `YYYYMMDDHHiiss_description.php` format
-* Must extend oxMigrationQuery abstract class
+* Must extend `oxMigrationQuery` abstract class
 * Class name must be the same as description with *Migration* word appended to the end of the name
 
 *Note: It is better to use generator for migration queries creation*
@@ -292,10 +210,6 @@ When you change information of module in metadata you need to reactivate the mod
 
 ### Solution
 
-oxModuleStateFixer which is an extension of oxModuleInstaller has method `fix()` which will fix all the states.
+`oxModuleStateFixer` which is an extension of oxModuleInstaller has method `fix()` which will fix all the states.
 
-We have provided you with `fix:states` command to work with oxModuleStateFixer. Type in `php oxid fix:states --help` for more information.
-
-## Credits
-
-This project was inspired by [Symfony/Console](https://github.com/symfony/Console) component.
+We have provided you with `module:states` command to work with `oxModuleStateFixer`. Type in `vendor/bin/oxid module:states --help` for more information.

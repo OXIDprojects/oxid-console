@@ -28,7 +28,7 @@ class oxConsoleApplication
     /**
      * OXID Console application version
      */
-    const VERSION = 'v1.2.6';
+    const VERSION = 'v2.0.0';
 
     /**
      * @var oxConsoleCommand[] Available commands in console
@@ -189,7 +189,10 @@ class oxConsoleApplication
      */
     protected function _loadCoreCommands()
     {
-        $sDirectory = OX_BASE_PATH . 'application' . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR;
+        $sDirectory = implode(
+            DIRECTORY_SEPARATOR,
+            [VENDOR_PATH, 'oxid-professional-services', 'oxid-console', 'commands']
+        );
         $this->_loadCommands($sDirectory);
     }
 
@@ -208,9 +211,13 @@ class oxConsoleApplication
             return;
         }
 
+        $commandDirectories = ['commands', 'Commands'];
+
         foreach ($aModulePaths as $sModulePath) {
-            $sCommandDir = $sModulesDir . $sModulePath . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR;
-            $this->_loadCommands($sCommandDir);
+            foreach ($commandDirectories as $commandDirectory) {
+                $sCommandDir = $sModulesDir . $sModulePath . DIRECTORY_SEPARATOR . $commandDirectory . DIRECTORY_SEPARATOR;
+                $this->_loadCommands($sCommandDir);
+            }
         }
     }
 
