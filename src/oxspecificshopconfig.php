@@ -87,8 +87,6 @@ class oxSpecificShopConfig extends oxConfig
         $this->_blInit = true;
 
         $this->_loadVarsFromFile();
-        include getShopBasePath() . 'core/oxconfk.php';
-
         $this->_setDefaults();
 
         try {
