@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use OxidEsales\Eshop\Core\DatabaseProvider;
+
 /**
  * Specific shop config class
  *
@@ -40,7 +42,7 @@ class oxSpecificShopConfig extends oxConfig
      */
     public static function getAll()
     {
-        $aShopIds = oxDb::getDb()->getCol('SELECT oxid FROM oxshops');
+        $aShopIds = DatabaseProvider::getDb()->getCol('SELECT oxid FROM oxshops');
         $aConfigs = array();
 
         foreach ($aShopIds as $mShopId) {
@@ -61,7 +63,7 @@ class oxSpecificShopConfig extends oxConfig
     public static function get($mShopId)
     {
         $sSQL = 'SELECT 1 FROM oxshops WHERE oxid = %s';
-        $oDb = oxDb::getDb();
+        $oDb = DatabaseProvider::getDb();
 
         if (!$oDb->getOne(sprintf($sSQL, $oDb->quote($mShopId)))) { // invalid shop id
             // Not using oxConfig::_isValidShopId() because its not static, but YES it should be

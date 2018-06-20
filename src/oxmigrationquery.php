@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use OxidEsales\Eshop\Core\DatabaseProvider;
+
 /**
  * Migration query class. All migration queries must extend this class
  *
@@ -204,7 +206,7 @@ abstract class oxMigrationQuery
             AND table_name = ?
         ";
 
-        return (bool)oxDb::getDb()->getOne($sQuery, array($sDbName, $sTable));
+        return (bool)DatabaseProvider::getDb()->getOne($sQuery, array($sDbName, $sTable));
     }
 
     /**
@@ -226,7 +228,7 @@ abstract class oxMigrationQuery
                     AND TABLE_NAME = ?
                     AND COLUMN_NAME = ?';
 
-        $oDb = oxDb::getDb();
+        $oDb = DatabaseProvider::getDb();
 
         return (bool)$oDb->getOne($sSql, array($sDbName, $sTable, $sColumn));
     }

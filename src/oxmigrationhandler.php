@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use OxidEsales\Eshop\Core\DatabaseProvider;
+
 /**
  * Migration handler for migration queries
  *
@@ -70,10 +72,10 @@ class oxMigrationHandler
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT=\'Stores the migrationstatus\';
         ';
 
-        $oDb = oxDb::getDb();
+        $oDb = DatabaseProvider::getDb(DatabaseProvider::FETCH_MODE_ASSOC);
         $oDb->execute($createSql);
 
-        $this->_aExecutedQueryNames = $oDb->getAssoc('SELECT * FROM oxmigrationstatus');
+        $this->_aExecutedQueryNames = $oDb->getAll('SELECT * FROM oxmigrationstatus');
         $this->_sMigrationQueriesDir = OX_BASE_PATH . 'migration' . DIRECTORY_SEPARATOR;
 
         $this->_buildMigrationQueries();
@@ -167,9 +169,8 @@ class oxMigrationHandler
      */
     public function isExecuted(oxMigrationQuery $oQuery)
     {
-
         foreach ($this->_aExecutedQueryNames as $executedQuery) {
-            if ($oQuery->getFilename() == $executedQuery[0]) {
+            if ($oQuery->getFilename() == $executedQuery['version']) {
                 return true;
             }
         }
@@ -186,7 +187,7 @@ class oxMigrationHandler
     {
 
         $sSQL = 'REPLACE INTO oxmigrationstatus SET version = ?';
-        oxDb::getDb()->execute($sSQL, array($oQuery->getFilename()));
+        DatabaseProvider::getDb()->execute($sSQL, array($oQuery->getFilename()));
     }
 
     /**
@@ -197,7 +198,7 @@ class oxMigrationHandler
     public function setUnexecuted(oxMigrationQuery $oQuery)
     {
         $sSQL = 'DELETE FROM oxmigrationstatus WHERE version = ?';
-        oxDb::getDb()->execute($sSQL, array($oQuery->getFilename()));
+        DatabaseProvider::getDb()->execute($sSQL, array($oQuery->getFilename()));
     }
 
     /**
