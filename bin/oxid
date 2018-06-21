@@ -1,23 +1,24 @@
 #!/usr/bin/env php
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
 
-$possiblePathsForBootstrap = [
-    implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', 'source', 'bootstrap.php']),
-    implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', '..', 'source', 'bootstrap.php']),
-    implode(DIRECTORY_SEPARATOR, ['', 'var', 'www', 'oxideshop', 'source', 'bootstrap.php']),
-];
+use Symfony\Component\Console\Application;
 
-if (($customPathToBootstrap = getenv('BOOTSTRAP_PATH')) !== false)
-    array_unshift($possiblePathsForBootstrap, $customPathToBootstrap);
+function loadBootstrap() {
+    $possiblePathsForBootstrap = [
+        implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', 'source', 'bootstrap.php']),
+        implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', '..', 'source', 'bootstrap.php']),
+        implode(DIRECTORY_SEPARATOR, ['', 'var', 'www', 'oxideshop', 'source', 'bootstrap.php']),
+    ];
+
+    if (($customPathToBootstrap = getenv('BOOTSTRAP_PATH')) !== false)
+        array_unshift($possiblePathsForBootstrap, $customPathToBootstrap);
 
     foreach ($possiblePathsForBootstrap as $fileToRequire) {
         if (file_exists($fileToRequire)) {
@@ -26,38 +27,41 @@ if (($customPathToBootstrap = getenv('BOOTSTRAP_PATH')) !== false)
         }
     }
 
-if (!defined('VENDOR_PATH')) {
-    echo "Unable to locate valid 'bootstrap.php' in order to load OXID eShop framework.\n";
-    echo "Please specify 'BOOTSTRAP_PATH' as environmental variable to use it directly.\n";
-    exit(1);
+    if (!defined('VENDOR_PATH')) {
+        echo "Unable to locate valid 'bootstrap.php' in order to load OXID eShop framework.\n";
+        echo "Please specify 'BOOTSTRAP_PATH' as environmental variable to use it directly.\n";
+        exit(1);
+    }
 }
 
-// OXID Bug: Smarty gets loaded only with oxUtils class
-// Invoking autoloader to load oxUtils class so Smarty class
-// gets loaded too
-class_exists('oxUtils');
+function fixAutoloader() {
+    $classesToTrigger = [
+        'oxUtils',
+        'oxMigrationHandler',
+        'oxModuleStateFixer',
+    ];
 
-// Trigger autoloader
-$classesToTrigger = [
-    'oxIConsoleInput',
-    'oxIOutput',
-    'oxMigrationQuery',
-    'oxArgvInput',
-    'oxConsoleApplication',
-    'oxConsoleCommand',
-    'oxConsoleException',
-    'oxConsoleOutput',
-    'oxMigrationException',
-    'oxMigrationHandler',
-    'oxNullOutput',
-    'oxSpecificShopConfig',
-    'oxModuleStateFixer',
-];
+    array_map(function($class) {
+        class_exists($class);
+    }, $classesToTrigger);
+}
 
-array_map(function($class) {
-    class_exists($class);
-}, $classesToTrigger);
+function runApplication() {
+    $application = new Application('OXID Console', 'v2.0.0');
 
-/** @var oxConsoleApplication $oConsole */
-$oConsole = oxNew('oxConsoleApplication');
-$oConsole->run();
+    $commands = [
+        new CacheClearCommand(),
+        new DatabaseUpdateCommand(),
+        new FixStatesCommand(),
+        new GenerateMigrationCommand(),
+        new GenerateModuleCommand(),
+        new MigrateCommand()
+    ];
+
+    $application->addCommands($commands);
+    $application->run();
+}
+
+loadBootstrap();
+fixAutoloader();
+runApplication();

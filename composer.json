@@ -1,7 +1,10 @@
 {
     "name": "oxid-professional-services/oxid-console",
     "autoload": {
-        "classmap": ["src/"]
+        "classmap": [
+            "src/",
+            "commands/"
+        ]
     },
     "require": {
         "oxid-esales/oxideshop-ce": "^v6.0.0"

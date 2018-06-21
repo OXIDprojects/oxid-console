@@ -1,20 +1,22 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Database update command
  *
  * Updates OXID database views
  */
-class DatabaseUpdateCommand extends oxConsoleCommand
+class DatabaseUpdateCommand extends Command
 {
 
     /**
@@ -22,41 +24,36 @@ class DatabaseUpdateCommand extends oxConsoleCommand
      */
     public function configure()
     {
-        $this->setName('db:update');
-        $this->setDescription('Updates database views');
+        $this
+            ->setName('database:views')
+            ->setAliases(['db:update'])
+            ->setDescription('Regenerate database table views')
+            ->setHelp(<<<'EOF'
+Command <info>%command.name%</info> regenerates table views.
+
+<comment>Table views should be regenerated after changes to database schema.</comment>
+EOF
+);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $oOutput->writeLn('Usage: db:update');
-        $oOutput->writeLn();
-        $oOutput->writeLn('Updates OXID shop database views');
-        $oOutput->writeLn();
-        $oOutput->writeLn('If there are some changes in database schema it is always a good');
-        $oOutput->writeLn('idea to run database update command');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(oxIOutput $oOutput)
-    {
-        $oOutput->writeLn('Updating database views');
+        $output->writeLn('Updating database views...');
         $config = oxRegistry::getConfig();
         //avoid problems if views are already broken
-        $config->setConfigParam('blSkipViewUsage',true);
+        $config->setConfigParam('blSkipViewUsage', true);
         
         /** @var oxDbMetaDataHandler $oDbHandler */
         $oDbHandler = oxNew('oxDbMetaDataHandler');
 
         if (!$oDbHandler->updateViews()) {
-            $oOutput->writeLn('[ERROR] Could not update database views');
-            return;
+            $output->writeLn('Could not update database views!');
+            exit(1);
         }
 
-        $oOutput->writeLn('Database views updated successfully');
+        $output->writeLn('Database views updated successfully');
     }
 }

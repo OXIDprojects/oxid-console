@@ -1,12 +1,11 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
+ * @author Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
 
 use OxidEsales\Eshop\Core\DatabaseProvider;

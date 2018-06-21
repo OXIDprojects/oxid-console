@@ -1,14 +1,14 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
+ * @author Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
 
+use Symfony\Component\Console\Output\OutputInterface;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 
 /**
@@ -85,9 +85,9 @@ class oxMigrationHandler
      * Run migration
      *
      * @param string|null    $sTimestamp The time at which the migrations aims. Only migrations up to this point are being executed
-     * @param oxIOutput|null $oOutput    Out handler for console output
+     * @param OutputInterface|null $oOutput    Out handler for console output
      */
-    public function run($sTimestamp = null, oxIOutput $oOutput = null)
+    public function run($sTimestamp = null, OutputInterface $oOutput = null)
     {
         if (null === $sTimestamp) {
             $sTimestamp = oxMigrationQuery::getCurrentTimestamp();
@@ -104,11 +104,11 @@ class oxMigrationHandler
      * Executes an UP Migration
      *
      * @param oxMigrationQuery $oQuery  The query object that is being executed
-     * @param oxIOutput        $oOutput The output handler for the console output that might be generated
+     * @param OutputInterface  $oOutput The output handler for the console output that might be generated
      *
      * @return bool
      */
-    protected function _goUp(oxMigrationQuery $oQuery, oxIOutput $oOutput = null)
+    protected function _goUp(oxMigrationQuery $oQuery, outputInterface $oOutput = null)
     {
         if ($this->isExecuted($oQuery)) {
             return false;
@@ -134,11 +134,11 @@ class oxMigrationHandler
      * Executes a DOWN Migration
      *
      * @param oxMigrationQuery $oQuery  The query object that is being executed
-     * @param oxIOutput        $oOutput The output handler for the console output that might be generated
+     * @param OutputInterface  $oOutput The output handler for the console output that might be generated
      *
      * @return bool
      */
-    protected function _goDown(oxMigrationQuery $oQuery, oxIOutput $oOutput = null)
+    protected function _goDown(oxMigrationQuery $oQuery, OutputInterface $oOutput = null)
     {
         if (!$this->isExecuted($oQuery)) {
             return false;

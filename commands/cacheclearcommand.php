@@ -1,20 +1,24 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use OxidEsales\Eshop\Core\Registry;
 
 /**
  * Cache Clear command
  *
  * Clears out OXID cache from tmp folder
  */
-class CacheClearCommand extends oxConsoleCommand
+class CacheClearCommand extends Command
 {
 
     /**
@@ -22,56 +26,58 @@ class CacheClearCommand extends oxConsoleCommand
      */
     public function configure()
     {
-        $this->setName('cache:clear');
-        $this->setDescription('Clear OXID cache from tmp folder');
+        $this
+            ->setName('cache:clear')
+            ->setDescription('Clear OXID cache')
+            ->addOption('smarty', 's', InputOption::VALUE_NONE, "Clears out smarty cache")
+            ->addOption('files', 'f', InputOption::VALUE_NONE, "Clears out files cache")
+            ->addOption('oxcache', 'o', InputOption::VALUE_NONE, "Clears out oxCache (for EE)")
+            ->setHelp(<<<'EOF'
+Command <info>%command.name%</info> clears contents of OXID eShop tmp folder.
+
+Notes:
+  
+  * <comment>'<info>.htaccess</info>' file will not be deleted;</comment>
+  * <comment>'<info>smarty</info>' folder will not be deleted, only the contents of it.</comment>
+EOF
+);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $oOutput->writeLn('Usage: cache:clear [options]');
-        $oOutput->writeLn();
-        $oOutput->writeLn('This command clears out contents of OXID tmp folder');
-        $oOutput->writeLn('It applies following rules:');
-        $oOutput->writeLn(' * Does not delete .htaccess');
-        $oOutput->writeLn(' * Does not delete smarty directory but its contents by default');
-        $oOutput->writeln();
-        $oOutput->writeLn('Available options:');
-        $oOutput->writeLn('  -s, --smarty   Clears out smarty cache');
-        $oOutput->writeLn('  -f, --files    Clears out files cache');
-        $oOutput->writeLn('  -o, --oxcache  Clears out oxCache (EE versions)');
-    }
+        $clearAllCache = !$input->getOption('smarty') && !$input->getOption('files') && !$input->getOption('oxcache');
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(oxIOutput $oOutput)
-    {
-        $oInput = $this->getInput();
-        $blAll = !$oInput->hasOption(array('s', 'smarty', 'f', 'files', 'o', 'oxcache'));
-        $sTmpDir = $this->_appendDirectorySeparator(oxRegistry::getConfig()->getConfigParam('sCompileDir'));
-        if (!is_dir($sTmpDir)) {
-            $oOutput->writeLn('Seems that compile directory does not exist');
-            return;
+        $cachePath = $this->_appendDirectorySeparator(Registry::getConfig()->getConfigParam('sCompileDir'));
+        if (!is_dir($cachePath)) {
+            $output->writeLn("Seems that compile directory '$cachePath' does not exist");
+            exit(1);
         }
 
-        $oOutput->writeLn('Clearing OXID cache...');
-
-        if (($blAll || $oInput->hasOption(array('o', 'oxcache'))) && class_exists('oxCache')) {
+        if (($clearAllCache || $input->getOption('oxcache')) && class_exists('oxCache')) {
+            $output->writeLn('Clearing oxCache...');
             oxRegistry::get('oxCache')->reset(false);
+        } else {
+            $output->writeLn('Skipping oxCache...');
         }
 
-        if ($blAll || $oInput->hasOption(array('s', 'smarty'))) {
-            $this->_clearDirectory($sTmpDir . 'smarty');
+        if ($clearAllCache || $input->getOption('smarty')) {
+            $output->writeLn('Clearing smarty cache...');
+            $this->_clearDirectory($cachePath . 'smarty');
+        } else {
+            $output->writeLn('Skipping smarty cache...');
         }
 
-        if ($blAll || $oInput->hasOption(array('f', 'files'))) {
-            $this->_clearDirectory($sTmpDir, array('.htaccess', 'smarty'));
+        if ($clearAllCache || $input->getOption('files')) {
+            $output->writeLn('Clearing files cache...');
+            $this->_clearDirectory($cachePath, array('.htaccess', 'smarty'));
+        } else {
+            $output->writeLn('Skipping files cache...');
         }
 
-        $oOutput->writeLn('Cache cleared successfully');
+        $output->writeLn('Cache cleared successfully');
     }
 
     /**

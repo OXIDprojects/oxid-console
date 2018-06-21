@@ -1,13 +1,17 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\NullOutput;
 
 /**
  * Migrate command
@@ -15,7 +19,7 @@
  * Runs migration handler with input timestamp. If no timestamp were passed
  * runs with current timestamp instead
  */
-class MigrateCommand extends oxConsoleCommand
+class MigrateCommand extends Command
 {
 
     /**
@@ -23,78 +27,63 @@ class MigrateCommand extends oxConsoleCommand
      */
     public function configure()
     {
-        $this->setName('migrate');
-        $this->setDescription('Run migration scripts');
+        $this
+            ->setName('migration:run')
+            ->setAliases(['migrate'])
+            ->setDescription('Run database migration scripts')
+            ->addArgument('timestamp', InputArgument::OPTIONAL, "Migration to use for execution");
     }
 
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
-    {
-        $oOutput->writeLn('Usage: migrate [<timestamp>]');
-        $oOutput->writeLn();
-        $oOutput->writeLn('This command runs migration scripts for given timestamp');
-        $oOutput->writeLn('If no timestamp is passed than it assumes timestamp is current time');
-        $oOutput->writeLn();
-        $oOutput->writeLn('Available options:');
-        $oOutput->writeLn('  -n, --no-debug    No debug output');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(oxIOutput $oOutput)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $sTimestamp = $this->_parseTimestamp();
+            $timestamp = $this->_parseTimestamp($input->getArgument('timestamp'));
         } catch (oxConsoleException $oEx) {
-            $oOutput->writeLn($oEx->getMessage());
-            return;
+            $output->writeLn($oEx->getMessage());
+            exit(1);
         }
 
-        $oOutput->writeLn('Running migration scripts');
+        $output->writeLn('Running migration scripts');
 
-        $oInput = $this->getInput();
-        $oDebugOutput = $oInput->hasOption(array('n', 'no-debug'))
-            ? oxNew('oxNullOutput')
-            : $oOutput;
+        $debugOutput = $input->getOption('verbose')
+            ? $output
+            : new NullOutput();
 
         /** @var oxMigrationHandler $oMigrationHandler */
         $oMigrationHandler = oxRegistry::get('oxMigrationHandler');
-        $oMigrationHandler->run($sTimestamp, $oDebugOutput);
+        $oMigrationHandler->run($timestamp, $debugOutput);
 
-        $oOutput->writeLn('Migration finished successfully');
+        $output->writeLn('Migration finished successfully');
     }
 
     /**
      * Parse timestamp from user input
      *
+     * @param string|null $timestamp
+     *
      * @return string
      *
      * @throws oxConsoleException
      */
-    protected function _parseTimestamp()
+    protected function _parseTimestamp($timestamp)
     {
-        $oInput = $this->getInput();
+        if (is_null($timestamp))
+            return oxMigrationQuery::getCurrentTimestamp();
 
-        if ($sTimestamp = $oInput->getArgument(1)) {
-
-            if (!oxMigrationQuery::isValidTimestamp($sTimestamp)) {
-
-                if ($sTime = strtotime($sTimestamp)) {
-                    $sTimestamp = date('YmdHis', $sTime);
-                } else {
-                    /** @var oxConsoleException $oEx */
-                    $oEx = oxNew('oxConsoleException');
-                    $oEx->setMessage('Invalid timestamp format, use YYYYMMDDhhmmss format');
-                    throw $oEx;
-                }
+        if (!oxMigrationQuery::isValidTimestamp($timestamp)) {
+            if ($sTime = strtotime($timestamp)) {
+                $timestamp = date('YmdHis', $sTime);
+            } else {
+                /** @var oxConsoleException $oEx */
+                $oEx = oxNew('oxConsoleException');
+                $oEx->setMessage('Invalid timestamp format, use YYYYMMDDhhmmss format');
+                throw $oEx;
             }
-
-            return $sTimestamp;
         }
 
-        return oxMigrationQuery::getCurrentTimestamp();
+        return $timestamp;
     }
 }

@@ -1,62 +1,61 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Generate migration console command
  */
-class GenerateMigrationCommand extends oxConsoleCommand
+class GenerateMigrationCommand extends Command
 {
+    /** @var InputInterface */
+    private $input;
 
     /**
-     * Configure current command
-     *
-     * Usage:
-     *   $this->setName( 'my:command' )
-     *   $this->setDescription( 'Executes my command' );
+     * {@inheritdoc}
      */
     public function configure()
     {
-        $this->setName('g:migration');
-        $this->setDescription('Generate new migration file');
+        $this
+            ->setName('migration:generate')
+            ->setAliases(['g:migration'])
+            ->setDescription('Generate new migration file')
+            ->addArgument('name', InputArgument::OPTIONAL, "Name for the migration")
+            ->setHelp(<<<'EOF'
+Command <info>%command.name%</info> will generate new database migration file.
+
+<comment>If <info>name</info> argument is not provided a prompt for it will be given.</comment>
+EOF
+            );
     }
 
     /**
-     * Output help text of command
-     *
-     * @param oxIOutput $oOutput
+     * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $oOutput->writeLn('Usage: g:migration <word> [<second_word>...]');
-        $oOutput->writeLn();
-        $oOutput->writeLn('Generates blank migration class.');
-        $oOutput->writeLn('Migration name depends on words you have written.');
-        $oOutput->writeLn();
-        $oOutput->writeLn('If no words were passed you will be asked to input them');
-    }
+        $this->input = $input;
 
-    /**
-     * Execute current command
-     *
-     * @param oxIOutput $oOutput
-     */
-    public function execute(oxIOutput $oOutput)
-    {
         $sMigrationsDir = OX_BASE_PATH . 'migration' . DIRECTORY_SEPARATOR;
         $sTemplatePath = $this->_getTemplatePath();
 
         $sMigrationName = $this->_parseMigrationNameFromInput();
         if (!$sMigrationName) {
+            $questionHelper = $this->getHelper('question');
+            $question = new Question('Enter short description for migration: ');
             do {
-                $sMigrationName = $this->_askForMigrationNameInput();
+                $words = explode(" ", $questionHelper->ask($input, $output, $question));
+                $sMigrationName = $this->_buildMigrationName($words);
             } while (!$sMigrationName);
         }
 
@@ -71,7 +70,7 @@ class GenerateMigrationCommand extends oxConsoleCommand
 
         file_put_contents($sMigrationFilePath, $sContent);
 
-        $oOutput->writeLn("Sucessfully generated $sMigrationFileName");
+        $output->writeLn("Sucessfully generated $sMigrationFileName");
     }
 
     /**
@@ -87,51 +86,35 @@ class GenerateMigrationCommand extends oxConsoleCommand
     }
 
     /**
-     * Ask for migration tokens input
-     *
-     * @return array
-     */
-    protected function _askForMigrationNameInput()
-    {
-        $oInput = $this->getInput();
-        $aTokens = explode(' ', $oInput->prompt('Enter short description'));
-
-        return $this->_buildMigrationName($aTokens);
-    }
-
-    /**
      * Parse migration name from input arguments
      *
      * @return string
      */
     protected function _parseMigrationNameFromInput()
     {
-        $oInput = $this->getInput();
+        $words = explode(" ", $this->input->getArgument('name'));
 
-        $aTokens = $oInput->getArguments();
-        array_shift($aTokens); // strip out command name
-
-        return $this->_buildMigrationName($aTokens);
+        return $this->_buildMigrationName($words);
     }
 
     /**
      * Build migration name from tokens
      *
-     * @param array $aTokens
+     * @param array $words
      *
      * @return string
      */
-    protected function _buildMigrationName(array $aTokens)
+    protected function _buildMigrationName(array $words)
     {
         $sMigrationName = '';
 
-        foreach ($aTokens as $sToken) {
+        foreach ($words as $word) {
 
-            if (!$sToken) {
+            if (!$word) {
                 continue;
             }
 
-            $sMigrationName .= ucfirst($sToken);
+            $sMigrationName .= ucfirst($word);
         }
 
         return $sMigrationName;

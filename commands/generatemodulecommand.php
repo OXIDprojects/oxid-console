@@ -1,18 +1,21 @@
 <?php
 
-/*
- * This file is part of the OXID Console package.
+/**
+ * @copyright OXID eSales AG, All rights reserved
+ * @author OXID Professional services
  *
- * (c) Eligijus Vitkauskas <eligijusvitkauskas@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * See LICENSE file for license details.
  */
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Generate module command
  */
-class GenerateModuleCommand extends oxConsoleCommand
+class GenerateModuleCommand extends Command
 {
 
     /**
@@ -30,14 +33,27 @@ class GenerateModuleCommand extends oxConsoleCommand
      */
     protected $_oSmarty;
 
+    /** @var InputInterface */
+    private $input;
+
+    /** @var OutputInterface */
+    private $output;
+
     /**
      * {@inheritdoc}
      */
     public function configure()
     {
-        $this->setName('g:module');
-        $this->setDescription('Generate new module scaffold');
+        $this
+            ->setName('module:generate')
+            ->setAliases(['g:module'])
+            ->setDescription('Generate new module scaffold');
 
+        $this->init();
+    }
+
+    private function init()
+    {
         $this->_oSmarty = oxRegistry::get('oxUtilsView')->getSmarty();
         $this->_oSmarty->php_handling = SMARTY_PHP_PASSTHRU;
         $this->_sModuleDir = OX_BASE_PATH . 'modules' . DIRECTORY_SEPARATOR;
@@ -48,22 +64,15 @@ class GenerateModuleCommand extends oxConsoleCommand
     /**
      * {@inheritdoc}
      */
-    public function help(oxIOutput $oOutput)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $oOutput->writeLn('Usage: g:module');
-        $oOutput->writeLn();
-        $oOutput->writeLn('This command is used for generating module scaffold');
-    }
+        $this->input = $input;
+        $this->output = $output;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(oxIOutput $oOutput)
-    {
-        $oScaffold = $this->_buildScaffold($oOutput);
+        $oScaffold = $this->_buildScaffold();
         $this->_generateModule($oScaffold);
 
-        $oOutput->writeLn('Module generated successfully');
+        $output->writeLn('Module generated successfully');
     }
 
     /**
@@ -172,11 +181,9 @@ class GenerateModuleCommand extends oxConsoleCommand
     /**
      * Build scaffold object from user inputs
      *
-     * @param oxIOutput $oOutput
-     *
      * @return stdClass
      */
-    protected function _buildScaffold(oxIOutput $oOutput)
+    protected function _buildScaffold()
     {
         $oScaffold = new stdClass();
         $oScaffold->sVendor = strtolower($this->_getUserInput('Vendor Prefix', true));
@@ -186,7 +193,7 @@ class GenerateModuleCommand extends oxConsoleCommand
         do {
 
             if (!$blFirstRequest) {
-                $oOutput->writeLn('Module path or id is taken with given title');
+                $this->output->writeLn('Module path or id is taken with given title');
             } else {
                 $blFirstRequest = false;
             }
@@ -259,9 +266,12 @@ class GenerateModuleCommand extends oxConsoleCommand
      */
     protected function _getUserInput($sText, $bAllowEmpty = false)
     {
+        $questionHelper = $this->getHelper('question');
+
         do {
-            $sTitle = $sText . ($bAllowEmpty ? '' : ' *');
-            $sInput = $this->getInput()->prompt($sTitle);
+            $sTitle = "$sText: " . ($bAllowEmpty ? '[optional] ' : '[required] ');
+            $question = new Question($sTitle);
+            $sInput = $questionHelper->ask($this->input, $this->output, $question);
         } while (!$bAllowEmpty && !$sInput);
 
         return $sInput;
