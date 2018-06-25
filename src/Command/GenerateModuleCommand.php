@@ -7,10 +7,13 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use OxidEsales\Eshop\Core\Registry;
 
 /**
  * Generate module command
@@ -54,7 +57,7 @@ class GenerateModuleCommand extends Command
 
     private function init()
     {
-        $this->_oSmarty = oxRegistry::get('oxUtilsView')->getSmarty();
+        $this->_oSmarty = Registry::get('oxUtilsView')->getSmarty();
         $this->_oSmarty->php_handling = SMARTY_PHP_PASSTHRU;
         $this->_sModuleDir = OX_BASE_PATH . 'modules' . DIRECTORY_SEPARATOR;
         $this->_sTemplatesDir = __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR
@@ -107,8 +110,8 @@ class GenerateModuleCommand extends Command
      */
     protected function _copyAndParseDir($sFrom, $sTo, array $aNameMap = array())
     {
-        $oFileInfos = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($sFrom, RecursiveDirectoryIterator::SKIP_DOTS)
+        $oFileInfos = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($sFrom, \RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
         if (!file_exists($sTo)) {
@@ -181,11 +184,11 @@ class GenerateModuleCommand extends Command
     /**
      * Build scaffold object from user inputs
      *
-     * @return stdClass
+     * @return \stdClass
      */
     protected function _buildScaffold()
     {
-        $oScaffold = new stdClass();
+        $oScaffold = new \stdClass();
         $oScaffold->sVendor = strtolower($this->_getUserInput('Vendor Prefix', true));
 
         $blFirstRequest = true;
@@ -253,7 +256,7 @@ class GenerateModuleCommand extends Command
      */
     protected function _moduleIdAvailable($sModuleId)
     {
-        return !array_key_exists($sModuleId, oxRegistry::getConfig()->getConfigParam('aModulePaths'));
+        return !array_key_exists($sModuleId, Registry::getConfig()->getConfigParam('aModulePaths'));
     }
 
     /**

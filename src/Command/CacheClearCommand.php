@@ -7,6 +7,8 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -58,7 +60,7 @@ EOF
 
         if (($clearAllCache || $input->getOption('oxcache')) && class_exists('oxCache')) {
             $output->writeLn('Clearing oxCache...');
-            oxRegistry::get('oxCache')->reset(false);
+            Registry::get('oxCache')->reset(false);
         } else {
             $output->writeLn('Skipping oxCache...');
         }
@@ -114,8 +116,8 @@ EOF
             return;
         }
 
-        $oIterator = new RecursiveDirectoryIterator($sPath, RecursiveDirectoryIterator::SKIP_DOTS);
-        $oFiles = new RecursiveIteratorIterator($oIterator, RecursiveIteratorIterator::CHILD_FIRST);
+        $oIterator = new \RecursiveDirectoryIterator($sPath, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $oFiles = new \RecursiveIteratorIterator($oIterator, \RecursiveIteratorIterator::CHILD_FIRST);
 
         foreach ($oFiles as $oFile) {
             if ($oFile->getFilename() == '.' || $oFile->getFilename() === '..') {

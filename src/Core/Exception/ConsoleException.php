@@ -8,12 +8,16 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Core\Exception;
+
+use OxidEsales\Eshop\Core\Exception\StandardException;
+
 /**
  * Console Exception
  *
  * Any exception thrown in Console application
  */
-class oxConsoleException extends oxException
+class ConsoleException extends StandardException
 {
 
 }

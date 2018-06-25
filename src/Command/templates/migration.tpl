@@ -1,6 +1,8 @@
 <?php
 
-class [{$sMigrationName}]Migration extends oxMigrationQuery
+use OxidProfessionalServices\OxidConsole\Core\Migration\AbstractQuery;
+
+class [{$sMigrationName}]Migration extends AbstractQuery
 {
 
     /**

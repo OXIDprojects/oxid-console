@@ -1,10 +1,9 @@
 {
     "name": "oxid-professional-services/oxid-console",
     "autoload": {
-        "classmap": [
-            "src/",
-            "commands/"
-        ]
+        "psr-4": {
+            "OxidProfessionalServices\\OxidConsole\\": "src/"
+        }
     },
     "require": {
         "oxid-esales/oxideshop-ce": "^v6.0.0"

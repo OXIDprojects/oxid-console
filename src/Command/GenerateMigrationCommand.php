@@ -7,11 +7,15 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\Question;
+use OxidEsales\Eshop\Core\Registry;
+use OxidProfessionalServices\OxidConsole\Core\Migration\AbstractQuery;
 
 /**
  * Generate migration console command
@@ -59,11 +63,11 @@ EOF
             } while (!$sMigrationName);
         }
 
-        $sMigrationFileName = oxMigrationQuery::getCurrentTimestamp() . '_' . strtolower($sMigrationName) . '.php';
+        $sMigrationFileName = AbstractQuery::getCurrentTimestamp() . '_' . strtolower($sMigrationName) . '.php';
         $sMigrationFilePath = $sMigrationsDir . $sMigrationFileName;
 
         /** @var Smarty $oSmarty */
-        $oSmarty = oxRegistry::get('oxUtilsView')->getSmarty();
+        $oSmarty = Registry::get('oxUtilsView')->getSmarty();
         $oSmarty->php_handling = SMARTY_PHP_PASSTHRU;
         $oSmarty->assign('sMigrationName', $sMigrationName);
         $sContent = $oSmarty->fetch($sTemplatePath);

@@ -7,9 +7,13 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\DbMetaDataHandler;
 
 /**
  * Database update command
@@ -42,12 +46,12 @@ EOF
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeLn('Updating database views...');
-        $config = oxRegistry::getConfig();
+        $config = Registry::getConfig();
         //avoid problems if views are already broken
         $config->setConfigParam('blSkipViewUsage', true);
         
-        /** @var oxDbMetaDataHandler $oDbHandler */
-        $oDbHandler = oxNew('oxDbMetaDataHandler');
+        /** @var DbMetaDataHandler $oDbHandler */
+        $oDbHandler = oxNew(DbMetaDataHandler::class);
 
         if (!$oDbHandler->updateViews()) {
             $output->writeLn('Could not update database views!');

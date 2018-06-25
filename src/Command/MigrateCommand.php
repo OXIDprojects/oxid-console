@@ -7,11 +7,17 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\NullOutput;
+use OxidEsales\Eshop\Core\Registry;
+use OxidProfessionalServices\OxidConsole\Core\Exception\ConsoleException;
+use OxidProfessionalServices\OxidConsole\Core\Migration\MigrationHandler;
+use OxidProfessionalServices\OxidConsole\Core\Migration\AbstractQuery;
 
 /**
  * Migrate command
@@ -41,7 +47,7 @@ class MigrateCommand extends Command
     {
         try {
             $timestamp = $this->_parseTimestamp($input->getArgument('timestamp'));
-        } catch (oxConsoleException $oEx) {
+        } catch (ConsoleException $oEx) {
             $output->writeLn($oEx->getMessage());
             exit(1);
         }
@@ -52,8 +58,8 @@ class MigrateCommand extends Command
             ? $output
             : new NullOutput();
 
-        /** @var oxMigrationHandler $oMigrationHandler */
-        $oMigrationHandler = oxRegistry::get('oxMigrationHandler');
+        /** @var MigrationHandler $oMigrationHandler */
+        $oMigrationHandler = Registry::get(MigrationHandler::class);
         $oMigrationHandler->run($timestamp, $debugOutput);
 
         $output->writeLn('Migration finished successfully');
@@ -65,22 +71,20 @@ class MigrateCommand extends Command
      * @param string|null $timestamp
      *
      * @return string
-     *
-     * @throws oxConsoleException
      */
     protected function _parseTimestamp($timestamp)
     {
         if (is_null($timestamp))
-            return oxMigrationQuery::getCurrentTimestamp();
+            return AbstractQuery::getCurrentTimestamp();
 
-        if (!oxMigrationQuery::isValidTimestamp($timestamp)) {
+        if (!AbstractQuery::isValidTimestamp($timestamp)) {
             if ($sTime = strtotime($timestamp)) {
                 $timestamp = date('YmdHis', $sTime);
             } else {
-                /** @var oxConsoleException $oEx */
-                $oEx = oxNew('oxConsoleException');
-                $oEx->setMessage('Invalid timestamp format, use YYYYMMDDhhmmss format');
-                throw $oEx;
+                throw oxNew(
+                    ConsoleException::class,
+                    'Invalid timestamp format, use YYYYMMDDhhmmss format'
+                );
             }
         }
 

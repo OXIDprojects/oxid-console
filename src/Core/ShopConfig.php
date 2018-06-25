@@ -8,14 +8,19 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Core;
+
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\DatabaseProvider;
+use OxidEsales\Eshop\Core\Exception\ConnectionException;
 
 /**
  * Specific shop config class
  *
- * Helper class for generating oxConfig instance for specific shop
+ * Helper class for generating Config instance for specific shop
  */
-class oxSpecificShopConfig extends oxConfig
+class ShopConfig extends Config
 {
 
     /**
@@ -37,7 +42,7 @@ class oxSpecificShopConfig extends oxConfig
     /**
      * Returns config arrays for all shops
      *
-     * @return oxSpecificShopConfig[]
+     * @return ShopConfig[]
      */
     public static function getAll()
     {
@@ -46,7 +51,7 @@ class oxSpecificShopConfig extends oxConfig
 
         foreach ($aShopIds as $mShopId) {
             // Note: not using static::get() for avoiding checking of is shop id valid
-            $aConfigs[] = new oxSpecificShopConfig($mShopId);
+            $aConfigs[] = new ShopConfig($mShopId);
         }
 
         return $aConfigs;
@@ -57,7 +62,7 @@ class oxSpecificShopConfig extends oxConfig
      *
      * @param string|integer $mShopId
      *
-     * @return oxSpecificShopConfig|null
+     * @return ShopConfig|null
      */
     public static function get($mShopId)
     {
@@ -69,7 +74,7 @@ class oxSpecificShopConfig extends oxConfig
             return null;
         }
 
-        return new oxSpecificShopConfig($mShopId);
+        return new ShopConfig($mShopId);
     }
 
     /**
@@ -94,32 +99,29 @@ class oxSpecificShopConfig extends oxConfig
 
             // loading shop config
             if (empty($sShopID) || !$blConfigLoaded) {
-                /** @var oxConnectionException $oEx */
-                $oEx = oxNew("oxConnectionException");
-                $oEx->setMessage("Unable to load shop config values from database");
-                throw $oEx;
+                throw oxNew(ConnectionException::class, "Unable to load shop config values from database");
             }
 
             // loading theme config options
             $this->_loadVarsFromDb(
-                $sShopID, null, oxConfig::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')
+                $sShopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')
             );
 
             // checking if custom theme (which has defined parent theme) config options should be loaded over parent theme (#3362)
             if ($this->getConfigParam('sCustomTheme')) {
                 $this->_loadVarsFromDb(
-                    $sShopID, null, oxConfig::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme')
+                    $sShopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme')
                 );
             }
 
             // loading modules config
-            $this->_loadVarsFromDb($sShopID, null, oxConfig::OXMODULE_MODULE_PREFIX);
+            $this->_loadVarsFromDb($sShopID, null, Config::OXMODULE_MODULE_PREFIX);
 
             $aOnlyMainShopVars = array('blMallUsers', 'aSerials', 'IMD', 'IMA', 'IMS');
             $this->_loadVarsFromDb($this->getBaseShopId(), $aOnlyMainShopVars);
-        } catch (oxConnectionException $oEx) {
+        } catch (ConnectionException $oEx) {
             $oEx->debugOut();
-            oxRegistry::getUtils()->showMessageAndExit($oEx->getString());
+            Registry::getUtils()->showMessageAndExit($oEx->getString());
         }
     }
 

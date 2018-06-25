@@ -8,21 +8,27 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Core\Module;
+
+use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\SettingsHandler;
+use OxidEsales\Eshop\Core\Module\Module;
+use OxidEsales\Eshop\Core\Module\ModuleCache;
+use OxidEsales\Eshop\Core\Module\ModuleInstaller;
 
 /**
  * Module state fixer
  */
-class oxModuleStateFixer extends oxModuleInstaller
+class ModuleStateFixer extends ModuleInstaller
 {
     /**
      * Fix module states task runs version, extend, files, templates, blocks,
      * settings and events information fix tasks
      *
-     * @param oxModule      $oModule
-     * @param oxConfig|null $oConfig If not passed uses default base shop config
+     * @param Module      $oModule
+     * @param Config|null $oConfig If not passed uses default base shop config
      */
-    public function fix(oxModule $oModule, oxConfig $oConfig = null)
+    public function fix(Module $oModule, Config $oConfig = null)
     {
         if ($oConfig !== null) {
             $this->setConfig($oConfig);
@@ -46,8 +52,8 @@ class oxModuleStateFixer extends oxModuleInstaller
         $this->_addModuleVersion($oModule->getInfo("version"), $sModuleId);
         $this->_addModuleEvents($oModule->getInfo("events"), $sModuleId);
 
-        /** @var oxModuleCache $oModuleCache */
-        $oModuleCache = oxNew('oxModuleCache', $oModule);
+        /** @var ModuleCache $oModuleCache */
+        $oModuleCache = oxNew(ModuleCache::class, $oModule);
         $oModuleCache->resetCache();
     }
 }

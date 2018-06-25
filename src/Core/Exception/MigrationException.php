@@ -8,10 +8,14 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Core\Exception;
+
+use OxidEsales\Eshop\Core\Exception\StandardException;
+
 /**
  * Any exception thrown in migration process
  */
-class oxMigrationException extends oxException
+class MigrationException extends StandardException
 {
 
 }

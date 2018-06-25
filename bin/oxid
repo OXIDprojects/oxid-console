@@ -9,6 +9,12 @@
  */
 
 use Symfony\Component\Console\Application;
+use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
+use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
+use OxidProfessionalServices\OxidConsole\Command\FixStatesCommand;
+use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
+use OxidProfessionalServices\OxidConsole\Command\GenerateModuleCommand;
+use OxidProfessionalServices\OxidConsole\Command\MigrateCommand;
 
 function loadBootstrap() {
     $possiblePathsForBootstrap = [
@@ -34,18 +40,6 @@ function loadBootstrap() {
     }
 }
 
-function fixAutoloader() {
-    $classesToTrigger = [
-        'oxUtils',
-        'oxMigrationHandler',
-        'oxModuleStateFixer',
-    ];
-
-    array_map(function($class) {
-        class_exists($class);
-    }, $classesToTrigger);
-}
-
 function runApplication() {
     $application = new Application('OXID Console', 'v2.0.0');
 
@@ -63,5 +57,4 @@ function runApplication() {
 }
 
 loadBootstrap();
-fixAutoloader();
 runApplication();

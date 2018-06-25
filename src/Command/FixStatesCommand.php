@@ -7,12 +7,20 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Command;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\NullOutput;
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Module\Module;
+use OxidEsales\Eshop\Core\Module\ModuleList;
+use OxidEsales\Eshop\Core\Exception\InputException;
+use OxidProfessionalServices\OxidConsole\Core\Module\ModuleStateFixer;
+use OxidProfessionalServices\OxidConsole\Core\ShopConfig;
 
 /**
  * Fix States command
@@ -57,19 +65,18 @@ class FixStatesCommand extends Command
         try {
             $aModuleIds = $this->_parseModuleIds();
             $aShopConfigs = $this->_parseShopConfigs();
-        } catch (oxInputException $oEx) {
+        } catch (InputException $oEx) {
             $output->writeLn($oEx->getMessage());
             exit(1);
         }
 
-        /** @var oxModuleStateFixer $oModuleStateFixer */
-        $oModuleStateFixer = oxRegistry::get('oxModuleStateFixer');
+        /** @var ModuleStateFixer $oModuleStateFixer */
+        $oModuleStateFixer = Registry::get(ModuleStateFixer::class);
 
-        /** @var oxModule $oModule */
-        $oModule = oxNew('oxModule');
+        /** @var Module $oModule */
+        $oModule = oxNew(Module::class);
 
         foreach ($aShopConfigs as $oConfig) {
-
             $verboseOutput->writeLn('[DEBUG] Working on shop id ' . $oConfig->getShopId());
 
             foreach ($aModuleIds as $sModuleId) {
@@ -93,7 +100,7 @@ class FixStatesCommand extends Command
      *
      * @return array
      *
-     * @throws oxInputException
+     * @throws InputException
      */
     protected function _parseModuleIds()
     {
@@ -102,10 +109,10 @@ class FixStatesCommand extends Command
         }
 
         if (count($this->input->getArguments()['module-id']) === 0) {
-            /** @var oxInputException $oEx */
-            $oEx = oxNew('oxInputException');
-            $oEx->setMessage('Please specify at least one module if as argument or use --all (-a) option');
-            throw $oEx;
+            throw oxNew(
+                InputException::class,
+                'Please specify at least one module if as argument or use --all (-a) option'
+            );
         }
 
         $requestedModuleIds = $this->input->getArguments()['module-id'];
@@ -114,10 +121,10 @@ class FixStatesCommand extends Command
         // Checking if all provided module ids exist
         foreach ($requestedModuleIds as $moduleId) {
             if (!in_array($moduleId, $availableModuleIds)) {
-                /** @var oxInputException $oEx */
-                $oEx = oxNew('oxInputException');
-                $oEx->setMessage("{$moduleId} module does not exist");
-                throw $oEx;
+                throw oxNew(
+                    InputException::class,
+                    "{$moduleId} module does not exist"
+                );
             }
         }
 
@@ -127,28 +134,28 @@ class FixStatesCommand extends Command
     /**
      * Parse and return shop config objects from input
      *
-     * @return oxSpecificShopConfig[]
+     * @return ShopConfig[]
      *
-     * @throws oxInputException
+     * @throws InputException
      */
     protected function _parseShopConfigs()
     {
         if ($this->input->getOption('base-shop')) {
-            return array(oxRegistry::getConfig());
+            return array(Registry::getConfig());
         }
 
         if ($shopId = $this->input->getOption('shop')) {
-            if ($oConfig = oxSpecificShopConfig::get($shopId)) {
+            if ($oConfig = ShopConfig::get($shopId)) {
                 return array($oConfig);
             }
 
-            /** @var oxInputException $oEx */
-            $oEx = oxNew('oxInputException');
-            $oEx->setMessage('Shop id does not exist');
-            throw $oEx;
+            throw oxNew(
+                InputException::class,
+                'Shop id does not exist'
+            );
         }
 
-        return oxSpecificShopConfig::getAll();
+        return ShopConfig::getAll();
     }
 
     /**
@@ -159,12 +166,12 @@ class FixStatesCommand extends Command
     protected function _getAvailableModuleIds()
     {
         if ($this->_aAvailableModuleIds === null) {
-            $oConfig = oxRegistry::getConfig();
+            $oConfig = Registry::getConfig();
 
             // We are calling getModulesFromDir() because we want to refresh
             // the list of available modules. This is a workaround for OXID
             // bug.
-            oxNew('oxModuleList')->getModulesFromDir($oConfig->getModulesDir());
+            oxNew(ModuleList::class)->getModulesFromDir($oConfig->getModulesDir());
             $this->_aAvailableModuleIds = array_keys($oConfig->getConfigParam('aModulePaths'));
         }
 

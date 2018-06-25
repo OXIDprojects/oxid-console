@@ -8,14 +8,19 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Core\Migration;
+
+use \ReflectionClass;
 use OxidEsales\Eshop\Core\DatabaseProvider;
+use OxidEsales\Eshop\Core\Registry;
+use OxidProfessionalServices\OxidConsole\Core\Exception\MigrationException;
 
 /**
  * Migration query class. All migration queries must extend this class
  *
  * Migration class filename must match timestamp_classname.php format
  */
-abstract class oxMigrationQuery
+abstract class AbstractQuery
 {
 
     /**
@@ -50,6 +55,9 @@ abstract class oxMigrationQuery
      * Constructor
      *
      * Extracts timestamp from filename of migration query
+     *
+     * @throws MigrationException
+     * @throws \ReflectionException
      */
     public function __construct()
     {
@@ -58,10 +66,7 @@ abstract class oxMigrationQuery
         $aMatches = array();
 
         if (!preg_match(static::REGEXP_FILE, $sFilename, $aMatches)) {
-            /** @var oxMigrationException $oEx */
-            $oEx = oxNew('oxMigrationException');
-            $oEx->setMessage('Wrong migration query file name');
-            throw $oEx;
+             throw new MigrationException('Wrong migration query file name');
         }
 
         $this->setFilename($sFilename);
@@ -74,15 +79,14 @@ abstract class oxMigrationQuery
     /**
      * Validates class name
      *
-     * @throws oxMigrationException
+     * @throws MigrationException
      */
     protected function _validateClassName()
     {
         if (strtolower(get_class($this)) != $this->getClassName()) {
-            /** @var oxMigrationException $oEx */
-            $oEx = oxNew('oxMigrationException');
-            $oEx->setMessage('Wrong migration class naming convention. Maybe you forgot to append "Migration"?');
-            throw $oEx;
+            throw new MigrationException(
+                'Wrong migration class naming convention. Maybe you forgot to append "Migration"?'
+            );
         }
     }
 
@@ -101,15 +105,12 @@ abstract class oxMigrationQuery
      *
      * @param string $sTimestamp
      *
-     * @throws oxMigrationException When wrong timestamp format passed
+     * @throws MigrationException When wrong timestamp format passed
      */
     public function setTimestamp($sTimestamp)
     {
         if (!static::isValidTimestamp($sTimestamp)) {
-            /** @var oxMigrationException $oEx */
-            $oEx = oxNew('oxMigrationException');
-            $oEx->setMessage('Wrong timestamp format passed');
-            throw $oEx;
+            throw new MigrationException('Wrong timestamp format passed');
         }
 
         $this->_sTimestamp = $sTimestamp;
@@ -196,7 +197,7 @@ abstract class oxMigrationQuery
      */
     protected static function _tableExists($sTable)
     {
-        $oConfig = oxRegistry::getConfig();
+        $oConfig = Registry::getConfig();
         $sDbName = $oConfig->getConfigParam('dbName');
         $sQuery = "
             SELECT 1

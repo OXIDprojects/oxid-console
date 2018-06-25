@@ -8,8 +8,11 @@
  * See LICENSE file for license details.
  */
 
+namespace OxidProfessionalServices\OxidConsole\Core\Migration;
+
 use Symfony\Component\Console\Output\OutputInterface;
 use OxidEsales\Eshop\Core\DatabaseProvider;
+use OxidProfessionalServices\OxidConsole\Core\Exception\MigrationException;
 
 /**
  * Migration handler for migration queries
@@ -17,12 +20,11 @@ use OxidEsales\Eshop\Core\DatabaseProvider;
  * Only one instance of this class is allowed
  *
  * Sample usage:
- *      $oMigrationHandler = oxMigrationHandler::getInstance()
- *      $oMigrationHandler->run( '2014030709325468' );
+ *      $migrationHandler = OxidProfessionalServices\OxidConsole\Core\Migration\MigrationHandler::getInstance()
+ *      $migrationHandler->run( '2014030709325468' );
  */
-class oxMigrationHandler
+class MigrationHandler
 {
-
     /**
      * @var bool Object already created?
      */
@@ -44,7 +46,7 @@ class oxMigrationHandler
     protected $_aExecutedQueryNames = array();
 
     /**
-     * @var oxMigrationQuery[]
+     * @var AbstractQuery[]
      */
     protected $_aQueries = array();
 
@@ -52,15 +54,20 @@ class oxMigrationHandler
      * Constructor.
      *
      * Loads migration queries cache and builds migration queries objects
+     *
+     * @throws MigrationException
+     * @throws \OxidEsales\Eshop\Core\Exception\DatabaseConnectionException
+     * @throws \OxidEsales\Eshop\Core\Exception\DatabaseErrorException
      */
     public function __construct()
     {
         if (static::$_oCreated) {
-            /** @var oxMigrationException $oEx */
-            $oEx = oxNew('oxMigrationException');
-            $oEx->setMessage('Only one instance for oxMigrationHandler allowed');
-            throw $oEx;
+            throw new MigrationException('Only one instance for MigrationHandler allowed');
         }
+
+        // Create BC alias for oxMigrationQuery class (old migrations)
+        if (!class_exists('oxMigrationQuery'))
+            class_alias(AbstractQuery::class, 'oxMigrationQuery');
 
         static::$_oCreated = true;
 
@@ -90,7 +97,7 @@ class oxMigrationHandler
     public function run($sTimestamp = null, OutputInterface $oOutput = null)
     {
         if (null === $sTimestamp) {
-            $sTimestamp = oxMigrationQuery::getCurrentTimestamp();
+            $sTimestamp = AbstractQuery::getCurrentTimestamp();
         }
 
         foreach ($this->getQueries() as $oQuery) {
@@ -103,12 +110,12 @@ class oxMigrationHandler
     /**
      * Executes an UP Migration
      *
-     * @param oxMigrationQuery $oQuery  The query object that is being executed
+     * @param AbstractQuery    $oQuery  The query object that is being executed
      * @param OutputInterface  $oOutput The output handler for the console output that might be generated
      *
      * @return bool
      */
-    protected function _goUp(oxMigrationQuery $oQuery, outputInterface $oOutput = null)
+    protected function _goUp(AbstractQuery $oQuery, outputInterface $oOutput = null)
     {
         if ($this->isExecuted($oQuery)) {
             return false;
@@ -133,12 +140,12 @@ class oxMigrationHandler
     /**
      * Executes a DOWN Migration
      *
-     * @param oxMigrationQuery $oQuery  The query object that is being executed
+     * @param AbstractQuery    $oQuery  The query object that is being executed
      * @param OutputInterface  $oOutput The output handler for the console output that might be generated
      *
      * @return bool
      */
-    protected function _goDown(oxMigrationQuery $oQuery, OutputInterface $oOutput = null)
+    protected function _goDown(AbstractQuery $oQuery, OutputInterface $oOutput = null)
     {
         if (!$this->isExecuted($oQuery)) {
             return false;
@@ -163,11 +170,11 @@ class oxMigrationHandler
     /**
      * Is query already executed?
      *
-     * @param oxMigrationQuery $oQuery The query object that is being checked for
+     * @param AbstractQuery $oQuery The query object that is being checked for
      *
      * @return bool
      */
-    public function isExecuted(oxMigrationQuery $oQuery)
+    public function isExecuted(AbstractQuery $oQuery)
     {
         foreach ($this->_aExecutedQueryNames as $executedQuery) {
             if ($oQuery->getFilename() == $executedQuery['version']) {
@@ -181,9 +188,9 @@ class oxMigrationHandler
     /**
      * Set query as executed
      *
-     * @param oxMigrationQuery $oQuery The query object that is being set to executed
+     * @param AbstractQuery $oQuery The query object that is being set to executed
      */
-    public function setExecuted(oxMigrationQuery $oQuery)
+    public function setExecuted(AbstractQuery $oQuery)
     {
 
         $sSQL = 'REPLACE INTO oxmigrationstatus SET version = ?';
@@ -193,9 +200,9 @@ class oxMigrationHandler
     /**
      * Set query as not executed
      *
-     * @param oxMigrationQuery $oQuery The query object that is being set to not executed
+     * @param AbstractQuery $oQuery The query object that is being set to not executed
      */
-    public function setUnexecuted(oxMigrationQuery $oQuery)
+    public function setUnexecuted(AbstractQuery $oQuery)
     {
         $sSQL = 'DELETE FROM oxmigrationstatus WHERE version = ?';
         DatabaseProvider::getDb()->execute($sSQL, array($oQuery->getFilename()));
@@ -204,7 +211,7 @@ class oxMigrationHandler
     /**
      * Load and build migration files
      *
-     * @throws oxMigrationException
+     * @throws MigrationException
      *
      * @return bool
      */
@@ -214,16 +221,16 @@ class oxMigrationHandler
             return false;
         }
 
-        $oDirectory = new RecursiveDirectoryIterator($this->_sMigrationQueriesDir);
-        $oFlattened = new RecursiveIteratorIterator($oDirectory);
+        $oDirectory = new \RecursiveDirectoryIterator($this->_sMigrationQueriesDir);
+        $oFlattened = new \RecursiveIteratorIterator($oDirectory);
 
-        $aFiles = new RegexIterator($oFlattened, oxMigrationQuery::REGEXP_FILE);
+        $aFiles = new \RegexIterator($oFlattened, AbstractQuery::REGEXP_FILE);
         foreach ($aFiles as $sFilePath) {
             include_once $sFilePath;
 
             $sClassName = $this->_getClassNameFromFilePath($sFilePath);
 
-            /** @var oxMigrationQuery $oQuery */
+            /** @var AbstractQuery $oQuery */
             $oQuery = oxNew($sClassName);
 
             $this->addQuery($oQuery);
@@ -237,7 +244,8 @@ class oxMigrationHandler
      *
      * @param string $sFilePath The path of the file to extract the class name from
      *
-     * @throws oxMigrationException
+     * @throws MigrationException
+     *
      * @return string Class name in lower case most cases
      */
     protected function _getClassNameFromFilePath($sFilePath)
@@ -245,11 +253,8 @@ class oxMigrationHandler
         $sFileName = basename($sFilePath);
         $aMatches = array();
 
-        if (!preg_match(oxMigrationQuery::REGEXP_FILE, $sFileName, $aMatches)) {
-            /** @var oxMigrationException $oEx */
-            $oEx = oxNew('oxMigrationException');
-            $oEx->setMessage('Could not extract class name from file name');
-            throw $oEx;
+        if (!preg_match(AbstractQuery::REGEXP_FILE, $sFileName, $aMatches)) {
+            throw new MigrationException('Could not extract class name from file name');
         }
 
         return $aMatches[2] . 'migration';
@@ -258,7 +263,7 @@ class oxMigrationHandler
     /**
      * Set migration queries
      *
-     * @param oxMigrationQuery[] $aQueries An Array of Quries to be stored insite $this->_aQueries
+     * @param AbstractQuery[] $aQueries An Array of Quries to be stored insite $this->_aQueries
      */
     public function setQueries(array $aQueries)
     {
@@ -268,7 +273,7 @@ class oxMigrationHandler
     /**
      * Get migration queries
      *
-     * @return oxMigrationQuery[]
+     * @return AbstractQuery[]
      */
     public function getQueries()
     {
@@ -280,9 +285,9 @@ class oxMigrationHandler
     /**
      * Add query
      *
-     * @param oxMigrationQuery $oQuery The query to be added
+     * @param AbstractQuery $oQuery The query to be added
      */
-    public function addQuery(oxMigrationQuery $oQuery)
+    public function addQuery($oQuery)
     {
         $this->_aQueries[$oQuery->getTimestamp()] = $oQuery;
     }
