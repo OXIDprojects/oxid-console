@@ -9,12 +9,7 @@
  */
 
 use Symfony\Component\Console\Application;
-use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
-use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
-use OxidProfessionalServices\OxidConsole\Command\FixStatesCommand;
-use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
-use OxidProfessionalServices\OxidConsole\Command\GenerateModuleCommand;
-use OxidProfessionalServices\OxidConsole\Command\MigrateCommand;
+use OxidProfessionalServices\OxidConsole\Core\CommandCollector;
 
 function loadBootstrap() {
     $possiblePathsForBootstrap = [
@@ -40,21 +35,9 @@ function loadBootstrap() {
     }
 }
 
-function runApplication() {
-    $application = new Application('OXID Console', 'v2.0.0');
-
-    $commands = [
-        new CacheClearCommand(),
-        new DatabaseUpdateCommand(),
-        new FixStatesCommand(),
-        new GenerateMigrationCommand(),
-        new GenerateModuleCommand(),
-        new MigrateCommand()
-    ];
-
-    $application->addCommands($commands);
-    $application->run();
-}
-
 loadBootstrap();
-runApplication();
+
+$commandCollector = new CommandCollector();
+$application = new Application('OXID Console', 'v2.0.0');
+$application->addCommands($commandCollector->getAllCommands());
+$application->run();
