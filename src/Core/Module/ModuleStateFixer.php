@@ -42,6 +42,7 @@ class ModuleStateFixer extends ModuleInstaller
         $this->_deleteModuleEvents($sModuleId);
         $this->_deleteModuleVersions($sModuleId);
 
+        $this->_addModuleExtensions($oModule->getExtensions(), $sModuleId);
         $this->_addExtensions($oModule);
 
         $this->_addTemplateBlocks($oModule->getInfo("blocks"), $sModuleId);
