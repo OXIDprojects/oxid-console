@@ -18,6 +18,7 @@ use OxidProfessionalServices\OxidConsole\Command\FixStatesCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateModuleCommand;
 use OxidProfessionalServices\OxidConsole\Command\MigrateCommand;
+use OxidProfessionalServices\OxidConsole\Command\ActivateModuleCommand;
 
 /**
  * Class responsible for collecting instances of available `Commands`
@@ -65,7 +66,8 @@ class CommandCollector
             new FixStatesCommand(),
             new GenerateMigrationCommand(),
             new GenerateModuleCommand(),
-            new MigrateCommand()
+            new MigrateCommand(),
+            new ActivateModuleCommand()
         ];
     }
 
