@@ -11,10 +11,11 @@
 namespace OxidProfessionalServices\OxidConsole\Core\Module;
 
 use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\SettingsHandler;
 use OxidEsales\Eshop\Core\Module\Module;
-use OxidEsales\Eshop\Core\Module\ModuleCache;
 use OxidEsales\Eshop\Core\Module\ModuleInstaller;
+use OxidEsales\Eshop\Core\Exception\ModuleValidationException;
 
 /**
  * Module state fixer
@@ -25,35 +26,74 @@ class ModuleStateFixer extends ModuleInstaller
      * Fix module states task runs version, extend, files, templates, blocks,
      * settings and events information fix tasks
      *
-     * @param Module      $oModule
+     * @param Module      $module
      * @param Config|null $oConfig If not passed uses default base shop config
      */
-    public function fix(Module $oModule, Config $oConfig = null)
+    public function fix($module, $oConfig = null)
     {
         if ($oConfig !== null) {
             $this->setConfig($oConfig);
         }
 
-        $sModuleId = $oModule->getId();
+        $moduleId = $module->getId();
 
-        $this->_deleteBlock($sModuleId);
-        $this->_deleteTemplateFiles($sModuleId);
-        $this->_deleteModuleFiles($sModuleId);
-        $this->_deleteModuleEvents($sModuleId);
-        $this->_deleteModuleVersions($sModuleId);
+        $this->removeModuleInformation($moduleId);
+        $this->restoreModuleInformation($module, $moduleId);
 
-        $this->_addExtensions($oModule);
+        $this->resetCache();
+    }
 
-        $this->_addTemplateBlocks($oModule->getInfo("blocks"), $sModuleId);
-        $this->_addModuleFiles($oModule->getInfo("files"), $sModuleId);
-        $this->_addTemplateFiles($oModule->getInfo("templates"), $sModuleId);
+    /**
+     * Code taken from OxidEsales\EshopCommunity\Core\Module::deactivate
+     *
+     * @param string $moduleId
+     */
+    private function removeModuleInformation($moduleId)
+    {
+        $this->_deleteBlock($moduleId);
+        $this->_deleteTemplateFiles($moduleId);
+        $this->_deleteModuleFiles($moduleId);
+        $this->_deleteModuleEvents($moduleId);
+        $this->_deleteModuleVersions($moduleId);
+        $this->deleteModuleControllers($moduleId);
+    }
+
+    /**
+     * Code taken from OxidEsales\EshopCommunity\Core\Module::activate
+     *
+     * @param Module $module
+     * @param string $moduleId
+     *
+     * @throws \OxidEsales\Eshop\Core\Exception\StandardException
+     */
+    private function restoreModuleInformation($module, $moduleId)
+    {
+        $this->_addExtensions($module);
+        if (version_compare($module->getMetaDataVersion(), '2.0', '<')) {
+            $this->_addModuleFiles($module->getInfo("files"), $moduleId);
+        }
+        $this->_addTemplateBlocks($module->getInfo("blocks"), $moduleId);
+        $this->_addTemplateFiles($module->getInfo("templates"), $moduleId);
         $settingsHandler = oxNew(SettingsHandler::class);
-        $settingsHandler->setModuleType('module')->run($oModule);
-        $this->_addModuleVersion($oModule->getInfo("version"), $sModuleId);
-        $this->_addModuleEvents($oModule->getInfo("events"), $sModuleId);
+        $settingsHandler->setModuleType('module')->run($module);
+        $this->_addModuleVersion($module->getInfo("version"), $moduleId);
+        $this->_addModuleExtensions($module->getExtensions(), $moduleId);
+        $this->_addModuleEvents($module->getInfo("events"), $moduleId);
 
-        /** @var ModuleCache $oModuleCache */
-        $oModuleCache = oxNew(ModuleCache::class, $oModule);
-        $oModuleCache->resetCache();
+        if (version_compare($module->getMetaDataVersion(), '2.0', '>=')) {
+            try {
+                $this->addModuleControllers($module->getControllers(), $moduleId);
+            } catch (ModuleValidationException $exception) {
+                $this->deactivate($module);
+                $lang = Registry::getLang();
+                throw oxNew(
+                    \OxidEsales\Eshop\Core\Exception\StandardException::class,
+                    sprintf(
+                        $lang->translateString('ERROR_METADATA_CONTROLLERS_NOT_UNIQUE', null, true),
+                        $exception->getMessage()
+                    )
+                );
+            }
+        }
     }
 }
