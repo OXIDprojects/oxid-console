@@ -15,6 +15,7 @@ use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\SettingsHandler;
 use OxidEsales\Eshop\Core\Module\Module;
 use OxidEsales\Eshop\Core\Module\ModuleInstaller;
+use OxidEsales\Eshop\Core\Module\ModuleCache;
 use OxidEsales\Eshop\Core\Exception\ModuleValidationException;
 
 /**
@@ -38,9 +39,9 @@ class ModuleStateFixer extends ModuleInstaller
         $moduleId = $module->getId();
 
         $this->removeModuleInformation($moduleId);
+        $this->resetModuleCache($module);
         $this->restoreModuleInformation($module, $moduleId);
-
-        $this->resetCache();
+        $this->resetModuleCache($module);
     }
 
     /**
@@ -95,5 +96,16 @@ class ModuleStateFixer extends ModuleInstaller
                 );
             }
         }
+    }
+
+    /**
+     * Reset module cache
+     *
+     * @param Module $module
+     */
+    private function resetModuleCache($module)
+    {
+        $moduleCache = oxNew(ModuleCache::class, $module);
+        $moduleCache->resetCache();
     }
 }
