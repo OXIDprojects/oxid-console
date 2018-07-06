@@ -104,7 +104,7 @@ class ModuleStateFixer extends ModuleInstaller
     /** @var oxIOutput $_debugOutput */
     protected $_debugOutput;
 
-    public function setDebugOutput(oxIOutput $o)
+    public function setDebugOutput($o)
     {
         $this->_debugOutput = $o;
     }
