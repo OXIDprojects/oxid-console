@@ -45,9 +45,11 @@ class CommandCollector
         if (!class_exists('oxConsoleCommand'))
             class_alias(CommandCollector::class, 'oxConsoleCommand');
 
+        $commands = $this->getCommandsFromCore();
+        $commandsFromModules = $this->getCommandsFromModules();
         return array_merge(
-            $this->getCommandsFromCore(),
-            $this->getCommandsFromModules()
+            $commands,
+            $commandsFromModules
         );
     }
 
@@ -80,15 +82,13 @@ class CommandCollector
      */
     private function getCommandsFromModules()
     {
-        return $this->getObjectsFromClasses(
-            $this->getCommandCompatibleClasses(
-                $this->getAllClassesFromPhpFiles(
-                    $this->getPhpFilesMatchingPatternForCommandFromGivenPaths(
-                        $this->getPathsOfAvailableModules()
-                    )
-                )
-            )
+        $paths = $this->getPathsOfAvailableModules();
+        $pathToPhpFiles = $this->getPhpFilesMatchingPatternForCommandFromGivenPaths(
+            $paths
         );
+        $classes = $this->getAllClassesFromPhpFiles($pathToPhpFiles);
+        $comanndClasses = $this->getCommandCompatibleClasses($classes);
+        return $this->getObjectsFromClasses($comanndClasses);
     }
 
     /**
@@ -138,14 +138,18 @@ class CommandCollector
      */
     private function getPhpFilesMatchingPatternForCommandFromGivenPath($path)
     {
-        $filesIterator = new \RecursiveDirectoryIterator($path);
-        $flatFilesIterator = new \RecursiveIteratorIterator($filesIterator);
-        $filteredFilesIterator = new \RegexIterator($flatFilesIterator, '/.*Command\.php$/i');
+        $folders = ['Commands','commands','Command'];
+        foreach ($folders as $f) {
+            $cPath = $path . DIRECTORY_SEPARATOR . $f . DIRECTORY_SEPARATOR;
 
-        return array_map(function ($fileEntry) {
-            /** @var \SplFileInfo $fileEntry */
-            return $fileEntry->getPathname();
-        }, array_values(iterator_to_array($filteredFilesIterator)));
+            if (!is_dir($cPath)) {
+                continue;
+            }
+            $files = glob("$cPath*[cC]ommand\.php");
+
+            return $files;
+        }
+        return [];
     }
 
     /**

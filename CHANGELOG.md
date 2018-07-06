@@ -1,7 +1,11 @@
 # Changelog for OXID Console
 
-## [Unreleased]
+## [v5.0.0]
 * Support for OXID eShop V6
+* commands inside of oxid modules must be placed in commands sub directory of modules
+(BC break there is recursive full scan anymore because of performance reasons)
+* module tpl files get stored with a unique id and will not be deleted during fix state
+* module versions number will not get deleted during fix states
 
 ## [v1.2.6] - 2017-09-21
 * (9a94f32) Support camel cased command file names
