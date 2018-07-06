@@ -42,7 +42,7 @@ class FixStatesCommand extends Command
     public function configure()
     {
         $this
-            ->setName('module:states')
+            ->setName('module:fix')
             ->setAliases(['fix:states'])
             ->setDescription('Fixes modules metadata states')
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Includes all modules')

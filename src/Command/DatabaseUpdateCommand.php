@@ -29,7 +29,7 @@ class DatabaseUpdateCommand extends Command
     public function configure()
     {
         $this
-            ->setName('database:views')
+            ->setName('views:update')
             ->setAliases(['db:update'])
             ->setDescription('Regenerate database table views')
             ->setHelp(<<<'EOF'
