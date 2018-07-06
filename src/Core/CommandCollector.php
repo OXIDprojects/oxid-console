@@ -43,7 +43,7 @@ class CommandCollector
     {
         // Avoid fatal errors for "Class 'oxConsoleCommand' not found" in case of old Commands present
         if (!class_exists('oxConsoleCommand'))
-            class_alias(CommandCollector::class, 'oxConsoleCommand');
+            class_alias(Command::class, 'oxConsoleCommand');
 
         $commands = $this->getCommandsFromCore();
         $commandsFromModules = $this->getCommandsFromModules();
