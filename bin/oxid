@@ -35,9 +35,19 @@ function loadBootstrap() {
     }
 }
 
-loadBootstrap();
+try {
+    $content = file_get_contents(dirname(dirname(__FILE__)).'/composer.json');
+    $content = json_decode($content,true);
+    $version = $content['version'];
 
-$commandCollector = new CommandCollector();
-$application = new Application('OXID Console', 'v2.0.0');
-$application->addCommands($commandCollector->getAllCommands());
-$application->run();
+    loadBootstrap();
+    $commandCollector = new CommandCollector();
+    $application = new Application('OXID Console', $version);
+    $application->addCommands($commandCollector->getAllCommands());
+    $application->run();
+} catch (Throwable $ex) {
+    //console should print errors always
+    print $ex->getTraceAsString();
+    //shop exception hanlder may tke care about error code and logging
+    throw $ex;
+}
