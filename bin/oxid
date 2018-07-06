@@ -47,6 +47,7 @@ try {
     $application->run();
 } catch (Throwable $ex) {
     //console should print errors always
+    print $ex->getMessage();
     print $ex->getTraceAsString();
     //shop exception hanlder may tke care about error code and logging
     throw $ex;

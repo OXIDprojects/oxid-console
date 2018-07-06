@@ -38,24 +38,112 @@ class ModuleStateFixer extends ModuleInstaller
 
         $moduleId = $module->getId();
 
-        $this->removeModuleInformation($moduleId);
         $this->resetModuleCache($module);
         $this->restoreModuleInformation($module, $moduleId);
         $this->resetModuleCache($module);
     }
 
+
     /**
-     * Code taken from OxidEsales\EshopCommunity\Core\Module::deactivate
+     * Add module template files to config for smarty.
      *
-     * @param string $moduleId
+     * @param array  $aModuleTemplates Module templates array
+     * @param string $sModuleId        Module id
      */
-    private function removeModuleInformation($moduleId)
+    protected function _addTemplateFiles($aModuleTemplates, $sModuleId)
     {
-        $this->_deleteTemplateFiles($moduleId);
-        $this->_deleteModuleFiles($moduleId);
-        $this->_deleteModuleEvents($moduleId);
-        $this->deleteModuleControllers($moduleId);
+        $aTemplates = (array) $this->getConfig()->getConfigParam('aModuleTemplates');
+        if (is_array($aModuleTemplates)) {
+            $old = $aTemplates[$sModuleId];
+            if ($this->diff($old,$aModuleTemplates)) {
+                $this->_debugOutput->writeLn("$sModuleId new templates");
+                $aTemplates[$sModuleId] = $aModuleTemplates;
+                $this->_saveToConfig('aModuleTemplates', $aTemplates);
+            }
+        } else {
+            $this->_deleteTemplateFiles($sModuleId);
+        }
     }
+
+
+    /**
+     * Add module files to config for auto loader.
+     *
+     * @param array  $aModuleFiles Module files array
+     * @param string $sModuleId    Module id
+     */
+    protected function _addModuleFiles($aModuleFiles, $sModuleId)
+    {
+        $aFiles = (array) $this->getConfig()->getConfigParam('aModuleFiles');
+        if (is_array($aModuleFiles)) {
+            $old =  $aFiles[$sModuleId];
+            if ($this->diff($old,$aModuleFiles)) {
+                $this->_debugOutput->writeLn("$sModuleId new module files");
+                $aFiles[$sModuleId] = array_change_key_case($aModuleFiles, CASE_LOWER);
+                $this->_saveToConfig('aModuleFiles', $aFiles);
+            }
+        } else {
+            $this->_deleteModuleFiles($sModuleId);
+        }
+
+    }
+
+
+    /**
+     * Add module events to config.
+     *
+     * @param array  $aModuleEvents Module events
+     * @param string $sModuleId     Module id
+     */
+    protected function _addModuleEvents($aModuleEvents, $sModuleId)
+    {
+        $aEvents = (array) $this->getConfig()->getConfigParam('aModuleEvents');
+        if (is_array($aModuleEvents)) {
+            $old =  $aEvents[$sModuleId];
+            if ($this->diff($old,$aModuleEvents)) {
+                $aEvents[$sModuleId] = $aModuleEvents;
+                $this->_saveToConfig('aModuleEvents', $aEvents);
+            }
+        } else {
+            $this->_deleteModuleEvents($sModuleVersion);
+        }
+
+    }
+
+    /**
+     * Add module version to config.
+     *
+     * @param string $sModuleVersion Module version
+     * @param string $sModuleId      Module id
+     */
+    protected function _addModuleVersion($sModuleVersion, $sModuleId)
+    {
+        $aVersions = (array) $this->getConfig()->getConfigParam('aModuleVersions');
+        $old =  $aVersions[$sModuleId];
+        if ($old !== $sModuleVersion) {
+            $aVersions[$sModuleId] = $sModuleVersion;
+            $this->_saveToConfig('aModuleVersions', $aVersions);
+        }
+    }
+
+    /**
+     * compares 2 assoc arrays
+     * true if there is something changed
+     * @param $array1
+     * @param $array2
+     * @return bool
+     */
+    protected function diff($array1,$array2){
+        if ($array1 == null) {
+            return true;
+        }
+        if ($array2 == null) {
+            return true;
+        }
+        $diff = array_diff_assoc($array1,$array2);
+        return $diff;
+    }
+
 
     /**
      * Code taken from OxidEsales\EshopCommunity\Core\Module::activate
