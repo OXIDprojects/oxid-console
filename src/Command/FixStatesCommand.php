@@ -72,6 +72,7 @@ class FixStatesCommand extends Command
 
         /** @var ModuleStateFixer $oModuleStateFixer */
         $oModuleStateFixer = Registry::get(ModuleStateFixer::class);
+        $oModuleStateFixer->setDebugOutput($verboseOutput);
 
         /** @var Module $oModule */
         $oModule = oxNew(Module::class);

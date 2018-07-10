@@ -1,8 +1,17 @@
 # Changelog for OXID Console
 
-## [v5.0.9]
+## [v5.0.10]
+### Fixed
+- fix error during module:fix command (by setting debug output)
+
+## [v5.0.10]
 ### Fixed
 - fix exception during fix states caused when there is a new module
+
+## [v5.0.10]
+### Changed
+- improve installation section in README
+
 
 ## [v5.0.8]
 ### Changed

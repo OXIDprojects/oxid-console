@@ -17,6 +17,7 @@ use OxidEsales\Eshop\Core\Module\Module;
 use OxidEsales\Eshop\Core\Module\ModuleInstaller;
 use OxidEsales\Eshop\Core\Module\ModuleCache;
 use OxidEsales\Eshop\Core\Exception\ModuleValidationException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Module state fixer
@@ -225,9 +226,12 @@ class ModuleStateFixer extends ModuleInstaller
 
 
 
-    /** @var oxIOutput $_debugOutput */
+    /** @var OutputInterface $_debugOutput */
     protected $_debugOutput;
 
+    /**
+     * @param $o OutputInterface
+     */
     public function setDebugOutput($o)
     {
         $this->_debugOutput = $o;
