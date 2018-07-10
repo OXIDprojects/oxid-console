@@ -1,7 +1,12 @@
 # Changelog for OXID Console
 
+## [v5.0.9]
+### Fixed
+- fix exception during fix states caused when there is a new module
+
 ## [v5.0.8]
-remove version from composer file (reading composer.lock
+### Changed
+- remove version from composer file (reading composer.lock)
 ## [v5.0.7]
 ### Fixed
 - fix setting module version during fix states

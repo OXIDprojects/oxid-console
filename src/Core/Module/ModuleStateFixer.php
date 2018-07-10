@@ -194,7 +194,9 @@ class ModuleStateFixer extends ModuleInstaller
         $classProviderStorage = $this->getClassProviderStorage();
         $dbMap = $classProviderStorage->get();
 
-        $duplicatedKeys = array_intersect_key(array_change_key_case($moduleControllers, CASE_LOWER), $dbMap[$moduleId]);
+        $controllersForThatModuleInDb = isset($dbMap[$moduleId]) ? $dbMap[$moduleId] : [];
+
+        $duplicatedKeys = array_intersect_key(array_change_key_case($moduleControllers, CASE_LOWER), $controllersForThatModuleInDb);
 
         if (array_diff_assoc($moduleControllers,$duplicatedKeys)) {
             $this->deleteModuleControllers($moduleId);
