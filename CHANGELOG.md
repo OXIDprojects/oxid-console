@@ -1,11 +1,44 @@
 # Changelog for OXID Console
 
+## [v5.0.8]
+remove version from composer file (reading composer.lock
+## [v5.0.7]
+### Fixed
+- fix setting module version during fix states
+### Changed
+- better error output for duplicate controllers exception
+
+## [v5.0.6]
+### Changed
+- better performance for fixing modules
+
+## [v5.0.5]
+### Fixed
+- fixed alias for oxConsoleCommand to be alias of Command::class
+
+## [v5.0.4]
+### Changed
+- use version number from composer instead of hardcoded value 
+
+## [v5.0.3]
+### Changed
+** This would be a BC break, but as v5 was not yet finally released I stay with v5.0.x
+- new command names views:update and module:fix 
+
+## [v5.0.2]
+
+## [v5.0.1]
+
 ## [v5.0.0]
-* Support for OXID eShop V6
-* commands inside of oxid modules must be placed in commands sub directory of modules
+- Support for OXID eShop V6
+- commands inside of oxid modules must be placed in commands sub directory of modules
 (BC break there is recursive full scan anymore because of performance reasons)
-* module tpl files get stored with a unique id and will not be deleted during fix state
-* module versions number will not get deleted during fix states
+- module tpl files get stored with a unique id and will not be deleted during fix state
+- module versions number will not get deleted during fix states
+- avoid duplicate controllers errors
+- prepare refactoring of version reading
+
+#v2 - v4 (skipped, unrelased or project specific implementations)  
 
 ## [v1.2.6] - 2017-09-21
 * (9a94f32) Support camel cased command file names

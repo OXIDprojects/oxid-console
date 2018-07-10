@@ -176,12 +176,39 @@ class ModuleStateFixer extends ModuleInstaller
 
         if (version_compare($module->getMetaDataVersion(), '2.0', '>=')) {
             try {
-                $this->addModuleControllers($module->getControllers(), $moduleId);
+                $this->setModuleControllers($module->getControllers(), $moduleId, $module);
             } catch (ModuleValidationException $exception) {
                 print "[ERROR]: duplicate controllers:" . $exception->getMessage() ."\n";
             }
         }
     }
+
+    /**
+     * Add controllers map for a given module Id to config
+     *
+     * @param array  $moduleControllers Map of controller ids and class names
+     * @param string $moduleId          The Id of the module
+     */
+    protected function setModuleControllers($moduleControllers, $moduleId, $module)
+    {
+        $classProviderStorage = $this->getClassProviderStorage();
+        $dbMap = $classProviderStorage->get();
+
+        $duplicatedKeys = array_intersect_key(array_change_key_case($moduleControllers, CASE_LOWER), $dbMap[$moduleId]);
+
+        if (array_diff_assoc($moduleControllers,$duplicatedKeys)) {
+            $this->deleteModuleControllers($moduleId);
+            $this->resetModuleCache($module);
+            $this->validateModuleMetadataControllersOnActivation($moduleControllers);
+
+            $classProviderStorage = $this->getClassProviderStorage();
+
+            $classProviderStorage->add($moduleId, $moduleControllers);
+
+        }
+
+    }
+
 
     /**
      * Reset module cache

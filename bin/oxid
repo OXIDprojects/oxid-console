@@ -10,6 +10,7 @@
 
 use Symfony\Component\Console\Application;
 use OxidProfessionalServices\OxidConsole\Core\CommandCollector;
+use OxidProfessionalServices\OxidConsole\Core\VersionHelper;
 
 function loadBootstrap() {
     $possiblePathsForBootstrap = [
@@ -46,6 +47,12 @@ try {
             break;
         }
     }
+
+    /*
+     * TODO code above is to be replaced by:
+     */
+    //$v = new VersionHelper();
+    //$version = $v->getVersion('oxid-professional-services/oxid-console');
 
     loadBootstrap();
     $commandCollector = new CommandCollector();
