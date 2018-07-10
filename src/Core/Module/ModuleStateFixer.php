@@ -75,6 +75,7 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleFiles($aModuleFiles, $sModuleId)
     {
         $aFiles = (array) $this->getConfig()->getConfigParam('aModuleFiles');
+
         if (is_array($aModuleFiles)) {
             $old =  $aFiles[$sModuleId];
             if ($this->diff($old,$aModuleFiles)) {
@@ -98,7 +99,7 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleEvents($aModuleEvents, $sModuleId)
     {
         $aEvents = (array) $this->getConfig()->getConfigParam('aModuleEvents');
-        if (is_array($aModuleEvents)) {
+        if (is_array($aEvents)) {
             $old =  $aEvents[$sModuleId];
             if ($this->diff($old,$aModuleEvents)) {
                 $aEvents[$sModuleId] = $aModuleEvents;
@@ -119,11 +120,17 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleVersion($sModuleVersion, $sModuleId)
     {
         $aVersions = (array) $this->getConfig()->getConfigParam('aModuleVersions');
-        $old =  $aVersions[$sModuleId];
-        if ($old !== $sModuleVersion) {
+        if (is_array($aVersions)) {
+            $old =  $aVersions[$sModuleId];
             $aVersions[$sModuleId] = $sModuleVersion;
-            $this->_saveToConfig('aModuleVersions', $aVersions);
+            if ($old !== $sModuleVersion) {
+                $aEvents[$sModuleId] = $sModuleVersion;
+                $this->_saveToConfig('aModuleVersions', $aVersions);
+            }
+        } else {
+            $this->_deleteModuleVersions($sModuleVersion);
         }
+
     }
 
     /**
@@ -171,7 +178,7 @@ class ModuleStateFixer extends ModuleInstaller
             try {
                 $this->addModuleControllers($module->getControllers(), $moduleId);
             } catch (ModuleValidationException $exception) {
-                print $exception->getMessage();
+                print "[ERROR]: duplicate controllers:" . $exception->getMessage() ."\n";
             }
         }
     }
