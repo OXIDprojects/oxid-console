@@ -1,6 +1,6 @@
 # Changelog for OXID Console
 
-## [v5.0.10]
+## [v5.0.11]
 ### Fixed
 - fix error during module:fix command (by setting debug output)
 
