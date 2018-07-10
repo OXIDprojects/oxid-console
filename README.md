@@ -26,7 +26,7 @@ For backwords compatibility the following commands are still available (*but are
 |-------------------|----------------------|------------------|---------------|
 | <4.9.0, <5.2.0    | 1.1.5                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/3e28bba67649c01156c6e97f1b99aa7538b1a32e) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.1.5.zip) |
 | \>=4.9.0, >=5.2.0 | 1.2.6                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/f7dedca4d831bf5cb52e1b17024f2b70cf789b2c) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.2.6.zip) |
-| \>=6.0.0          | 5.x.y                | use composer ;-) 
+| \>=6.0.0          | 5.0.x                | [Source Code](https://github.com/OXIDprojects/oxid-console/)|please use composer to download| 
 
 ## Installation
 
