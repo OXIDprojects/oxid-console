@@ -36,9 +36,16 @@ function loadBootstrap() {
 }
 
 try {
-    $content = file_get_contents(dirname(dirname(__FILE__)).'/composer.json');
+    $content = file_get_contents(dirname(dirname(__FILE__)).'/../../../composer.lock');
     $content = json_decode($content,true);
-    $version = $content['version'];
+    $packages = $content['packages'];
+    $version = null;
+    foreach($packages as $package) {
+        if ($package['name'] == 'oxid-professional-services/oxid-console') {
+            $version = $package['version'];
+            break;
+        }
+    }
 
     loadBootstrap();
     $commandCollector = new CommandCollector();

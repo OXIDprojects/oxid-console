@@ -1,6 +1,5 @@
 {
     "name": "oxid-professional-services/oxid-console",
-    "version": "5.0.7",
     "autoload": {
         "psr-4": {
             "OxidProfessionalServices\\OxidConsole\\": "src/"
