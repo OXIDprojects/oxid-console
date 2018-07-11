@@ -7,7 +7,7 @@
  * See LICENSE file for license details.
  */
 
-namespace OxidProfessionalServices\OxidConsole\Core;
+namespace OxidProfessionalServices\OxidConsole\Core\Composer;
 
 /**
  * Class VersionHelper
@@ -22,7 +22,11 @@ class VersionHelper {
      */
     function getVersion($packageName)
     {
-        $content = file_get_contents(dirname(dirname(__FILE__)) . '../..' . '/../../../composer.lock');
+        $fullPath = __FILE__;
+        $vendorDir = dirname(dirname(dirname(dirname(dirname(dirname($fullPath))))));
+        $rootDir = dirname($vendorDir);
+        $fileName = $rootDir . '/composer.lock';
+        $content = file_get_contents($fileName);
         $content = json_decode($content, true);
         $packages = $content['packages'];
         $version = null;

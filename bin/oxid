@@ -10,7 +10,7 @@
 
 use Symfony\Component\Console\Application;
 use OxidProfessionalServices\OxidConsole\Core\CommandCollector;
-use OxidProfessionalServices\OxidConsole\Core\VersionHelper;
+use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
 
 function loadBootstrap() {
     $possiblePathsForBootstrap = [
@@ -37,24 +37,18 @@ function loadBootstrap() {
 }
 
 try {
-    $content = file_get_contents(dirname(dirname(__FILE__)).'/../../../composer.lock');
-    $content = json_decode($content,true);
-    $packages = $content['packages'];
-    $version = null;
-    foreach($packages as $package) {
-        if ($package['name'] == 'oxid-professional-services/oxid-console') {
-            $version = $package['version'];
-            break;
-        }
-    }
-
     /*
      * TODO code above is to be replaced by:
      */
-    //$v = new VersionHelper();
-    //$version = $v->getVersion('oxid-professional-services/oxid-console');
 
     loadBootstrap();
+
+    $v = new VersionHelper;
+    $version = $v->getVersion('oxid-professional-services/oxid-console');
+
+    //adding a value to avoid php warnings when oxid core try to compare that value
+    $_SERVER['HTTP_HOST'] = 'localhost';
+
     $commandCollector = new CommandCollector();
     $application = new Application('OXID Console', $version);
     $application->addCommands($commandCollector->getAllCommands());

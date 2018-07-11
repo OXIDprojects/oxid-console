@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v5.0.12]
+### Fixed
+- fix warning during migrate command caused by missing http host variable in CLI
+- refactored getting version from composer
+
 ## [v5.0.11]
 ### Fixed
 - fix error during module:fix command (by setting debug output)
