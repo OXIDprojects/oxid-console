@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v5.0.13]
+### Changed
+- added exception handling for broken commands, if a command can not be added to console there will be some output
+- searching for command will (try to) avoid to instantiate command's intermediate parent class   
+
 ## [v5.0.12]
 ### Fixed
 - fix warning during migrate command caused by missing http host variable in CLI

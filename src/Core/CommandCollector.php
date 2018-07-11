@@ -178,11 +178,22 @@ class CommandCollector
         $classesBefore = get_declared_classes();
         try {
             require_once $pathToPhpFile;
-        } catch (\Exception $exception) {
-
+        } catch (\Throwable $exception) {
+            print "Can not add Command $pathToPhpFile:\n";
+            print $exception->getMessage() . "\n";
         }
         $classesAfter = get_declared_classes();
         $newClasses = array_diff($classesAfter, $classesBefore);
+        if(count($newClasses) > 1) {
+            //try to find the correct class name to use
+            //this avoids warnings when module developer use there own command base class, that is not instantiable
+            $name = basename($pathToPhpFile,'.php');
+            foreach ($newClasses as $newClass) {
+                if ($newClass == $name){
+                    return [$newClass];
+                }
+            }
+        }
 
         return $newClasses;
     }
@@ -215,13 +226,7 @@ class CommandCollector
     private function getCommandCompatibleClasses($classes)
     {
         return array_filter($classes, function ($class) {
-            try {
-                $testObject = new $class();
-            } catch (\Exception $exception) {
-                return false;
-            }
-
-            return get_class($testObject) !== Command::class && is_subclass_of($testObject, Command::class);
+            return is_subclass_of($class, Command::class) && $class !== Command::class;
         });
     }
 
@@ -234,8 +239,15 @@ class CommandCollector
      */
     private function getObjectsFromClasses($classes)
     {
-        return array_map(function ($class) {
-            return new $class;
+        $objects = array_map(function ($class) {
+            try {
+                return new $class;
+            } catch (\Throwable $ex) {
+                print "Can not add command from class $class:\n";
+                print $ex->getMessage() . "\n";
+            }
         }, $classes);
+        $objects = array_filter($objects, function($o){return !is_null($o);} );
+        return $objects;
     }
 }
