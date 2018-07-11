@@ -82,6 +82,7 @@ class MyOwnCommand extends Command
     {
         $this->setName('my:own');
         $this->setDescription('Demo command for learning');
+        $this->addOption('demo', 'd', InputOption::VALUE_NONE, 'run demo');
     }
 
     /**
