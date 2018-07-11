@@ -1,6 +1,9 @@
 # OXID Console
 
 OXID Console is a symfony console application for OXID Shop.
+It is community and project driven with write and read access like in a public wiki(like Wikipedia). 
+
+
 
 The following commands are available:
 
