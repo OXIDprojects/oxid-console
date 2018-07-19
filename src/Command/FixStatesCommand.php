@@ -58,7 +58,7 @@ class FixStatesCommand extends Command
     {
         $this->input = $input;
 
-        $verboseOutput = $input->getOption('verbose')
+        $verboseOutput = $output->getVerbosity() > OutputInterface::VERBOSITY_VERBOSE
             ? $output
             : new NullOutput();
 
@@ -72,6 +72,7 @@ class FixStatesCommand extends Command
 
         /** @var ModuleStateFixer $oModuleStateFixer */
         $oModuleStateFixer = Registry::get(ModuleStateFixer::class);
+        $oModuleStateFixer->setOutput($output);
         $oModuleStateFixer->setDebugOutput($verboseOutput);
 
         /** @var Module $oModule */

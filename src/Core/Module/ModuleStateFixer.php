@@ -54,15 +54,19 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addTemplateFiles($aModuleTemplates, $sModuleId)
     {
         $aTemplates = (array) $this->getConfig()->getConfigParam('aModuleTemplates');
+        $old = $aTemplates[$sModuleId];
         if (is_array($aModuleTemplates)) {
-            $old = $aTemplates[$sModuleId];
-            if ($this->diff($old,$aModuleTemplates)) {
-                $this->_debugOutput->writeLn("$sModuleId new templates");
+            $diff = $this->diff($old,$aModuleTemplates);
+            if ($diff) {
+                $this->_debugOutput->writeLn("$sModuleId fixing templates:"  . var_export($diff, true));
                 $aTemplates[$sModuleId] = $aModuleTemplates;
                 $this->_saveToConfig('aModuleTemplates', $aTemplates);
             }
         } else {
-            $this->_deleteTemplateFiles($sModuleId);
+            if ($old) {
+                $this->_debugOutput->writeLn("$sModuleId unregister templates:");
+                $this->_deleteTemplateFiles($sModuleId);
+            }
         }
     }
 
@@ -77,15 +81,19 @@ class ModuleStateFixer extends ModuleInstaller
     {
         $aFiles = (array) $this->getConfig()->getConfigParam('aModuleFiles');
 
+        $old =  $aFiles[$sModuleId];
         if (is_array($aModuleFiles)) {
-            $old =  $aFiles[$sModuleId];
-            if ($this->diff($old,$aModuleFiles)) {
-                $this->_debugOutput->writeLn("$sModuleId new module files");
-                $aFiles[$sModuleId] = array_change_key_case($aModuleFiles, CASE_LOWER);
+            $diff = $this->diff($old,$aModuleFiles);
+            if ($diff) {
+                $this->_debugOutput->writeLn("$sModuleId fixing files:" . var_export($diff, true));
+                $aFiles[$sModuleId] = $aModuleFiles;
                 $this->_saveToConfig('aModuleFiles', $aFiles);
             }
         } else {
-            $this->_deleteModuleFiles($sModuleId);
+            if ($old) {
+                $this->_debugOutput->writeLn("$sModuleId unregister files");
+                $this->_deleteModuleFiles($sModuleId);
+            }
         }
 
     }
@@ -100,14 +108,20 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleEvents($aModuleEvents, $sModuleId)
     {
         $aEvents = (array) $this->getConfig()->getConfigParam('aModuleEvents');
+        $old =  $aEvents[$sModuleId];
         if (is_array($aEvents)) {
-            $old =  $aEvents[$sModuleId];
-            if ($this->diff($old,$aModuleEvents)) {
+            $diff = $this->diff($old,$aModuleEvents);
+            if ($diff) {
                 $aEvents[$sModuleId] = $aModuleEvents;
+                $this->_debugOutput->writeLn("$sModuleId fixing module events:" . var_export($diff, true));
+
                 $this->_saveToConfig('aModuleEvents', $aEvents);
             }
         } else {
-            $this->_deleteModuleEvents($sModuleVersion);
+            if ($old) {
+                $this->_debugOutput->writeLn("$sModuleId unregister events");
+                $this->_deleteModuleEvents($sModuleVersion);
+            }
         }
 
     }
@@ -121,15 +135,19 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleVersion($sModuleVersion, $sModuleId)
     {
         $aVersions = (array) $this->getConfig()->getConfigParam('aModuleVersions');
+        $old =  $aVersions[$sModuleId];
         if (is_array($aVersions)) {
-            $old =  $aVersions[$sModuleId];
             $aVersions[$sModuleId] = $sModuleVersion;
             if ($old !== $sModuleVersion) {
+                $this->_debugOutput->writeLn("$sModuleId fixing module version from $old to $sModuleVersion");
                 $aEvents[$sModuleId] = $sModuleVersion;
                 $this->_saveToConfig('aModuleVersions', $aVersions);
             }
         } else {
-            $this->_deleteModuleVersions($sModuleVersion);
+            if ($old) {
+                $this->_debugOutput->writeLn("$sModuleId unregister module version");
+                $this->_deleteModuleVersions($sModuleId);
+            }
         }
 
     }
@@ -142,11 +160,15 @@ class ModuleStateFixer extends ModuleInstaller
      * @return bool
      */
     protected function diff($array1,$array2){
-        if ($array1 == null) {
-            return true;
+        if ($array1 === null) {
+            if ($array2 === null) {
+                return false; //indicate no diff
+            }
+            return $array2; //full array2 is new
         }
-        if ($array2 == null) {
-            return true;
+        if ($array2 === null) {
+            //indicate that diff is there  (so return a true value) but everthing should be droped
+            return 'null';
         }
         $diff = array_diff_assoc($array1,$array2);
         return $diff;
@@ -228,6 +250,7 @@ class ModuleStateFixer extends ModuleInstaller
 
     /** @var OutputInterface $_debugOutput */
     protected $_debugOutput;
+    protected $output;
 
     /**
      * @param $o OutputInterface
@@ -235,6 +258,14 @@ class ModuleStateFixer extends ModuleInstaller
     public function setDebugOutput($o)
     {
         $this->_debugOutput = $o;
+    }
+
+    /**
+     * @param $o OutputInterface
+     */
+    public function setOutput($o)
+    {
+        $this->output = $o;
     }
 
     /**
@@ -259,7 +290,7 @@ class ModuleStateFixer extends ModuleInstaller
         if ($aModulesDefault != $aModules) {
             $onlyInAfterFix = array_diff($aModules, $aModulesDefault);
             $onlyInBeforeFix = array_diff($aModulesDefault, $aModules);
-            if ($this->_debugOutput) {
+            if ($this->_debugOutput->getVerbosity() > OutputInterface::VERBOSITY_VERBOSE) {
                 $this->_debugOutput->writeLn("[INFO] fixing " . $module->getId());
                 foreach ($onlyInAfterFix as $core => $ext) {
                     if ($oldChain = $onlyInBeforeFix[$core]) {
