@@ -181,7 +181,7 @@ class ModuleStateFixer extends ModuleInstaller
             //indicate that diff is there  (so return a true value) but everthing should be droped
             return 'null';
         }
-        $diff = array_diff_assoc($array1,$array2);
+        $diff = array_merge(array_diff_assoc($array1,$array2),array_diff_assoc($array2,$array1));
         return $diff;
     }
 
