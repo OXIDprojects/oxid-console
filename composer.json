@@ -6,14 +6,8 @@
         }
     },
     "require": {
-        "oxid-esales/oxideshop-ce": "^v6.0.0",
-        "smxsm/oxrun": "v0.5.0"
+        "oxid-esales/oxideshop-ce": "^v6.0.0"
     },
-    "repositories": {
-        "smxsm/oxrun": {
-            "type": "vcs",
-            "url": "https://github.com/smxsm/oxrun"
-        }
-    },
+    "minimum-stability": "dev",
     "bin": ["bin/oxid"]
 }
