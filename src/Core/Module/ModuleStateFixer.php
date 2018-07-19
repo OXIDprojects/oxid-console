@@ -17,6 +17,7 @@ use OxidEsales\Eshop\Core\Module\Module;
 use OxidEsales\Eshop\Core\Module\ModuleInstaller;
 use OxidEsales\Eshop\Core\Module\ModuleCache;
 use OxidEsales\Eshop\Core\Exception\ModuleValidationException;
+use OxidProfessionalServices\OxidConsole\Core\Module\ModuleExtensionCleanerDebug;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -24,6 +25,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ModuleStateFixer extends ModuleInstaller
 {
+
+    public function __construct($cache = null, $cleaner = null){
+        $cleaner = oxNew(ModuleExtensionCleanerDebug::class);
+        parent::__construct($cache, $cleaner);
+    }
+
     /**
      * Fix module states task runs version, extend, files, templates, blocks,
      * settings and events information fix tasks
@@ -266,7 +273,9 @@ class ModuleStateFixer extends ModuleInstaller
     public function setOutput($o)
     {
         $this->output = $o;
+        $this->getModuleCleaner()->setOutput($o);
     }
+
 
     /**
      * Add extension to module
@@ -290,7 +299,7 @@ class ModuleStateFixer extends ModuleInstaller
         if ($aModulesDefault != $aModules) {
             $onlyInAfterFix = array_diff($aModules, $aModulesDefault);
             $onlyInBeforeFix = array_diff($aModulesDefault, $aModules);
-            if ($this->_debugOutput->getVerbosity() > OutputInterface::VERBOSITY_VERBOSE) {
+            if ($this->_debugOutput->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
                 $this->_debugOutput->writeLn("[INFO] fixing " . $module->getId());
                 foreach ($onlyInAfterFix as $core => $ext) {
                     if ($oldChain = $onlyInBeforeFix[$core]) {
@@ -319,15 +328,7 @@ class ModuleStateFixer extends ModuleInstaller
         }
     }
 
-    protected function _removeGarbage($aInstalledExtensions, $aarGarbage)
-    {
-        if ($this->_debugOutput) {
-            foreach ($aarGarbage as $moduleId => $aExt) {
-                $this->_debugOutput->writeLn("[INFO] removing garbage for module $moduleId: " . join(',', $aExt));
-            }
-        }
-        return parent::_removeGarbage($aInstalledExtensions, $aarGarbage);
-    }
+
 
     /**
      * Add module templates to database.
