@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.14]
+- fix fixing of modules with same prefix in the directory name
+- fix debug output
+
 ## [v5.0.13]
 ### Changed
 - added exception handling for broken commands, if a command can not be added to console there will be some output
