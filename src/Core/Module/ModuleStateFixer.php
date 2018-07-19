@@ -89,6 +89,10 @@ class ModuleStateFixer extends ModuleInstaller
         $aFiles = (array) $this->getConfig()->getConfigParam('aModuleFiles');
 
         $old =  $aFiles[$sModuleId];
+        if ($aModuleFiles !== null) {
+            $aModuleFiles = array_change_key_case($aModuleFiles, CASE_LOWER);
+        }
+
         if (is_array($aModuleFiles)) {
             $diff = $this->diff($old,$aModuleFiles);
             if ($diff) {
