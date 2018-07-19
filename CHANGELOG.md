@@ -1,5 +1,8 @@
 # Changelog for OXID Console
 
+## [v5.0.15]
+- fix fixing modules with camecase files definition
+
 ## [v5.0.14]
 - fix fixing of modules with same prefix in the directory name
 - fix debug output
