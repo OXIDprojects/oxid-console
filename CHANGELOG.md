@@ -1,6 +1,6 @@
 # Changelog for OXID Console
 
-## unreleased
+## [v5.0.16]
 more verbose when changing things,
 better performance by smart cache clear 
 
