@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## unreleased
+more verbose when changing things,
+better performance by smart cache clear 
+
 ## [v5.0.15]
 - fix fixing modules with camecase files definition
 
