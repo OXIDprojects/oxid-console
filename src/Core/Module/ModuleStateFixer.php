@@ -11,6 +11,7 @@
 namespace OxidProfessionalServices\OxidConsole\Core\Module;
 
 use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\SettingsHandler;
 use OxidEsales\Eshop\Core\Module\Module;
@@ -19,7 +20,7 @@ use OxidEsales\Eshop\Core\Module\ModuleCache;
 use OxidEsales\Eshop\Core\Exception\ModuleValidationException;
 use OxidProfessionalServices\OxidConsole\Core\Module\ModuleExtensionCleanerDebug;
 use Symfony\Component\Console\Output\OutputInterface;
-
+use OxidEsales\Eshop\Core\Module\ModuleVariablesLocator;
 /**
  * Module state fixer
  */
@@ -30,6 +31,21 @@ class ModuleStateFixer extends ModuleInstaller
         $cleaner = oxNew(ModuleExtensionCleanerDebug::class);
         parent::__construct($cache, $cleaner);
     }
+
+
+
+    /** @var OutputInterface $_debugOutput */
+    protected $_debugOutput;
+
+    /** @var OutputInterface $_debugOutput */
+    protected $output;
+
+    protected $needCacheClear = false;
+    protected $initialCacheClearDone = false;
+    /**
+     * @var null|Module $module
+     */
+    protected $module = null;
 
     /**
      * Fix module states task runs version, extend, files, templates, blocks,
@@ -46,10 +62,30 @@ class ModuleStateFixer extends ModuleInstaller
 
         $moduleId = $module->getId();
 
-        $this->resetModuleCache($module);
+        if (!$this->initialCacheClearDone) {
+            //clearing some cache to be sure that fix runs not against a stale cache
+            ModuleVariablesLocator::resetModuleVariables();
+            if (extension_loaded('apc') && ini_get('apc.enabled')) {
+                apc_clear_cache();
+            }
+            if ($this->output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
+                $this->output->writeln("initial cache cleared");
+            }
+            $this->initialCacheClearDone = true;
+        }
+        $this->module = $module;
+        $this->needCacheClear = false;
         $this->restoreModuleInformation($module, $moduleId);
-        $this->resetModuleCache($module);
+        if ($this->needCacheClear){
+            $this->resetModuleCache($module);
+            $this->output->writeln("cache cleared for $moduleId");
+        }
     }
+
+
+    //public function resetModuleCache($module = null){
+    //  parent::resetCache()
+    //}
 
 
     /**
@@ -65,14 +101,16 @@ class ModuleStateFixer extends ModuleInstaller
         if (is_array($aModuleTemplates)) {
             $diff = $this->diff($old,$aModuleTemplates);
             if ($diff) {
-                $this->_debugOutput->writeLn("$sModuleId fixing templates:"  . var_export($diff, true));
+                $this->output->writeLn("$sModuleId fixing templates:"  . var_export($diff, true));
                 $aTemplates[$sModuleId] = $aModuleTemplates;
                 $this->_saveToConfig('aModuleTemplates', $aTemplates);
+                $this->needCacheClear = true;
             }
         } else {
             if ($old) {
-                $this->_debugOutput->writeLn("$sModuleId unregister templates:");
+                $this->output->writeLn("$sModuleId unregister templates:");
                 $this->_deleteTemplateFiles($sModuleId);
+                $this->needCacheClear = true;
             }
         }
     }
@@ -96,14 +134,16 @@ class ModuleStateFixer extends ModuleInstaller
         if (is_array($aModuleFiles)) {
             $diff = $this->diff($old,$aModuleFiles);
             if ($diff) {
-                $this->_debugOutput->writeLn("$sModuleId fixing files:" . var_export($diff, true));
+                $this->output->writeLn("$sModuleId fixing files:" . var_export($diff, true));
                 $aFiles[$sModuleId] = $aModuleFiles;
                 $this->_saveToConfig('aModuleFiles', $aFiles);
+                $this->needCacheClear = true;
             }
         } else {
             if ($old) {
-                $this->_debugOutput->writeLn("$sModuleId unregister files");
+                $this->output->writeLn("$sModuleId unregister files");
                 $this->_deleteModuleFiles($sModuleId);
+                $this->needCacheClear = true;
             }
         }
 
@@ -120,21 +160,48 @@ class ModuleStateFixer extends ModuleInstaller
     {
         $aEvents = (array) $this->getConfig()->getConfigParam('aModuleEvents');
         $old =  $aEvents[$sModuleId];
-        if (is_array($aEvents)) {
+        if (is_array($aModuleEvents)) {
             $diff = $this->diff($old,$aModuleEvents);
             if ($diff) {
                 $aEvents[$sModuleId] = $aModuleEvents;
-                $this->_debugOutput->writeLn("$sModuleId fixing module events:" . var_export($diff, true));
-
+                $this->output->writeLn("$sModuleId fixing module events:" . var_export($diff, true));
                 $this->_saveToConfig('aModuleEvents', $aEvents);
+                $this->needCacheClear = true;
             }
         } else {
             if ($old) {
-                $this->_debugOutput->writeLn("$sModuleId unregister events");
+                $this->output->writeLn("$sModuleId unregister events");
                 $this->_deleteModuleEvents($sModuleVersion);
+                $this->needCacheClear = true;
             }
         }
 
+    }
+
+    /**
+     * Add module id with extensions to config.
+     *
+     * @param array  $moduleExtensions Module version
+     * @param string $moduleId         Module id
+     */
+    protected function _addModuleExtensions($moduleExtensions, $moduleId)
+    {
+        $extensions = (array) $this->getConfig()->getConfigParam('aModuleExtensions');
+        $old = (array) $extensions[$moduleId];
+        $new = $moduleExtensions === null ? [] : array_values($moduleExtensions);
+        if (is_array($moduleExtensions)) {
+            $diff = $this->diff($old, $new);
+            if ($diff) {
+                $extensions[$moduleId] = array_values($moduleExtensions);
+                $this->output->writeLn("$sModuleId fixing module extensions:" . var_export($diff, true));
+                $this->_saveToConfig('aModuleExtensions', $extensions);
+                $this->needCacheClear = true;
+            }
+        } else {
+            $this->output->writeLn("$sModuleId unregister module extensions");
+            $this->needCacheClear = true;
+            $this->_saveToConfig('aModuleExtensions', []);
+        }
     }
 
     /**
@@ -150,14 +217,16 @@ class ModuleStateFixer extends ModuleInstaller
         if (is_array($aVersions)) {
             $aVersions[$sModuleId] = $sModuleVersion;
             if ($old !== $sModuleVersion) {
-                $this->_debugOutput->writeLn("$sModuleId fixing module version from $old to $sModuleVersion");
+                $this->output->writeLn("$sModuleId fixing module version from $old to $sModuleVersion");
                 $aEvents[$sModuleId] = $sModuleVersion;
                 $this->_saveToConfig('aModuleVersions', $aVersions);
+                $this->needCacheClear = true;
             }
         } else {
             if ($old) {
-                $this->_debugOutput->writeLn("$sModuleId unregister module version");
+                $this->output->writeLn("$sModuleId unregister module version");
                 $this->_deleteModuleVersions($sModuleId);
+                $this->needCacheClear = true;
             }
         }
 
@@ -233,6 +302,7 @@ class ModuleStateFixer extends ModuleInstaller
         $duplicatedKeys = array_intersect_key(array_change_key_case($moduleControllers, CASE_LOWER), $controllersForThatModuleInDb);
 
         if (array_diff_assoc($moduleControllers,$duplicatedKeys)) {
+            $this->output->writeLn("$sModuleId fix module ModuleControllers");
             $this->deleteModuleControllers($moduleId);
             $this->resetModuleCache($module);
             $this->validateModuleMetadataControllersOnActivation($moduleControllers);
@@ -240,7 +310,7 @@ class ModuleStateFixer extends ModuleInstaller
             $classProviderStorage = $this->getClassProviderStorage();
 
             $classProviderStorage->add($moduleId, $moduleControllers);
-
+            $this->needCacheClear = true;
         }
 
     }
@@ -256,12 +326,6 @@ class ModuleStateFixer extends ModuleInstaller
         $moduleCache = oxNew(ModuleCache::class, $module);
         $moduleCache->resetCache();
     }
-
-
-
-    /** @var OutputInterface $_debugOutput */
-    protected $_debugOutput;
-    protected $output;
 
     /**
      * @param $o OutputInterface
@@ -301,32 +365,31 @@ class ModuleStateFixer extends ModuleInstaller
 
         $aModules = $this->buildModuleChains($aModules);
         if ($aModulesDefault != $aModules) {
+            $this->needCacheClear = true;
             $onlyInAfterFix = array_diff($aModules, $aModulesDefault);
             $onlyInBeforeFix = array_diff($aModulesDefault, $aModules);
-            if ($this->_debugOutput->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
-                $this->_debugOutput->writeLn("[INFO] fixing " . $module->getId());
-                foreach ($onlyInAfterFix as $core => $ext) {
-                    if ($oldChain = $onlyInBeforeFix[$core]) {
-                        $newExt = substr($ext, strlen($oldChain));
-                        if (!$newExt) {
-                            //$newExt = substr($ext, strlen($oldChain));
-                            $this->_debugOutput->writeLn("[INFO] remove ext for $core");
-                            $this->_debugOutput->writeLn("[INFO] old: $oldChain");
-                            $this->_debugOutput->writeLn("[INFO] new: $ext");
-                            //$this->_debugOutput->writeLn("[ERROR] extension chain is corrupted for this module");
-                            //return;
-                            continue;
-                        } else {
-                            $this->_debugOutput->writeLn("[INFO] append $core => ...$newExt");
-                        }
-                        unset($onlyInBeforeFix[$core]);
+            $this->_output->writeLn("[INFO] fixing " . $module->getId());
+            foreach ($onlyInAfterFix as $core => $ext) {
+                if ($oldChain = $onlyInBeforeFix[$core]) {
+                    $newExt = substr($ext, strlen($oldChain));
+                    if (!$newExt) {
+                        //$newExt = substr($ext, strlen($oldChain));
+                        $this->output->writeLn("[INFO] remove ext for $core");
+                        $this->output->writeLn("[INFO] old: $oldChain");
+                        $this->output->writeLn("[INFO] new: $ext");
+                        //$this->_debugOutput->writeLn("[ERROR] extension chain is corrupted for this module");
+                        //return;
+                        continue;
                     } else {
-                        $this->_debugOutput->writeLn("[INFO] add $core => $ext");
+                        $this->output->writeLn("[INFO] append $core => ...$newExt");
                     }
+                    unset($onlyInBeforeFix[$core]);
+                } else {
+                    $this->output->writeLn("[INFO] add $core => $ext");
                 }
-                foreach ($onlyInBeforeFix as $core => $ext) {
-                    $this->_debugOutput->writeLn("[INFO] remove $core => $ext");
-                }
+            }
+            foreach ($onlyInBeforeFix as $core => $ext) {
+                $this->output->writeLn("[INFO] remove $core => $ext");
             }
             $this->_saveToConfig('aModules', $aModules);
         }
@@ -346,6 +409,12 @@ class ModuleStateFixer extends ModuleInstaller
      */
     protected function _addTemplateBlocks($moduleBlocks, $moduleId)
     {
+        /*
+        $shopid = $this->getConfig()->getShopId();
+        $moduleBlocksInDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(DatabaseProvider::FETCH_MODE_ASSOC)->getAll("SELECT `OXPOS` as `position`,`OXTHEME` as theme, `OXTEMPLATE` as template, `OXBLOCKNAME` as block, `OXFILE` as file FROM oxtplblocks WHERE oxmodule = '$moduleId' AND oxshopid = '$shopid' AND `OXACTIVE` = 1 order by `OXPOS`");
+        check and set $this->needCacheClear = true;
+        */
+
         $this->setTemplateBlocks($moduleBlocks, $moduleId);
     }
 
@@ -367,7 +436,7 @@ class ModuleStateFixer extends ModuleInstaller
         $shopId = $this->getConfig()->getShopId();
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $knownBlocks = ['dummy']; // Start with a dummy value to prevent having an empty list in the NOT IN statement.
-
+        $rowsEffected = 0;
         foreach ($moduleBlocks as $moduleBlock) {
             $blockId = md5($moduleId . json_encode($moduleBlock) . $shopId);
             $knownBlocks[] = $blockId;
@@ -393,7 +462,7 @@ class ModuleStateFixer extends ModuleInstaller
                       `OXFILE` = VALUES(OXFILE),
                       `OXMODULE` = VALUES(OXMODULE)";
 
-            $db->execute($sql, array(
+            $rowsEffected += $db->execute($sql, array(
                 $blockId,
                 $shopId,
                 $theme,
@@ -408,40 +477,13 @@ class ModuleStateFixer extends ModuleInstaller
         $listOfKnownBlocks = join(',', $db->quoteArray($knownBlocks));
         $deleteblocks = "DELETE FROM oxtplblocks WHERE OXSHOPID = ? AND OXMODULE = ? AND OXID NOT IN ({$listOfKnownBlocks});";
 
-        $db->execute(
+        $rowsEffected += $db->execute(
             $deleteblocks,
             array($shopId, $moduleId)
         );
 
-
-    }
-
-    /**
-     * FIX that moduleid is used instead of modulpath https://github.com/OXID-eSales/oxideshop_ce/pull/333
-     * Filter module array using module id
-     *
-     * @param array  $aModules  Module array (nested format)
-     * @param string $sModuleId Module id/folder name
-     *
-     * @return array
-     */
-    protected function _filterModuleArray($aModules, $sModuleId)
-    {
-        $aModulePaths = $this->getConfig()->getConfigParam('aModulePaths');
-        $sPath = $aModulePaths[$sModuleId];
-        if (!$sPath) {
-            $sPath = $sModuleId;
+        if ($rowsEffected) {
+            $this->needCacheClear = true;
         }
-        $sPath .= "/";
-        $aFilteredModules = array();
-        foreach ($aModules as $sClass => $aExtend) {
-            foreach ($aExtend as $sExtendPath) {
-                if (strpos($sExtendPath, $sPath) === 0) {
-                    $aFilteredModules[$sClass][] = $sExtendPath;
-                }
-            }
-        }
-        return $aFilteredModules;
     }
-
 }

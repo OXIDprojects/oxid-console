@@ -58,7 +58,7 @@ class FixStatesCommand extends Command
     {
         $this->input = $input;
 
-        $verboseOutput = $output->getVerbosity() > OutputInterface::VERBOSITY_VERBOSE
+        $verboseOutput = $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE
             ? $output
             : new NullOutput();
 
@@ -79,7 +79,8 @@ class FixStatesCommand extends Command
         $oModule = oxNew(Module::class);
 
         foreach ($aShopConfigs as $oConfig) {
-            $verboseOutput->writeLn('[DEBUG] Working on shop id ' . $oConfig->getShopId());
+            $moduleCount = count($aModuleIds);
+            $verboseOutput->writeLn('[DEBUG] Working on shop id ' . $oConfig->getShopId() . " fixing $moduleCount modules");
 
             foreach ($aModuleIds as $sModuleId) {
                 if (!$oModule->load($sModuleId)) {
