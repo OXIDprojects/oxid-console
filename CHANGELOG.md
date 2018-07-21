@@ -1,5 +1,8 @@
 # Changelog for OXID Console
 
+## [v5.0.18]
+- minor performance improvement (when saving bool values)
+
 ## [v5.0.17]
 - better performance of shop config by avoiding unnecessary writes for modules config (if it stays the same)
 

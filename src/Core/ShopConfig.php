@@ -186,6 +186,13 @@ class ShopConfig extends Config
             } else {
                 $storedValue = $this->getConfigParam($sVarName);
             }
+            if ($sVarType == 'bool') {
+                //some modules that have all kinds of bool representations in metadata.php may cause
+                //$sVarVal to something else then a boolean, converting the value like parent::saveShopConfVar
+                //would do so we can compare it to the strored representation
+                $sVarVal = (($sVarVal == 'true' || $sVarVal) && $sVarVal && strcasecmp($sVarVal, "false"));
+            }
+
             if ($sVarType == $storedType && $sVarVal == $storedValue) {
                 return false;
             }
