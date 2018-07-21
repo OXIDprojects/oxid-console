@@ -1,8 +1,11 @@
 # Changelog for OXID Console
 
+## [v5.0.17]
+- better performance of shop config by avoiding unnecessary writes for modules config (if it stays the same)
+
 ## [v5.0.16]
-more verbose when changing things,
-better performance by smart cache clear 
+- more verbose when changing things,
+- better performance by smart cache clear 
 
 ## [v5.0.15]
 - fix fixing modules with camecase files definition

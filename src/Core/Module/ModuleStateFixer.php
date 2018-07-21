@@ -271,8 +271,7 @@ class ModuleStateFixer extends ModuleInstaller
         }
         $this->_addTemplateBlocks($module->getInfo("blocks"), $moduleId);
         $this->_addTemplateFiles($module->getInfo("templates"), $moduleId);
-        $settingsHandler = oxNew(SettingsHandler::class);
-        $settingsHandler->setModuleType('module')->run($module);
+        $this->_addModuleSettings($module->getInfo("settings"), $moduleId);
         $this->_addModuleVersion($module->getInfo("version"), $moduleId);
         $this->_addModuleExtensions($module->getExtensions(), $moduleId);
         $this->_addModuleEvents($module->getInfo("events"), $moduleId);
@@ -285,6 +284,46 @@ class ModuleStateFixer extends ModuleInstaller
             }
         }
     }
+
+    /**
+     * Get config tables specific module id
+     *
+     * @param string $moduleId
+     * @return string
+     */
+    protected function getModuleConfigId($moduleId)
+    {
+        return 'module:' . $moduleId;
+    }
+
+    /**
+     * Adds settings to database.
+     *
+     * @param array  $moduleSettings Module settings array
+     * @param string $moduleId       Module id
+     */
+    protected function _addModuleSettings($moduleSettings, $moduleId)
+    {
+        $config = $this->getConfig();
+        $shopId = $config->getShopId();
+        if (is_array($moduleSettings)) {
+            foreach ($moduleSettings as $setting) {
+
+                $module = $this->getModuleConfigId($moduleId);
+                $name = $setting["name"];
+                $type = $setting["type"];
+
+                $value = is_null($config->getConfigParam($name)) ? $setting["value"] : $config->getConfigParam($name);
+
+                $changed = $config->saveShopConfVar($type, $name, $value, $shopId, $module);
+                if ($changed) {
+                    $this->output->writeln("$moduleId: setting for '$name' fixed'");
+                    $this->needCacheClear = $this->needCacheClear || $changed;
+                }
+            }
+        }
+    }
+
 
     /**
      * Add controllers map for a given module Id to config
@@ -302,7 +341,7 @@ class ModuleStateFixer extends ModuleInstaller
         $duplicatedKeys = array_intersect_key(array_change_key_case($moduleControllers, CASE_LOWER), $controllersForThatModuleInDb);
 
         if (array_diff_assoc($moduleControllers,$duplicatedKeys)) {
-            $this->output->writeLn("$sModuleId fix module ModuleControllers");
+            $this->output->writeLn("$moduleId fix module ModuleControllers");
             $this->deleteModuleControllers($moduleId);
             $this->resetModuleCache($module);
             $this->validateModuleMetadataControllersOnActivation($moduleControllers);

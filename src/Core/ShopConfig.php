@@ -29,6 +29,12 @@ class ShopConfig extends Config
     protected $_iShopId;
 
     /**
+     * the config params before child theme overloaded them
+     * @var array
+     */
+    protected $_aConfigParamsParentTheme;
+
+    /**
      * Constructor
      *
      * @param $iShopId
@@ -92,6 +98,7 @@ class ShopConfig extends Config
 
         $this->_loadVarsFromFile();
         $this->_setDefaults();
+        $this->storedVarTypes = $this->getStoredVarTypes();
 
         try {
             $sShopID = $this->getShopId();
@@ -106,6 +113,8 @@ class ShopConfig extends Config
             $this->_loadVarsFromDb(
                 $sShopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')
             );
+
+            $this->_aConfigParamsParentTheme = $this->_aConfigParams;
 
             // checking if custom theme (which has defined parent theme) config options should be loaded over parent theme (#3362)
             if ($this->getConfigParam('sCustomTheme')) {
@@ -134,4 +143,55 @@ class ShopConfig extends Config
     {
         return $this->_iShopId;
     }
+
+
+    /**
+     *  Getting all the stored variable type info from database
+     *  to be able to check if there was a type change
+     *  this helps to improve performance when saving a huge amount of config values (e.g. module:fix or config importers)
+     */
+    protected function getStoredVarTypes()
+    {
+        $db = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
+        $sQ = "select CONCAT(oxvarname,'+',oxmodule) as mapkey, oxvartype from oxconfig where oxshopid = ?";
+        $allRows = $db->getAll($sQ, [$this->_iShopId]);
+        $map = [];
+        foreach($allRows as $row) {
+            $map[$row['mapkey']] = $row['oxvartype'];
+        }
+        return $map;
+    }
+
+    public function getShopConfType($sVarName,$sSectionModule)
+    {
+        return $this->storedVarTypes[$sVarName.'+'.$sSectionModule];
+    }
+
+    /**
+     * overwritten method for performance reasons
+     * @param $sVarType
+     * @param $sVarName
+     * @param $sVarVal
+     * @param null $sShopId
+     * @param string $sModule
+     * @return bool
+     */
+    public function saveShopConfVar($sVarType, $sVarName, $sVarVal, $sShopId = null, $sModule = '')
+    {
+        $sShopId = $sShopId === null ? $this->_iShopId : $sShopId;
+        if ($sShopId == $this->_iShopId) {
+            $storedType = $this->getShopConfType($sVarName, $sModule);
+            if ($sModule == Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')){
+                $storedValue = $this->_aConfigParamsParentTheme[$sVarName];
+            } else {
+                $storedValue = $this->getConfigParam($sVarName);
+            }
+            if ($sVarType == $storedType && $sVarVal == $storedValue) {
+                return false;
+            }
+        }
+        parent::saveShopConfVar($sVarType, $sVarName, $sVarVal, $sShopId, $sModule);
+        return true;
+    }
+
 }
