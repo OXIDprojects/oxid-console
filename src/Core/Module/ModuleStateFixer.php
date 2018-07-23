@@ -407,7 +407,7 @@ class ModuleStateFixer extends ModuleInstaller
             $this->needCacheClear = true;
             $onlyInAfterFix = array_diff($aModules, $aModulesDefault);
             $onlyInBeforeFix = array_diff($aModulesDefault, $aModules);
-            $this->_output->writeLn("[INFO] fixing " . $module->getId());
+            $this->output->writeLn("[INFO] fixing " . $module->getId());
             foreach ($onlyInAfterFix as $core => $ext) {
                 if ($oldChain = $onlyInBeforeFix[$core]) {
                     $newExt = substr($ext, strlen($oldChain));
