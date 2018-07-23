@@ -1,19 +1,29 @@
 # Changelog for OXID Console
 
+## [v5.0.19]
+### Fixed
+- fixed moduel:fix command
+
 ## [v5.0.18]
+** WARNING known crash during fix:states **
+### Changed
 - minor performance improvement (when saving bool values)
 
 ## [v5.0.17]
+### Changed
 - better performance of shop config by avoiding unnecessary writes for modules config (if it stays the same)
 
 ## [v5.0.16]
+### Changed
 - more verbose when changing things,
 - better performance by smart cache clear 
 
 ## [v5.0.15]
+### Fixed
 - fix fixing modules with camecase files definition
 
 ## [v5.0.14]
+### Fixed
 - fix fixing of modules with same prefix in the directory name
 - fix debug output
 
