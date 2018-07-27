@@ -160,7 +160,7 @@ class ModuleStateFixer extends ModuleInstaller
     {
         $aEvents = (array) $this->getConfig()->getConfigParam('aModuleEvents');
         $old =  $aEvents[$sModuleId];
-        if (is_array($aModuleEvents)) {
+        if (is_array($aModuleEvents) && count($aModuleEvents)) {
             $diff = $this->diff($old,$aModuleEvents);
             if ($diff) {
                 $aEvents[$sModuleId] = $aModuleEvents;

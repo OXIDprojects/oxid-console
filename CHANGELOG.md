@@ -1,6 +1,6 @@
 # Changelog for OXID Console
 
-##unreleased
+## [v5.0.21]
 ### Fixed
 - fixed moduel:fix command in case module events where removed
 
