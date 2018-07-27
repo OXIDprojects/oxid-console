@@ -171,7 +171,7 @@ class ModuleStateFixer extends ModuleInstaller
         } else {
             if ($old) {
                 $this->output->writeLn("$sModuleId unregister events");
-                $this->_deleteModuleEvents($sModuleVersion);
+                $this->_deleteModuleEvents($sModuleId);
                 $this->needCacheClear = true;
             }
         }
