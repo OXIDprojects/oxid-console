@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.20]
+### Fixed
+- fixed moduel:fix command in case module garbage was found
+
 ## [v5.0.19]
 ### Fixed
 - fixed moduel:fix command

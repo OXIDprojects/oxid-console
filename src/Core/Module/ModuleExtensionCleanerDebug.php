@@ -39,7 +39,7 @@ class ModuleExtensionCleanerDebug extends ModuleExtensionsCleaner
         foreach ($aarGarbage as $moduleId => $aExt) {
             $this->_debugOutput->writeLn("[INFO] removing garbage for module $moduleId: " . join(',', $aExt));
         }
-        return parent::_removeGarbage($aInstalledExtensions, $aarGarbage);
+        return parent::removeGarbage($aInstalledExtensions, $aarGarbage);
     }
 
     /**
