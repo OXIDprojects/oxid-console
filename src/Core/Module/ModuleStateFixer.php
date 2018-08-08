@@ -193,12 +193,12 @@ class ModuleStateFixer extends ModuleInstaller
             $diff = $this->diff($old, $new);
             if ($diff) {
                 $extensions[$moduleId] = array_values($moduleExtensions);
-                $this->output->writeLn("$sModuleId fixing module extensions:" . var_export($diff, true));
+                $this->output->writeLn("$moduleId fixing module extensions:" . var_export($diff, true));
                 $this->_saveToConfig('aModuleExtensions', $extensions);
                 $this->needCacheClear = true;
             }
         } else {
-            $this->output->writeLn("$sModuleId unregister module extensions");
+            $this->output->writeLn("$moduleId unregister module extensions");
             $this->needCacheClear = true;
             $this->_saveToConfig('aModuleExtensions', []);
         }
