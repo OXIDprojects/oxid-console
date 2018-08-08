@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v5.0.22]
+### Fixed
+- output when fixing module extensions
+- finding special kind of garbage if module extension was renamed
+
 ## [v5.0.21]
 ### Fixed
 - fixed moduel:fix command in case module events where removed
