@@ -23,14 +23,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ModuleExtensionCleanerDebug extends ModuleExtensionsCleaner
 {
     protected $_debugOutput;
-    
+
     public function __construct()
     {
         $this->_debugOutput= new NullOutput();
     }
 
     public function setOutput(OutputInterface $out){
-        
+
         $this->_debugOutput = $out;
     }
 
@@ -40,6 +40,30 @@ class ModuleExtensionCleanerDebug extends ModuleExtensionsCleaner
             $this->_debugOutput->writeLn("[INFO] removing garbage for module $moduleId: " . join(',', $aExt));
         }
         return parent::removeGarbage($aInstalledExtensions, $aarGarbage);
+    }
+
+    /**
+     * Returns extension which is no longer in metadata - garbage
+     *
+     * @param array $moduleMetaDataExtensions  extensions defined in metadata.
+     * @param array $moduleInstalledExtensions extensions which are installed
+     *
+     * @return array
+     */
+    protected function getModuleExtensionsGarbage($moduleMetaDataExtensions, $moduleInstalledExtensions)
+    {
+
+        $garbage = parent::getModuleExtensionsGarbage($moduleMetaDataExtensions, $moduleInstalledExtensions);
+
+        foreach ($moduleInstalledExtensions as $coreClassName => $listOfExtensions) {
+            foreach ($listOfExtensions as $extensions) {
+                if (! (isset($moduleMetaDataExtensions[$coreClassName]) && $moduleMetaDataExtensions[$coreClassName] == $extensions)) {
+                    $garbage[$coreClassName][] = $extensions;
+                }
+            }
+        }
+
+        return $garbage;
     }
 
     /**
