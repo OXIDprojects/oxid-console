@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.23]
+### Added
+- finding special kind of global garbage that can be caused by modules using namespaces 
+
 ## [v5.0.22]
 ### Fixed
 - output when fixing module extensions

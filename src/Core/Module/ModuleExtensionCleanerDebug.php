@@ -17,6 +17,7 @@ namespace OxidProfessionalServices\OxidConsole\Core\Module;
 
 
 use OxidEsales\Eshop\Core\Module\ModuleExtensionsCleaner;
+use OxidEsales\Eshop\Core\Registry;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -32,6 +33,42 @@ class ModuleExtensionCleanerDebug extends ModuleExtensionsCleaner
     public function setOutput(OutputInterface $out){
 
         $this->_debugOutput = $out;
+    }
+
+    /**
+     * Removes garbage ( module not used extensions ) from all installed extensions list.
+     * For example: some classes were renamed, so these should be removed.
+     *
+     * @param array                                $installedExtensions
+     * @param \OxidEsales\Eshop\Core\Module\Module $module
+     *
+     * @return array
+     */
+    public function cleanExtensions($installedExtensions, \OxidEsales\Eshop\Core\Module\Module $module)
+    {
+        $installedExtensions = parent::cleanExtensions($installedExtensions, $module);
+
+        $oModules = oxNew( \OxidEsales\EshopCommunity\Core\Module\ModuleList::class );
+        //ids will include garbage in case there are files that not registered by any module
+        $ids = $oModules->getModuleIds();
+
+        $config = Registry::getConfig();
+        $knownIds = array_keys($config->getConfigParam('aModulePaths'));
+        $diff = array_diff($ids,$knownIds);
+        if ($diff) {
+            foreach ($diff as $item) {
+                foreach ($installedExtensions as &$coreClassExtension) {
+                    foreach ($coreClassExtension as $i => $ext) {
+                        if ($ext === $item) {
+                            $this->_debugOutput->writeln("$item will be removed");
+                            unset($coreClassExtension[$i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $installedExtensions;
     }
 
     protected function removeGarbage($aInstalledExtensions, $aarGarbage)
