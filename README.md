@@ -34,12 +34,6 @@ For backwords compatibility the following commands are still available (*but are
 ## Installation
 
 add this repository to your composer.json (unless the console is released on packagist.org):
-```json
-    "oxid-professional-services/oxid-console": {
-      "type": "vcs",
-      "url": "https://github.com/OXIDprojects/oxid-console"
-    },
-```
 
 ```bash
 composer require oxid-professional-services/oxid-console
