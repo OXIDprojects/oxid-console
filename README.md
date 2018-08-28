@@ -32,9 +32,7 @@ For backwords compatibility the following commands are still available (*but are
 | \>=6.0.0          | 5.0.x                | [Source Code](https://github.com/OXIDprojects/oxid-console/)|please use composer to download| 
 
 ## Installation
-
-add this repository to your composer.json (unless the console is released on packagist.org):
-
+Use Composer to add the console to your project
 ```bash
 composer require oxid-professional-services/oxid-console
 ```
