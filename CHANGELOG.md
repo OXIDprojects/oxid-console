@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.24]
+### Changed
+- use normal Error stacktrace because debug output is usually to long in case of error 
+
 ## [v5.0.23]
 ### Added
 - finding special kind of global garbage that can be caused by modules using namespaces 

@@ -56,7 +56,8 @@ try {
 } catch (Throwable $ex) {
     //console should print errors always
     print $ex->getMessage();
-    //print $ex->getTraceAsString();
+    print $ex->getTraceAsString();
+    /*
     $i = 0;
     foreach ($ex->getTrace() as $frame) {
         echo sprintf("#%d %s(%d): %s(%s)\n",
@@ -65,6 +66,7 @@ try {
             implode(", ", array_map(
                 function ($e) { return var_export($e, true); }, $frame["args"])));
     }
+    */
     //shop exception hanlder may tke care about error code and logging
     throw $ex;
 }
