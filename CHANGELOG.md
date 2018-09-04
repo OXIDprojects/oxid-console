@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.27]
+### Changed
+-Fix if $metaDataVersion not exist in a module
+
 ## [v5.0.26]
 ### Changed
  -update modules lists before get commands from modules
