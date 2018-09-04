@@ -97,11 +97,11 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addTemplateFiles($aModuleTemplates, $sModuleId)
     {
         $aTemplates = (array) $this->getConfig()->getConfigParam('aModuleTemplates');
-        $old = $aTemplates[$sModuleId];
+        $old = isset($aTemplates[$sModuleId]) ? $aTemplates[$sModuleId] : null;
         if (is_array($aModuleTemplates)) {
             $diff = $this->diff($old,$aModuleTemplates);
             if ($diff) {
-                $this->output->writeLn("$sModuleId fixing templates:"  . var_export($diff, true));
+                $this->output->writeLn("$sModuleId fixing templates:"  . $old === null ? ' everything ' :  var_export($diff, true));
                 $aTemplates[$sModuleId] = $aModuleTemplates;
                 $this->_saveToConfig('aModuleTemplates', $aTemplates);
                 $this->needCacheClear = true;
@@ -126,7 +126,7 @@ class ModuleStateFixer extends ModuleInstaller
     {
         $aFiles = (array) $this->getConfig()->getConfigParam('aModuleFiles');
 
-        $old =  $aFiles[$sModuleId];
+        $old =  isset($aFiles[$sModuleId]) ? $aFiles[$sModuleId] : null;
         if ($aModuleFiles !== null) {
             $aModuleFiles = array_change_key_case($aModuleFiles, CASE_LOWER);
         }
@@ -134,7 +134,7 @@ class ModuleStateFixer extends ModuleInstaller
         if (is_array($aModuleFiles)) {
             $diff = $this->diff($old,$aModuleFiles);
             if ($diff) {
-                $this->output->writeLn("$sModuleId fixing files:" . var_export($diff, true));
+                $this->output->writeLn("$sModuleId fixing files:" . $old === null ? ' everything' : var_export($diff, true));
                 $aFiles[$sModuleId] = $aModuleFiles;
                 $this->_saveToConfig('aModuleFiles', $aFiles);
                 $this->needCacheClear = true;
@@ -159,12 +159,12 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleEvents($aModuleEvents, $sModuleId)
     {
         $aEvents = (array) $this->getConfig()->getConfigParam('aModuleEvents');
-        $old =  $aEvents[$sModuleId];
+        $old =  isset($aEvents[$sModuleId]) ? $aEvents[$sModuleId] : null;
         if (is_array($aModuleEvents) && count($aModuleEvents)) {
             $diff = $this->diff($old,$aModuleEvents);
             if ($diff) {
                 $aEvents[$sModuleId] = $aModuleEvents;
-                $this->output->writeLn("$sModuleId fixing module events:" . var_export($diff, true));
+                $this->output->writeLn("$sModuleId fixing module events:" . $old == null ? ' everything ' : var_export($diff, true));
                 $this->_saveToConfig('aModuleEvents', $aEvents);
                 $this->needCacheClear = true;
             }
@@ -187,13 +187,14 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleExtensions($moduleExtensions, $moduleId)
     {
         $extensions = (array) $this->getConfig()->getConfigParam('aModuleExtensions');
-        $old = (array) $extensions[$moduleId];
+        $old = isset($extensions[$moduleId]) ? $extensions[$moduleId] : null;
+        $old = (array) $old;
         $new = $moduleExtensions === null ? [] : array_values($moduleExtensions);
         if (is_array($moduleExtensions)) {
             $diff = $this->diff($old, $new);
             if ($diff) {
                 $extensions[$moduleId] = array_values($moduleExtensions);
-                $this->output->writeLn("$moduleId fixing module extensions:" . var_export($diff, true));
+                $this->output->writeLn("$moduleId fixing module extensions:" . $old === null ? ' everything ' : var_export($diff, true));
                 $this->_saveToConfig('aModuleExtensions', $extensions);
                 $this->needCacheClear = true;
             }
@@ -213,7 +214,7 @@ class ModuleStateFixer extends ModuleInstaller
     protected function _addModuleVersion($sModuleVersion, $sModuleId)
     {
         $aVersions = (array) $this->getConfig()->getConfigParam('aModuleVersions');
-        $old =  $aVersions[$sModuleId];
+        $old =  isset($aVersions[$sModuleId]) ? $aVersions[$sModuleId] : '';
         if (is_array($aVersions)) {
             $aVersions[$sModuleId] = $sModuleVersion;
             if ($old !== $sModuleVersion) {
