@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.25]
+### Changed
+- removed php warnings (refactored code)
+
 ## [v5.0.24]
 ### Changed
 - use normal Error stacktrace because debug output is usually to long in case of error 
