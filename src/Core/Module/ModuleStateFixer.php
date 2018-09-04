@@ -267,7 +267,9 @@ class ModuleStateFixer extends ModuleInstaller
     private function restoreModuleInformation($module, $moduleId)
     {
         $this->_addExtensions($module);
-        if (version_compare($module->getMetaDataVersion(), '2.0', '<')) {
+        $metaDataVersion = $module->getMetaDataVersion();
+        $metaDataVersion = $metaDataVersion == '' ? $metaDataVersion = "1.0" : $metaDataVersion; 
+        if (version_compare($metaDataVersion, '2.0', '<')) {
             $this->_addModuleFiles($module->getInfo("files"), $moduleId);
         }
         $this->_addTemplateBlocks($module->getInfo("blocks"), $moduleId);
@@ -277,7 +279,7 @@ class ModuleStateFixer extends ModuleInstaller
         $this->_addModuleExtensions($module->getExtensions(), $moduleId);
         $this->_addModuleEvents($module->getInfo("events"), $moduleId);
 
-        if (version_compare($module->getMetaDataVersion(), '2.0', '>=')) {
+        if (version_compare($metaDataVersion, '2.0', '>=')) {
             try {
                 $this->setModuleControllers($module->getControllers(), $moduleId, $module);
             } catch (ModuleValidationException $exception) {
