@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.0.26]
+### Changed
+ -update modules lists before get commands from modules
+ 
 ## [v5.0.25]
 ### Changed
 - removed php warnings (refactored code)
