@@ -2,11 +2,11 @@
 
 ## [v5.0.28]
 ### Changed
-- Set meta data version by default to null
+-  fix:states command: modules without meta data version can be fixed. 
 
 ## [v5.0.27]
 ### Changed
-- Fix if $metaDataVersion not exist in a module
+- fix:states command: preparation for being able to handle modules without metadataversion
 
 ## [v5.0.26]
 ### Changed
