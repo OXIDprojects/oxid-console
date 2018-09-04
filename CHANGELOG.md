@@ -1,8 +1,12 @@
 # Changelog for OXID Console
 
+## [v5.0.28]
+### Changed
+- Set meta data version by default to null
+
 ## [v5.0.27]
 ### Changed
--Fix if $metaDataVersion not exist in a module
+- Fix if $metaDataVersion not exist in a module
 
 ## [v5.0.26]
 ### Changed

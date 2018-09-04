@@ -83,6 +83,7 @@ class FixStatesCommand extends Command
             $verboseOutput->writeLn('[DEBUG] Working on shop id ' . $oConfig->getShopId() . " fixing $moduleCount modules");
 
             foreach ($aModuleIds as $sModuleId) {
+                $oModule->setMetaDataVersion(null);
                 if (!$oModule->load($sModuleId)) {
                     $verboseOutput->writeLn("[DEBUG] {$sModuleId} does not exist - skipping");
                     continue;
