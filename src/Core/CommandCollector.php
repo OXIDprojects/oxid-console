@@ -10,6 +10,7 @@
 namespace OxidProfessionalServices\OxidConsole\Core;
 
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Module\ModuleList;
 use Symfony\Component\Console\Command\Command;
 
 use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
@@ -82,6 +83,17 @@ class CommandCollector
      */
     private function getCommandsFromModules()
     {
+        $oConfig = Registry::getConfig();
+
+
+        if (! class_exists(ModuleList::class)) {
+            print "ERROR: Oxid ModuleList class can not be loaded, please run vendor/bin/oe-eshop-unified_namespace_generator";
+        } else {
+            $moduleList = oxNew(ModuleList::class);
+            $modulesDir = $oConfig->getModulesDir();
+            $moduleList->getModulesFromDir($modulesDir);
+        }
+
         $paths = $this->getPathsOfAvailableModules();
         $pathToPhpFiles = $this->getPhpFilesMatchingPatternForCommandFromGivenPaths(
             $paths
