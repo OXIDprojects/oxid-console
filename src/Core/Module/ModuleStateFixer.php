@@ -284,6 +284,30 @@ class ModuleStateFixer extends ModuleInstaller
                 $this->setModuleControllers($module->getControllers(), $moduleId, $module);
             } catch (ModuleValidationException $exception) {
                 print "[ERROR]: duplicate controllers:" . $exception->getMessage() ."\n";
+                $controllers = $module->getControllers();
+                $stored = $this->getConfig()->getConfigParam('aModuleControllers');
+                foreach ($stored as $moduleid => $storedcontrollers) {
+                    foreach ( $storedcontrollers as $storedControllername => $storedControllerclass) {
+                        foreach ($controllers as $controllername => $controllerclass) {
+                            $needAction = false;
+                            if ($controllerclass == $storedControllerclass) {
+                                //warning $controllerclass already used by module $moduleid
+                                $needAction = true;
+                            }
+                            if ($controllername == $storedControllername) {
+                                //warning $controllername already used by module $moduleid
+                                $needAction = true;
+                            }
+                            if ($needAction) {
+                                //TODO for next month add question should I delete all controller?
+                                if (true) {
+                                    $sql = "delete from oxconfig WHERE oxvarname = 'aModuleControllers'";
+                                    //error please run fix:states again
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
