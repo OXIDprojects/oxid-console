@@ -219,7 +219,7 @@ abstract class AbstractQuery
      */
     protected static function _columnExists($sTable, $sColumn)
     {
-        $oConfig = oxRegistry::getConfig();
+        $oConfig = Registry::getConfig();
         $sDbName = $oConfig->getConfigParam('dbName');
         $sSql = 'SELECT 1
                     FROM information_schema.COLUMNS
