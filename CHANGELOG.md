@@ -1,5 +1,13 @@
 # Changelog for OXID Console
 
+## [v5.1.0]
+### Added
+- Support for commands registered via composer.json of other composer packages  
+
+## [v5.0.29]
+### Changed
+- Fix error during migrations which where using _columnExists
+
 ## [v5.0.28]
 ### Changed
 -  fix:states command: modules without meta data version can be fixed. 

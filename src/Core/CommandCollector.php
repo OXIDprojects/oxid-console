@@ -9,6 +9,10 @@
 
 namespace OxidProfessionalServices\OxidConsole\Core;
 
+use Composer\Composer;
+use Composer\Json\JsonFile;
+use Composer\Repository\ComposerRepository;
+use Composer\Repository\InstalledFilesystemRepository;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Module\ModuleList;
 use Symfony\Component\Console\Command\Command;
@@ -48,9 +52,11 @@ class CommandCollector
 
         $commands = $this->getCommandsFromCore();
         $commandsFromModules = $this->getCommandsFromModules();
+        $commandsFromComposer = $this->getCommandsFromComposer();
         return array_merge(
             $commands,
-            $commandsFromModules
+            $commandsFromModules,
+            $commandsFromComposer
         );
     }
 
@@ -72,6 +78,28 @@ class CommandCollector
             new MigrateCommand(),
             new ActivateModuleCommand()
         ];
+    }
+
+    private function getCommandsFromComposer(){
+
+        $nio = new \Composer\IO\NullIO();
+        $factory = new \Composer\Factory();
+        $oConfig = Registry::getConfig();
+        $localRepository = new InstalledFilesystemRepository(new JsonFile(VENDOR_PATH.'/composer/installed.json'));
+
+        $commandsClasses = [];
+
+        $packages = $localRepository->getPackages();
+        foreach ($packages as $package) {
+            $extra = $package->getExtra();
+            $oxideshop = isset($extra['oxideshop']) ? $extra['oxideshop'] : [];
+            $consoleCommands = isset($oxideshop['console-commands']) && is_array($oxideshop['console-commands']) ?
+                $oxideshop['console-commands'] : [];
+            foreach ($consoleCommands as $commandClass) {
+                $commandsClasses[] = new $commandClass;
+            }
+        }
+        return $commandsClasses;
     }
 
     /**
