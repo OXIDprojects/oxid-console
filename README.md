@@ -217,3 +217,8 @@ When you change information of module in metadata you need to reactivate the mod
 `oxModuleStateFixer` which is an extension of oxModuleInstaller has method `fix()` which will fix all the states.
 
 We have provided you with `module:states` command to work with `oxModuleStateFixer`. Type in `vendor/bin/oxid module:states --help` for more information.
+
+
+# Related Projects
+https://github.com/OXIDprojects/oxid-module-internals
+https://github.com/OXIDprojects/oxid_modules_config
