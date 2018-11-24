@@ -44,11 +44,15 @@ vendor/bin/oxid list
 ```
 
 ## Defining your own command
-
-* Commands get autoloaded from `[module_path]/Commands/` directory
-* Command filename must follow `[your_command]Command.php` format
-* Class name must be the same as filename, e.g. `CacheClearCommand`
 * Class must extend `Symfony\Component\Console\Command\Command` class
+* in the composer json of your module 
+```json 
+  "extra": {
+    "oxideshop": {
+      "console-commands" : ["OxidCommunity\\ModuleInternals\\Command\\ModuleFixCommand"]
+    }
+  },
+```
 
 ### Template for your command:
 
@@ -94,6 +98,8 @@ class MyOwnCommand extends Command
 For more examples please see https://symfony.com/doc/current/components/console.html
 
 ## Migrations
+
+*Warning* current implementation does not trigger the oxid core migration "oe-eshop-doctrine_migration" 
 
 OXID Console project includes migration handling. Lets generate sample migration by running `vendor/bin/oxid migration:generate "add amount field to demo module"`.
 
