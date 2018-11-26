@@ -45,13 +45,13 @@ vendor/bin/oxid list
 
 ## Defining your own command
 * Class must extend `Symfony\Component\Console\Command\Command` class
-* in the composer json of your module 
-```json 
-  "extra": {
-    "oxideshop": {
-      "console-commands" : ["OxidCommunity\\ModuleInternals\\Command\\ModuleFixCommand"]
-    }
-  },
+* in the service.yaml json of your module (composer package) 
+```yaml 
+  services:
+    oxid_community.moduleinternals.module.fix.command:
+      class: OxidCommunity\ModuleInternals\Command\ModuleFixCommand
+      tags:
+      - { name: 'console.command' }
 ```
 
 ### Template for your command:

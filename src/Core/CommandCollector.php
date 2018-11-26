@@ -16,6 +16,9 @@ use Composer\Repository\InstalledFilesystemRepository;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Module\ModuleList;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
 use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
@@ -82,15 +85,18 @@ class CommandCollector
 
     private function getCommandsFromComposer(){
 
-        $nio = new \Composer\IO\NullIO();
-        $factory = new \Composer\Factory();
-        $oConfig = Registry::getConfig();
+
         $localRepository = new InstalledFilesystemRepository(new JsonFile(VENDOR_PATH.'/composer/installed.json'));
 
         $commandsClasses = [];
 
         $packages = $localRepository->getPackages();
+
+        $symfonyContainer = new ContainerBuilder();
+        $loader = new YamlFileLoader($symfonyContainer, new FileLocator());
+
         foreach ($packages as $package) {
+            //deprecated syntax to be removed
             $extra = $package->getExtra();
             $oxideshop = isset($extra['oxideshop']) ? $extra['oxideshop'] : [];
             $consoleCommands = isset($oxideshop['console-commands']) && is_array($oxideshop['console-commands']) ?
@@ -98,7 +104,19 @@ class CommandCollector
             foreach ($consoleCommands as $commandClass) {
                 $commandsClasses[] = new $commandClass;
             }
+            //end of deprecated code
+
+            $serviceFile =  VENDOR_PATH  . $package->getName() . '/services.yaml';
+            if (file_exists($serviceFile)) {
+                $loader->load($serviceFile);
+            }
         }
+        foreach ($symfonyContainer->findTaggedServiceIds('console.command') as $id => $tags) {
+            $definition = $symfonyContainer->getDefinition($id);
+            $class = $definition->getClass();
+            $commandsClasses[] = new $class;
+        }
+
         return $commandsClasses;
     }
 
