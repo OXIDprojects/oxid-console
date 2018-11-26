@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v5.2.0]
+### Added
+- Support for commands registered via services.yaml of other composer packages  
+
 ## [v5.1.0]
 ### Added
 - Support for commands registered via composer.json of other composer packages  
