@@ -51,22 +51,19 @@ try {
 
     $commandCollector = new CommandCollector();
     $application = new Application('OXID Console', $version);
-    $application->addCommands($commandCollector->getAllCommands());
+    $commands = $commandCollector->getAllCommands();
+    foreach ($commands as $command) {
+        try {
+            $application->add($command);
+        } catch (Throwable $e) {
+            print get_class($command) . " not loadad " . $e->getMessage() . "\n" . $e->getTraceAsString();
+        }
+    }
     $application->run();
 } catch (Throwable $ex) {
     //console should print errors always
     print $ex->getMessage();
     print $ex->getTraceAsString();
-    /*
-    $i = 0;
-    foreach ($ex->getTrace() as $frame) {
-        echo sprintf("#%d %s(%d): %s(%s)\n",
-            $i++, $frame["file"], $frame["line"],
-            $frame["function"],
-            implode(", ", array_map(
-                function ($e) { return var_export($e, true); }, $frame["args"])));
-    }
-    */
-    //shop exception hanlder may tke care about error code and logging
+    //shop exception handler may take care about error code and logging
     throw $ex;
 }
