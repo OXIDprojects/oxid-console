@@ -327,34 +327,35 @@ class ModuleStateFixer extends ModuleInstaller
         }
     }
 
-
     /**
      * Add controllers map for a given module Id to config
      *
      * @param array  $moduleControllers Map of controller ids and class names
      * @param string $moduleId          The Id of the module
+     * @param Module $module            Module core class
      */
     protected function setModuleControllers($moduleControllers, $moduleId, $module)
     {
-        $classProviderStorage = $this->getClassProviderStorage();
-        $dbMap = $classProviderStorage->get();
 
-        $controllersForThatModuleInDb = isset($dbMap[$moduleId]) ? $dbMap[$moduleId] : [];
-
-        $duplicatedKeys = array_intersect_key(array_change_key_case($moduleControllers, CASE_LOWER), $controllersForThatModuleInDb);
-
-        if (array_diff_assoc($moduleControllers,$duplicatedKeys)) {
-            $this->output->writeLn("$moduleId fix module ModuleControllers");
-            $this->deleteModuleControllers($moduleId);
-            $this->resetModuleCache($module);
-            $this->validateModuleMetadataControllersOnActivation($moduleControllers);
-
+        if ($module->isActive()) {
             $classProviderStorage = $this->getClassProviderStorage();
+            $dbMap = $classProviderStorage->get();
+            $controllersForThatModuleInDb = isset($dbMap[$moduleId]) ? $dbMap[$moduleId] : [];
+            $duplicatedKeys = array_intersect_key(
+                array_change_key_case($moduleControllers, CASE_LOWER), $controllersForThatModuleInDb
+            );
+            if (array_diff_assoc($moduleControllers, $duplicatedKeys)) {
+                $this->output->writeLn("$moduleId fix module ModuleControllers");
+                $this->deleteModuleControllers($moduleId);
+                $this->resetModuleCache($module);
+                $this->validateModuleMetadataControllersOnActivation($moduleControllers);
 
-            $classProviderStorage->add($moduleId, $moduleControllers);
-            $this->needCacheClear = true;
+                $classProviderStorage = $this->getClassProviderStorage();
+
+                $classProviderStorage->add($moduleId, $moduleControllers);
+                $this->needCacheClear = true;
+            }
         }
-
     }
 
 
