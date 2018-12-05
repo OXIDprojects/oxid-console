@@ -226,5 +226,5 @@ We have provided you with `module:states` command to work with `oxModuleStateFix
 
 
 # Related Projects
-https://github.com/OXIDprojects/oxid-module-internals
-https://github.com/OXIDprojects/oxid_modules_config
+* https://github.com/OXIDprojects/oxid-module-internals
+* https://github.com/OXIDprojects/oxid_modules_config
