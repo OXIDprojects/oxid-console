@@ -1,5 +1,9 @@
 # Changelog for OXID Console
 
+## [v6.0.0]
+### Removed 
+ - Removed fix:states/module:fix commands please install module internals to get that command
+
 ## [v5.2.0]
 ### Added
 - Support for commands registered via services.yaml of other composer packages  
