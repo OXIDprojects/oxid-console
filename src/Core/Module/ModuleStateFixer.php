@@ -355,7 +355,10 @@ class ModuleStateFixer extends ModuleInstaller
                 $classProviderStorage->add($moduleId, $moduleControllers);
                 $this->needCacheClear = true;
             }
-        }
+        } else {
+            $moduleCache = oxNew( \OxidEsales\Eshop\Core\Module\ModuleCache::class, $module);
+            $moduleInstaller = oxNew(\OxidEsales\Eshop\Core\Module\ModuleInstaller::class, $moduleCache);
+            $moduleInstaller->deactivate($module);}
     }
 
 
