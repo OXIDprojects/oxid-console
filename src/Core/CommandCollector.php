@@ -135,9 +135,15 @@ class CommandCollector
         if (! class_exists(ModuleList::class)) {
             print "ERROR: Oxid ModuleList class can not be loaded, please run vendor/bin/oe-eshop-unified_namespace_generator";
         } else {
-            $moduleList = oxNew(ModuleList::class);
-            $modulesDir = $oConfig->getModulesDir();
-            $moduleList->getModulesFromDir($modulesDir);
+            try {
+                $moduleList = oxNew(ModuleList::class);
+                $modulesDir = $oConfig->getModulesDir();
+                $moduleList->getModulesFromDir($modulesDir);
+            } catch (\Throwable $exception) {
+                print "Shop is not able to list modules\n";
+                print $exception->getMessage();
+                return [];
+            }
         }
 
         $paths = $this->getPathsOfAvailableModules();

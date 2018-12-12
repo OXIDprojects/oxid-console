@@ -24,11 +24,9 @@ class VersionHelper {
     {
         $fullPath = __FILE__;
         $vendorDir = dirname(dirname(dirname(dirname(dirname(dirname($fullPath))))));
-        $rootDir = dirname($vendorDir);
-        $fileName = $rootDir . '/composer.lock';
+        $fileName = $vendorDir . '/composer/installed.json';
         $content = file_get_contents($fileName);
-        $content = json_decode($content, true);
-        $packages = $content['packages'];
+        $packages = json_decode($content, true);
         $version = null;
         foreach ($packages as $package) {
             if ($package['name'] == $packageName) {

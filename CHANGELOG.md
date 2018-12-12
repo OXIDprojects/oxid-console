@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v5.3.0]
+### Changed
+- Console runs even if shop has a broken configuration
+- Version is read by composers installed.json
+
 ## [v5.2.0]
 ### Added
 - Support for commands registered via services.yaml of other composer packages  
