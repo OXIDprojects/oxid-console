@@ -43,6 +43,19 @@ try {
 
     loadBootstrap();
 
+    $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+    $aLanguages = $oConfig->getConfigParam('aLanguages');
+    $aLanguageParams = $oConfig->getConfigParam('aLanguageParams');
+
+    if (false === $aLanguagesParams) {
+        echo 'Config Param for aLanguagesParams is broken. Setting default Values to de';
+        $oConfig->saveShopConfVar('aarr', 'aLanguageParams', ['de' => ['baseId' => 0 , 'active' => 1 , 'sort' => 1]]);
+    }
+    if (false === $aLanguages) {
+        echo 'Config Param for aLanguages is broken. Setting default Values to de';
+        $oConfig->saveShopConfVar('aarr', 'aLanguages', ['de' => 'Deutsch']);
+    }
+
     $v = new VersionHelper;
     $version = $v->getVersion('oxid-professional-services/oxid-console');
 
