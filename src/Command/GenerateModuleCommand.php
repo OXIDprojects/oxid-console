@@ -52,7 +52,6 @@ class GenerateModuleCommand extends Command
             ->setAliases(['g:module'])
             ->setDescription('Generate new module scaffold');
 
-        $this->init();
     }
 
     private function init()
@@ -69,6 +68,7 @@ class GenerateModuleCommand extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->init();
         $this->input = $input;
         $this->output = $output;
 
