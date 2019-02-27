@@ -22,7 +22,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
 use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
-use OxidProfessionalServices\OxidConsole\Command\FixStatesCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateModuleCommand;
 use OxidProfessionalServices\OxidConsole\Command\MigrateCommand;
@@ -75,7 +74,6 @@ class CommandCollector
         return [
             new CacheClearCommand(),
             new DatabaseUpdateCommand(),
-            new FixStatesCommand(),
             new GenerateMigrationCommand(),
             new GenerateModuleCommand(),
             new MigrateCommand(),

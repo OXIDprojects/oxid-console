@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v6.0.0]
+
+### Removed
+- remove fix: states command - install module internals 2.x to install the command
+
 ## [v5.3.0]
 ### Changed
 - Console runs even if shop has a broken configuration

@@ -10,14 +10,12 @@ The following commands are available:
 * `cache:clear` - Clear OXID cache
 * `views:update` - Regenerate database views
 * `module:generate` - Generate new module scaffold
-* `module:fix` - Fixes modules metadata states
 * `migration:generate` - Generate new migration file
 * `migration:run` - Run migration scripts
 
 For backwords compatibility the following commands are still available (*but are deprecated*):
 * `cache:clear` - Clear OXID cache from tmp folder
 * `db:update` - Updates database views
-* `fix:states` - Fixes modules metadata states
 * `g:migration` - Generate new migration file
 * `g:module` - Generate new module scaffold
 * `list` - *(default)* List of all available commands
@@ -29,7 +27,7 @@ For backwords compatibility the following commands are still available (*but are
 |-------------------|----------------------|------------------|---------------|
 | <4.9.0, <5.2.0    | 1.1.5                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/3e28bba67649c01156c6e97f1b99aa7538b1a32e) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.1.5.zip) |
 | \>=4.9.0, >=5.2.0 | 1.2.6                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/f7dedca4d831bf5cb52e1b17024f2b70cf789b2c) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.2.6.zip) |
-| \>=6.0.0          | 5.x                  | [Source Code](https://github.com/OXIDprojects/oxid-console/)|please use composer to download| 
+| \>=6.0.0          | 6.x                  | [Source Code](https://github.com/OXIDprojects/oxid-console/)|please use composer to download| 
 
 ## Installation
 Use Composer to add the console to your project
@@ -211,18 +209,6 @@ class AddDemoCulumnToOxUserMigration extends oxMigrationQuery
 * Class name must be the same as description with *Migration* word appended to the end of the name
 
 *Note: It is better to use generator for migration queries creation*
-
-## Module state fixer
-
-### Current problem
-
-When you change information of module in metadata you need to reactivate the module for changes to take effect. It is a bad idea for live systems because you might loose data and it bugs out developers to do this all the time by hand.
-
-### Solution
-
-`oxModuleStateFixer` which is an extension of oxModuleInstaller has method `fix()` which will fix all the states.
-
-We have provided you with `module:states` command to work with `oxModuleStateFixer`. Type in `vendor/bin/oxid module:states --help` for more information.
 
 
 # Related Projects
