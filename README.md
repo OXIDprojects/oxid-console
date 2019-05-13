@@ -15,7 +15,6 @@ The following commands are available:
 * `migration:run` - Run migration scripts
 
 For backwords compatibility the following commands are still available (*but are deprecated*):
-* `cache:clear` - Clear OXID cache from tmp folder
 * `db:update` - Updates database views
 * `g:migration` - Generate new migration file
 * `g:module` - Generate new module scaffold
