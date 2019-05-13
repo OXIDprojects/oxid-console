@@ -9,6 +9,7 @@ The following commands are available:
 
 * `cache:clear` - Clear OXID cache
 * `views:update` - Regenerate database views
+* `module:activate` - Activate module in shop
 * `module:generate` - Generate new module scaffold
 * `migration:generate` - Generate new migration file
 * `migration:run` - Run migration scripts
