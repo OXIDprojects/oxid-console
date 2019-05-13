@@ -1,7 +1,7 @@
 # OXID Console
 
 OXID Console is a symfony console application for OXID Shop.
-It is community and project driven with write and read access like in a public wiki(like Wikipedia). 
+It is community and project driven with write and read access like in a public wiki (like Wikipedia).
 
 
 
@@ -44,7 +44,7 @@ vendor/bin/oxid list
 ## Defining your own command
 * Class must extend `Symfony\Component\Console\Command\Command` class
 * in the service.yaml json of your module (composer package) 
-```yaml 
+```yaml
   services:
     oxid_community.moduleinternals.module.fix.command:
       class: OxidCommunity\ModuleInternals\Command\ModuleFixCommand
@@ -97,7 +97,7 @@ For more examples please see https://symfony.com/doc/current/components/console.
 
 ## Migrations
 
-*Warning* current implementation does not trigger the oxid core migration "oe-eshop-doctrine_migration" 
+*Warning* current implementation does not trigger the oxid core migration "oe-eshop-doctrine_migration"
 
 OXID Console project includes migration handling. Lets generate sample migration by running `vendor/bin/oxid migration:generate "add amount field to demo module"`.
 
