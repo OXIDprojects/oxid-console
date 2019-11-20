@@ -42,7 +42,7 @@ vendor/bin/oxid list
 ```
 
 ## Defining your own command
-* Class must extend `Symfony\Component\Console\Command\Command`class
+* Class must extend `Symfony\Component\Console\Command\Command` class
 * in the services.yaml json of your module (composer package) 
 ```yaml 
   services:
