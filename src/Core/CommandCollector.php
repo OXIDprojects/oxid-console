@@ -112,7 +112,12 @@ class CommandCollector
         foreach ($symfonyContainer->findTaggedServiceIds('console.command') as $id => $tags) {
             $definition = $symfonyContainer->getDefinition($id);
             $class = $definition->getClass();
-            $commandsClasses[] = new $class;
+            try{
+                //TODO maybe get the command with DI container
+                $commandsClasses[] = new $class;
+            } catch($ex) {
+                print "WARNING: can not create command $id " . $ex->getMessage();                
+            }
         }
 
         return $commandsClasses;
