@@ -115,7 +115,7 @@ class CommandCollector
             try{
                 //TODO maybe get the command with DI container
                 $commandsClasses[] = new $class;
-            } catch(\Exception $ex) {
+            } catch(\Throwable $ex) {
                 print "WARNING: can not create command $id " . $ex->getMessage();                
             }
         }
