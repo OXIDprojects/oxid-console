@@ -85,10 +85,10 @@ class MyOwnCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         if ($input->getOption('demo')) {
-            $output->writeLn('You typed in --demo or -d also');
+            $output->writeln('You typed in --demo or -d also');
         }
 
-        $output->writeLn('My demo command finished');
+        $output->writeln('My demo command finished');
     }
 }
 ```

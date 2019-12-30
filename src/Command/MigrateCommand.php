@@ -46,13 +46,13 @@ class MigrateCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $timestamp = $this->_parseTimestamp($input->getArgument('timestamp'));
+            $timestamp = $this->parseTimestamp($input->getArgument('timestamp'));
         } catch (ConsoleException $oEx) {
-            $output->writeLn($oEx->getMessage());
+            $output->writeln($oEx->getMessage());
             exit(1);
         }
 
-        $output->writeLn('Running migration scripts');
+        $output->writeln('Running migration scripts');
 
         $debugOutput = $input->getOption('verbose')
             ? $output
@@ -62,7 +62,7 @@ class MigrateCommand extends Command
         $oMigrationHandler = Registry::get(MigrationHandler::class);
         $oMigrationHandler->run($timestamp, $debugOutput);
 
-        $output->writeLn('Migration finished successfully');
+        $output->writeln('Migration finished successfully');
     }
 
     /**
@@ -71,11 +71,13 @@ class MigrateCommand extends Command
      * @param string|null $timestamp
      *
      * @return string
+     * @throws ConsoleException
      */
-    protected function _parseTimestamp($timestamp)
+    protected function parseTimestamp($timestamp)
     {
-        if (is_null($timestamp))
+        if (is_null($timestamp)) {
             return AbstractQuery::getCurrentTimestamp();
+        }
 
         if (!AbstractQuery::isValidTimestamp($timestamp)) {
             if ($sTime = strtotime($timestamp)) {

@@ -10,12 +10,13 @@
 
 namespace OxidProfessionalServices\OxidConsole\Core\Exception;
 
+use Exception;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 
 /**
  * Any exception thrown in migration process
  */
-class MigrationException extends StandardException
+class MigrationException extends Exception
 {
 
 }

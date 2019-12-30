@@ -37,7 +37,7 @@ Command <info>%command.name%</info> regenerates table views.
 
 <comment>Table views should be regenerated after changes to database schema.</comment>
 EOF
-);
+        );
     }
 
     /**
@@ -45,7 +45,7 @@ EOF
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeLn('Updating database views...');
+        $output->writeln('Updating database views...');
         $config = Registry::getConfig();
         //avoid problems if views are already broken
         $config->setConfigParam('blSkipViewUsage', true);
@@ -54,10 +54,10 @@ EOF
         $oDbHandler = oxNew(DbMetaDataHandler::class);
 
         if (!$oDbHandler->updateViews()) {
-            $output->writeLn('Could not update database views!');
+            $output->writeln('Could not update database views!');
             exit(1);
         }
 
-        $output->writeLn('Database views updated successfully');
+        $output->writeln('Database views updated successfully');
     }
 }

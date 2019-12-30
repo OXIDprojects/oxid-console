@@ -9,6 +9,8 @@
 
 namespace OxidProfessionalServices\OxidConsole\Command;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -42,7 +44,7 @@ Notes:
   * <comment>'<info>.htaccess</info>' file will not be deleted;</comment>
   * <comment>'<info>smarty</info>' folder will not be deleted, only the contents of it.</comment>
 EOF
-);
+        );
     }
 
     /**
@@ -52,34 +54,34 @@ EOF
     {
         $clearAllCache = !$input->getOption('smarty') && !$input->getOption('files') && !$input->getOption('oxcache');
 
-        $cachePath = $this->_appendDirectorySeparator(Registry::getConfig()->getConfigParam('sCompileDir'));
+        $cachePath = $this->appendDirectorySeparator(Registry::getConfig()->getConfigParam('sCompileDir'));
         if (!is_dir($cachePath)) {
-            $output->writeLn("Seems that compile directory '$cachePath' does not exist");
+            $output->writeln("Seems that compile directory '$cachePath' does not exist");
             exit(1);
         }
 
         if (($clearAllCache || $input->getOption('oxcache')) && class_exists('oxCache')) {
-            $output->writeLn('Clearing oxCache...');
+            $output->writeln('Clearing oxCache...');
             Registry::get('oxCache')->reset(false);
         } else {
-            $output->writeLn('Skipping oxCache...');
+            $output->writeln('Skipping oxCache...');
         }
 
         if ($clearAllCache || $input->getOption('smarty')) {
-            $output->writeLn('Clearing smarty cache...');
-            $this->_clearDirectory($cachePath . 'smarty');
+            $output->writeln('Clearing smarty cache...');
+            $this->clearDirectory($cachePath . 'smarty');
         } else {
-            $output->writeLn('Skipping smarty cache...');
+            $output->writeln('Skipping smarty cache...');
         }
 
         if ($clearAllCache || $input->getOption('files')) {
-            $output->writeLn('Clearing files cache...');
-            $this->_clearDirectory($cachePath, array('.htaccess', 'smarty'));
+            $output->writeln('Clearing files cache...');
+            $this->clearDirectory($cachePath, array('.htaccess', 'smarty'));
         } else {
-            $output->writeLn('Skipping files cache...');
+            $output->writeln('Skipping files cache...');
         }
 
-        $output->writeLn('Cache cleared successfully');
+        $output->writeln('Cache cleared successfully');
     }
 
     /**
@@ -89,9 +91,9 @@ EOF
      * @param string $sDir
      * @param array $aKeep
      */
-    protected function _clearDirectory($sDir, $aKeep = array())
+    protected function clearDirectory($sDir, $aKeep = array())
     {
-        $sDir = $this->_appendDirectorySeparator($sDir);
+        $sDir = $this->appendDirectorySeparator($sDir);
 
         foreach (glob($sDir . '*') as $sFilePath) {
             $sFileName = basename($sFilePath);
@@ -100,7 +102,7 @@ EOF
             }
 
             is_dir($sFilePath)
-                ? $this->_removeDirectory($sFilePath)
+                ? $this->removeDirectory($sFilePath)
                 : unlink($sFilePath);
         }
     }
@@ -110,14 +112,14 @@ EOF
      *
      * @param string $sPath
      */
-    protected function _removeDirectory($sPath)
+    protected function removeDirectory($sPath)
     {
         if (!is_dir($sPath)) {
             return;
         }
 
-        $oIterator = new \RecursiveDirectoryIterator($sPath, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $oFiles = new \RecursiveIteratorIterator($oIterator, \RecursiveIteratorIterator::CHILD_FIRST);
+        $oIterator = new RecursiveDirectoryIterator($sPath, RecursiveDirectoryIterator::SKIP_DOTS);
+        $oFiles = new RecursiveIteratorIterator($oIterator, RecursiveIteratorIterator::CHILD_FIRST);
 
         foreach ($oFiles as $oFile) {
             if ($oFile->getFilename() == '.' || $oFile->getFilename() === '..') {
@@ -139,7 +141,7 @@ EOF
      *
      * @return string
      */
-    protected function _appendDirectorySeparator($sPath)
+    protected function appendDirectorySeparator($sPath)
     {
         if (substr($sPath, -1) != DIRECTORY_SEPARATOR) {
             return $sPath . DIRECTORY_SEPARATOR;

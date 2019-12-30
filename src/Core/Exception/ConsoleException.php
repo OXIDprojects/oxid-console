@@ -10,6 +10,7 @@
 
 namespace OxidProfessionalServices\OxidConsole\Core\Exception;
 
+use Exception;
 use OxidEsales\Eshop\Core\Exception\StandardException;
 
 /**
@@ -17,7 +18,7 @@ use OxidEsales\Eshop\Core\Exception\StandardException;
  *
  * Any exception thrown in Console application
  */
-class ConsoleException extends StandardException
+class ConsoleException extends Exception
 {
 
 }
