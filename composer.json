@@ -1,7 +1,7 @@
 {
     "name": "oxid-professional-services/oxid-console",
-    "description":"the oxid professional services console for oxid"
-    "license":"GPL-3.0-only"
+    "description":"the oxid professional services console for oxid",
+    "license":"GPL-3.0-only",
     "autoload": {
         "psr-4": {
             "OxidProfessionalServices\\OxidConsole\\": "src/"
