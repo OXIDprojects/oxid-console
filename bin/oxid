@@ -9,7 +9,6 @@
  */
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
-use OxidProfessionalServices\OxidConsole\Core\CommandCollector;
 use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
 
 use Symfony\Component\Console\Input\ArgvInput;
