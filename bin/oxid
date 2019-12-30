@@ -38,7 +38,9 @@ if ($shopId !== 0) {
     $_POST['shp'] = $shopId;
 }
 
-try {   
+try {
+    $v = new VersionHelper;
+    $version = $v->getVersion('oxid-professional-services/oxid-console');
     $application = new Application('OXID Console', $version);
     $application->run();
 } catch (Throwable $ex) {
