@@ -6,7 +6,8 @@
         }
     },
     "require": {
-        "oxid-esales/oxideshop-ce": ">=v6.0.0"
+        "oxid-esales/oxideshop-ce": ">=v6.0.0",
+        "oxidprojects/oxrun": "^4.1.1"
     },
     "minimum-stability": "dev",
     "bin": ["bin/oxid"]
