@@ -1,0 +1,108 @@
+<?php
+
+namespace Oxrun;
+
+use Symfony\Component\Console\Application as BaseApplication;
+use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+/**
+ * Class Application
+ */
+class Application extends BaseApplication
+{
+    
+   
+    /**
+     * @param ClassLoader   $autoloader The composer autoloader
+     * @param string        $name
+     * @param string        $version
+     */
+    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
+    {
+        parent::__construct($name, $version);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getDefaultCommands()
+    {
+//todo: check default commands
+        return array(new HelpCommand(), new Custom\ListCommand());
+    }
+
+    /**
+     * @return \Symfony\Component\Console\Input\InputDefinition
+     */
+    protected function getDefaultInputDefinition()
+    {
+        $inputDefinition = parent::getDefaultInputDefinition();
+
+        $inputDefinition->addOption(
+            new InputOption(
+                '--shopId',
+                '-m',
+                InputOption::VALUE_OPTIONAL,
+                'Shop Id (EE Relevant)'
+            )
+        );
+
+        return $inputDefinition;
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        if (true === $input->hasParameterOption(['--shopId','-m'])) {
+            $_GET['shp'] = $input->getParameterOption(['--shopId','-m']);
+            $_GET['actshop'] = $input->getParameterOption(['--shopId','-m']);
+        }
+
+        return parent::doRun($input, $output);
+    }
+
+    /**
+     * Completely switch shop
+     *
+     * @param string $shopId The shop id
+     *
+     * @return void
+     */
+    public function switchToShopId($shopId)
+    {
+        $_GET['shp'] = $shopId;
+        $_GET['actshop'] = $shopId;
+        
+        $keepThese = [\OxidEsales\Eshop\Core\ConfigFile::class];
+        $registryKeys = \OxidEsales\Eshop\Core\Registry::getKeys();
+        foreach ($registryKeys as $key) {
+            if (in_array($key, $keepThese)) {
+                continue;
+            }
+            \OxidEsales\Eshop\Core\Registry::set($key, null);
+        }
+
+        $utilsObject = new \OxidEsales\Eshop\Core\UtilsObject;
+        $utilsObject->resetInstanceCache();
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\UtilsObject::class, $utilsObject);
+
+        \OxidEsales\Eshop\Core\Module\ModuleVariablesLocator::resetModuleVariables();
+        \OxidEsales\Eshop\Core\Registry::getSession()->setVariable('shp', $shopId);
+
+        //ensure we get rid of all instances of config, even the one in Core\Base
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, null);
+        \OxidEsales\Eshop\Core\Registry::getConfig()->setConfig(null);
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, null);
+
+        $moduleVariablesCache = new \OxidEsales\Eshop\Core\FileCache();
+        $shopIdCalculator = new \OxidEsales\Eshop\Core\ShopIdCalculator($moduleVariablesCache);
+
+        if (($shopId != $shopIdCalculator->getShopId())
+            || ($shopId != \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId())
+        ) {
+            throw new \Exception('Failed to switch to subshop id ' . $shopId . " Calculate ID: " . $shopIdCalculator->getShopId() . " Config ShopId: " . \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId());
+        }
+    }
+}
