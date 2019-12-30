@@ -1,4 +1,4 @@
-name: oxid module tests
+name: oxid package tests
 
 on: [push]
 
