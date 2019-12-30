@@ -1,12 +1,14 @@
 {
     "name": "oxid-professional-services/oxid-console",
+    "description":"the oxid professional services console for oxid"
+    "license":"GPL-3.0-only"
     "autoload": {
         "psr-4": {
             "OxidProfessionalServices\\OxidConsole\\": "src/"
         }
     },
     "require": {
-        "oxid-esales/oxideshop-ce": ">=v6.0.0"
+        "oxid-esales/oxideshop-ce": "^v6.0.0"
     },
     "minimum-stability": "dev",
     "bin": ["bin/oxid"]
