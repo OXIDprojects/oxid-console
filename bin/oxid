@@ -29,7 +29,7 @@ foreach ($autoloadFiles as $autoloadFile) {
     }
 }
 if (!$autoloadFileExist) {
-    print "autoload.php file was not found, check composer!");
+    print "autoload.php file was not found, check composer!";
     exit(1);
 }
 $shopId = (int) (new ArgvInput())->getParameterOption(
