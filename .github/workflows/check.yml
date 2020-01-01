@@ -65,6 +65,7 @@ jobs:
     - name: run module internals
       continue-on-error: true
       run: |
-        composer install oxid-community/moduleinternals dev-master
+        composer install "oxid-community/moduleinternals:dev-master"
         vendor/bin/oxid
+        vendor/bin/oxid fix:states -a
         ls -al source/log
