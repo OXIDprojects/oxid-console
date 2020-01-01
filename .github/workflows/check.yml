@@ -58,7 +58,13 @@ jobs:
         cd /var/www/oxid
         curl -OL https://circleci.com/api/v1.1/project/github/weirdan/psalm/232/artifacts/0/home/docker/project/build/psalm.phar
         php psalm.phar --stats --show-info=true $MD
-    - name: run tests
+    - name: run
       run: |
         cd /var/www/oxid/
+        vendor/bin/oxid
+    - name: run module internals
+      continue-on-error: true
+      run: |
+        composer install oxid-community/moduleinternals dev-master
+        vendor/bin/oxid
         ls -al source/log
