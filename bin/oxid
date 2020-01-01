@@ -1,18 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-/**
- * @copyright OXID eSales AG, All rights reserved
- * @author OXID Professional services
- *
- * See LICENSE file for license details.
- */
-
 use OxidProfessionalServices\OxidConsole\Core\Application;
-use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
-
 use Symfony\Component\Console\Input\ArgvInput;
-$autoloadFileExist = false;
+
 print "this is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
 $autoloadFile = $binFolder.'/../autoload.php';
@@ -22,17 +13,13 @@ $projectRoot = realpath(dirname(dirname($binFolder)));
 print "project root is $projectRoot\n";
 chdir($projectRoot);
 
-$shopId = (int) (new ArgvInput())->getParameterOption(
+$_POST['shp'] = (int) (new ArgvInput())->getParameterOption(
     '--shop',
     1
 );
-$_POST['shp'] = $shopId;
-
 
 try {
-    $v = new VersionHelper;
-    $version = $v->getVersion('oxid-professional-services/oxid-console');
-    $application = new Application('OXID Console', $version);
+    $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $ex) {
     //console should print errors always
