@@ -15,6 +15,12 @@ namespace OxidProfessionalServices\OxidConsole\Core\Composer;
  */
 class VersionHelper
 {
+    private $path = "";
+
+    public function __construct($path)
+    {
+        $this->path = $path;
+    }
 
     /**
      * @param $packageName string: the package name
@@ -23,8 +29,9 @@ class VersionHelper
      */
     public function getVersion($packageName)
     {
-        $fullPath = __FILE__;
-        $vendorDir = dirname(dirname(dirname(dirname(dirname(dirname($fullPath))))));
+        //$fullPath = __FILE__;
+        //$vendorDir = dirname(dirname(dirname(dirname(dirname(dirname($fullPath))))));
+        $vendorDir = $this->path . '/vendor';
         $fileName = $vendorDir . '/composer/installed.json';
         $content = file_get_contents($fileName);
         $packages = json_decode($content, true);
