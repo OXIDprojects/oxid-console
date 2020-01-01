@@ -1,26 +1,31 @@
 <?php
 
-namespace Oxrun;
+namespace OxidProfessionalServices\OxidConsole\Core;
 
+use OxidEsales\EshopCommunity\Internal\Framework\Console\AbstractShopAwareCommand;
 use Symfony\Component\Console\Application as BaseApplication;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use OxidProfessionalServices\OxidConsole\Core\CommandCollector;
 use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
+use OxidEsales\Eshop\Core\Registry;
+use Throwable;
+use OxidEsales\Eshop\Core\UtilsObject;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\ConfigFile;
 
 /**
  * Class Application
  */
 class Application extends BaseApplication
 {
-    protected $projectRoot = '';    
+    protected $projectRoot = '';
    
     /**
-     * @param ClassLoader   $autoloader The composer autoloader
-     * @param string        $name
-     * @param string        $version
+     * @param string $projectRoot the root directory of the project that contains vendor and source folder
      */
     public function __construct($projectRoot)
     {
@@ -32,13 +37,17 @@ class Application extends BaseApplication
 
         $this->loadBootstrap();
 
-        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $oConfig = Registry::getConfig();
         $aLanguages = $oConfig->getConfigParam('aLanguages');
         $aLanguageParams = $oConfig->getConfigParam('aLanguageParams');
 
-        if (false === $aLanguagesParams) {
+        if (false === $aLanguageParams) {
             echo 'Config Param for aLanguagesParams is broken. Setting default Values to de';
-            $oConfig->saveShopConfVar('aarr', 'aLanguageParams', ['de' => ['baseId' => 0 , 'active' => 1 , 'sort' => 1]]);
+            $oConfig->saveShopConfVar(
+                'aarr',
+                'aLanguageParams',
+                ['de' => ['baseId' => 0 , 'active' => 1 , 'sort' => 1]]
+            );
         }
         if (false === $aLanguages) {
             echo 'Config Param for aLanguages is broken. Setting default Values to de';
@@ -58,16 +67,17 @@ class Application extends BaseApplication
                 print get_class($command) . " not loadad " . $e->getMessage() . "\n" . $e->getTraceAsString();
             }
         }
-        
     }
 
-    public function loadBootstrap() {
+    public function loadBootstrap()
+    {
         $possiblePathsForBootstrap = [
             $this->projectRoot . '/source/bootstrap.php',
             ];
 
-        if (($customPathToBootstrap = getenv('BOOTSTRAP_PATH')) !== false)
+        if (($customPathToBootstrap = getenv('BOOTSTRAP_PATH')) !== false) {
             array_unshift($possiblePathsForBootstrap, $customPathToBootstrap);
+        }
 
         foreach ($possiblePathsForBootstrap as $fileToRequire) {
             if (file_exists($fileToRequire)) {
@@ -81,15 +91,6 @@ class Application extends BaseApplication
             echo "Please specify 'BOOTSTRAP_PATH' as environmental variable to use it directly.\n";
             exit(1);
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function getDefaultCommands()
-    {
-//todo: check default commands
-        return array(new HelpCommand(), new Custom\ListCommand());
     }
 
     /**
@@ -111,15 +112,25 @@ class Application extends BaseApplication
         return $inputDefinition;
     }
 
+    /**
+     * @param Command $command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     * @throws Throwable
+     */
     public function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
     {
         if (true === $input->hasParameterOption(['--shop','-s'])) {
             $_GET['shp'] = $input->getParameterOption(['--shop','-s']);
             $_GET['actshop'] = $input->getParameterOption(['--shop','-s']);
         }
+
         //todo check if command wants to run for all shops
-        // method_exists($command,'runOnAllShopsByDefault'))
         // oder instance of ShopAwareInterface then runthis command for every shop
+        //if (method_exists($command,'runMePerShop')){
+            //foreach ()
+        //}
         return parent::doRunCommand($command, $input, $output);
     }
 
@@ -134,35 +145,38 @@ class Application extends BaseApplication
     {
         $_GET['shp'] = $shopId;
         $_GET['actshop'] = $shopId;
-        
-        $keepThese = [\OxidEsales\Eshop\Core\ConfigFile::class];
-        $registryKeys = \OxidEsales\Eshop\Core\Registry::getKeys();
+
+        $keepThese = [ConfigFile::class];
+        $registryKeys = Registry::getKeys();
         foreach ($registryKeys as $key) {
             if (in_array($key, $keepThese)) {
                 continue;
             }
-            \OxidEsales\Eshop\Core\Registry::set($key, null);
+            Registry::set($key, null);
         }
 
-        $utilsObject = new \OxidEsales\Eshop\Core\UtilsObject;
+        $utilsObject = new UtilsObject();
         $utilsObject->resetInstanceCache();
-        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\UtilsObject::class, $utilsObject);
+        Registry::set(UtilsObject::class, $utilsObject);
 
         \OxidEsales\Eshop\Core\Module\ModuleVariablesLocator::resetModuleVariables();
-        \OxidEsales\Eshop\Core\Registry::getSession()->setVariable('shp', $shopId);
+        Registry::getSession()->setVariable('shp', $shopId);
 
         //ensure we get rid of all instances of config, even the one in Core\Base
-        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, null);
-        \OxidEsales\Eshop\Core\Registry::getConfig()->setConfig(null);
-        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, null);
+        Registry::set(Config::class, null);
+        Registry::getConfig()->setConfig(null);
+        Registry::set(Config::class, null);
 
         $moduleVariablesCache = new \OxidEsales\Eshop\Core\FileCache();
         $shopIdCalculator = new \OxidEsales\Eshop\Core\ShopIdCalculator($moduleVariablesCache);
 
-        if (($shopId != $shopIdCalculator->getShopId())
-            || ($shopId != \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId())
+        if (
+            ($shopId != $shopIdCalculator->getShopId())
+            || ($shopId != Registry::getConfig()->getShopId())
         ) {
-            throw new \Exception('Failed to switch to subshop id ' . $shopId . " Calculate ID: " . $shopIdCalculator->getShopId() . " Config ShopId: " . \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId());
+            throw new Exception('Failed to switch to subshop id ' . $shopId . " Calculate ID: "
+                . $shopIdCalculator->getShopId()
+                . " Config ShopId: " . Registry::getConfig()->getShopId());
         }
     }
 }
