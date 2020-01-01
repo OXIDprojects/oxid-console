@@ -61,26 +61,19 @@ class ActivateModuleCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $moduleId = $input->getArgument('moduleid');
-        $shopId = $input->hasOption('shop') ? $input->getOption('shop') : null;
         $this->activateModule($moduleId, $shopId, $output);
     }
 
     /**
      * @param string $moduleId
-     * @param string $shopId
      * @param OutputInterface $output
      *
      * @throws StandardException
      */
-    public function activateModule($moduleId, $shopId, $output)
+    public function activateModule($moduleId, $output)
     {
         /** @var ModuleInstaller $moduleInstaller */
         $moduleInstaller = Registry::get(ModuleInstaller::class);
-
-        if ($shopId) {
-            $oConfig = ShopConfig::get($shopId);
-            $moduleInstaller->setConfig($oConfig);
-        }
 
         $moduleList = oxNew(ModuleList::class);
         $moduleList->getModulesFromDir(Registry::getConfig()->getModulesDir());
