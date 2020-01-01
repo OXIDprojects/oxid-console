@@ -98,8 +98,8 @@ public function loadBootstrap() {
 
         $inputDefinition->addOption(
             new InputOption(
-                '--shopId',
-                '-m',
+                '--shop',
+                '-s',
                 InputOption::VALUE_OPTIONAL,
                 'Shop Id (EE Relevant)'
             )
@@ -108,14 +108,16 @@ public function loadBootstrap() {
         return $inputDefinition;
     }
 
-    public function doRun(InputInterface $input, OutputInterface $output)
+    public function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
     {
-        if (true === $input->hasParameterOption(['--shopId','-m'])) {
-            $_GET['shp'] = $input->getParameterOption(['--shopId','-m']);
-            $_GET['actshop'] = $input->getParameterOption(['--shopId','-m']);
+        if (true === $input->hasParameterOption(['--shop','-s'])) {
+            $_GET['shp'] = $input->getParameterOption(['--shop','-s']);
+            $_GET['actshop'] = $input->getParameterOption(['--shop','-s']);
         }
-
-        return parent::doRun($input, $output);
+        //todo check if command wants to run for all shops
+        // method_exists($command,'runOnAllShopsByDefault'))
+        // oder instance of ShopAwareInterface then runthis command for every shop
+        return parent::doRunCommand($command, $input, $output);
     }
 
     /**
