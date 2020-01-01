@@ -13,14 +13,15 @@ namespace OxidProfessionalServices\OxidConsole\Core\Composer;
  * Class VersionHelper
  * @package OxidProfessionalServices\OxidConsole\Core
  */
-class VersionHelper {
+class VersionHelper
+{
 
     /**
      * @param $packageName string: the package name
      * e.g. 'oxid-professional-services/oxid-console'
      * @return string: the version number
      */
-    function getVersion($packageName)
+    public function getVersion($packageName)
     {
         $fullPath = __FILE__;
         $vendorDir = dirname(dirname(dirname(dirname(dirname(dirname($fullPath))))));

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OXID Console.
  *
@@ -22,6 +23,7 @@
 
 namespace OxidProfessionalServices\OxidConsole\Command;
 
+use OxidEsales\Eshop\Core\Exception\StandardException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -73,7 +75,7 @@ class ActivateModuleCommand extends Command
      * @param string $shopId
      * @param OutputInterface $output
      *
-     * @throws \OxidEsales\Eshop\Core\Exception\StandardException
+     * @throws StandardException
      */
     public function activateModule($moduleId, $shopId, $output)
     {
@@ -92,14 +94,14 @@ class ActivateModuleCommand extends Command
         /** @var Module $module */
         $module = $modules[$moduleId];
         if ($module == null) {
-            $output->writeLn("$moduleId not found. choose from:");
-            $output->writeLn(join("\n", array_keys($modules)));
+            $output->writeln("$moduleId not found. choose from:");
+            $output->writeln(join("\n", array_keys($modules)));
 
             exit(1);
         }
 
         if ($module->isActive()) {
-            $output->writeLn("$moduleId already active");
+            $output->writeln("$moduleId already active");
         } else {
             $moduleInstaller->activate($module);
         }

@@ -51,15 +51,15 @@ EOF
         $this->input = $input;
 
         $sMigrationsDir = OX_BASE_PATH . 'migration' . DIRECTORY_SEPARATOR;
-        $sTemplatePath = $this->_getTemplatePath();
+        $sTemplatePath = $this->getTemplatePath();
 
-        $sMigrationName = $this->_parseMigrationNameFromInput();
+        $sMigrationName = $this->parseMigrationNameFromInput();
         if (!$sMigrationName) {
             $questionHelper = $this->getHelper('question');
             $question = new Question('Enter short description for migration: ');
             do {
                 $words = explode(" ", $questionHelper->ask($input, $output, $question));
-                $sMigrationName = $this->_buildMigrationName($words);
+                $sMigrationName = $this->buildMigrationName($words);
             } while (!$sMigrationName);
         }
 
@@ -74,7 +74,7 @@ EOF
 
         file_put_contents($sMigrationFilePath, $sContent);
 
-        $output->writeLn("Sucessfully generated $sMigrationFileName");
+        $output->writeln("Sucessfully generated $sMigrationFileName");
     }
 
     /**
@@ -84,7 +84,7 @@ EOF
      *
      * @return string
      */
-    protected function _getTemplatePath()
+    protected function getTemplatePath()
     {
         return __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'migration.tpl';
     }
@@ -94,11 +94,11 @@ EOF
      *
      * @return string
      */
-    protected function _parseMigrationNameFromInput()
+    protected function parseMigrationNameFromInput()
     {
         $words = explode(" ", $this->input->getArgument('name'));
 
-        return $this->_buildMigrationName($words);
+        return $this->buildMigrationName($words);
     }
 
     /**
@@ -108,12 +108,11 @@ EOF
      *
      * @return string
      */
-    protected function _buildMigrationName(array $words)
+    protected function buildMigrationName(array $words)
     {
         $sMigrationName = '';
 
         foreach ($words as $word) {
-
             if (!$word) {
                 continue;
             }

@@ -10,6 +10,7 @@
 
 namespace OxidProfessionalServices\OxidConsole\Core;
 
+use oxDb;
 use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\DatabaseProvider;
@@ -26,13 +27,13 @@ class ShopConfig extends Config
     /**
      * @var int
      */
-    protected $_iShopId;
+    protected $iShopId;
 
     /**
      * the config params before child theme overloaded them
      * @var array
      */
-    protected $_aConfigParamsParentTheme;
+    protected $aConfigParamsParentTheme;
 
     /**
      * Constructor
@@ -41,7 +42,7 @@ class ShopConfig extends Config
      */
     public function __construct($iShopId)
     {
-        $this->_iShopId = $iShopId;
+        $this->iShopId = $iShopId;
         $this->init();
     }
 
@@ -111,15 +112,20 @@ class ShopConfig extends Config
 
             // loading theme config options
             $this->_loadVarsFromDb(
-                $sShopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')
+                $sShopID,
+                null,
+                Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')
             );
 
-            $this->_aConfigParamsParentTheme = $this->_aConfigParams;
+            $this->aConfigParamsParentTheme = $this->_aConfigParams;
 
-            // checking if custom theme (which has defined parent theme) config options should be loaded over parent theme (#3362)
+            // checking if custom theme (which has defined parent theme) config options should be loaded
+            // over parent theme (#3362)
             if ($this->getConfigParam('sCustomTheme')) {
                 $this->_loadVarsFromDb(
-                    $sShopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme')
+                    $sShopID,
+                    null,
+                    Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme')
                 );
             }
 
@@ -141,30 +147,31 @@ class ShopConfig extends Config
      */
     public function getShopId()
     {
-        return $this->_iShopId;
+        return $this->iShopId;
     }
 
 
     /**
      *  Getting all the stored variable type info from database
      *  to be able to check if there was a type change
-     *  this helps to improve performance when saving a huge amount of config values (e.g. module:fix or config importers)
+     *  this helps to improve performance when saving a huge amount of config values
+     *  (e.g. module:fix or config importers)
      */
     protected function getStoredVarTypes()
     {
-        $db = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
+        $db = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
         $sQ = "select CONCAT(oxvarname,'+',oxmodule) as mapkey, oxvartype from oxconfig where oxshopid = ?";
-        $allRows = $db->getAll($sQ, [$this->_iShopId]);
+        $allRows = $db->getAll($sQ, [$this->iShopId]);
         $map = [];
-        foreach($allRows as $row) {
+        foreach ($allRows as $row) {
             $map[$row['mapkey']] = $row['oxvartype'];
         }
         return $map;
     }
 
-    public function getShopConfType($sVarName,$sSectionModule)
+    public function getShopConfType($sVarName, $sSectionModule)
     {
-        return $this->storedVarTypes[$sVarName.'+'.$sSectionModule];
+        return $this->storedVarTypes[$sVarName . '+' . $sSectionModule];
     }
 
     /**
@@ -178,11 +185,11 @@ class ShopConfig extends Config
      */
     public function saveShopConfVar($sVarType, $sVarName, $sVarVal, $sShopId = null, $sModule = '')
     {
-        $sShopId = $sShopId === null ? $this->_iShopId : $sShopId;
-        if ($sShopId == $this->_iShopId) {
+        $sShopId = $sShopId === null ? $this->iShopId : $sShopId;
+        if ($sShopId == $this->iShopId) {
             $storedType = $this->getShopConfType($sVarName, $sModule);
-            if ($sModule == Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')){
-                $storedValue = $this->_aConfigParamsParentTheme[$sVarName];
+            if ($sModule == Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')) {
+                $storedValue = $this->aConfigParamsParentTheme[$sVarName];
             } else {
                 $storedValue = $this->getConfigParam($sVarName);
             }
@@ -200,5 +207,4 @@ class ShopConfig extends Config
         parent::saveShopConfVar($sVarType, $sVarName, $sVarVal, $sShopId, $sModule);
         return true;
     }
-
 }

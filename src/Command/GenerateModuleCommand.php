@@ -9,6 +9,9 @@
 
 namespace OxidProfessionalServices\OxidConsole\Command;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use stdClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,17 +27,17 @@ class GenerateModuleCommand extends Command
     /**
      * @var string Directory path where modules are stored
      */
-    protected $_sModuleDir;
+    protected $sModuleDir;
 
     /**
      * @var string Templates dir
      */
-    protected $_sTemplatesDir;
+    protected $sTemplatesDir;
 
     /**
      * @var Smarty
      */
-    protected $_oSmarty;
+    protected $smarty;
 
     /** @var InputInterface */
     private $input;
@@ -51,15 +54,14 @@ class GenerateModuleCommand extends Command
             ->setName('module:generate')
             ->setAliases(['g:module'])
             ->setDescription('Generate new module scaffold');
-
     }
 
     private function init()
     {
-        $this->_oSmarty = Registry::get('oxUtilsView')->getSmarty();
-        $this->_oSmarty->php_handling = SMARTY_PHP_PASSTHRU;
-        $this->_sModuleDir = OX_BASE_PATH . 'modules' . DIRECTORY_SEPARATOR;
-        $this->_sTemplatesDir = __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR
+        $this->smarty = Registry::get('oxUtilsView')->getSmarty();
+        $this->smarty->php_handling = SMARTY_PHP_PASSTHRU;
+        $this->sModuleDir = OX_BASE_PATH . 'modules' . DIRECTORY_SEPARATOR;
+        $this->sTemplatesDir = __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR
             . 'module' . DIRECTORY_SEPARATOR;
     }
 
@@ -72,10 +74,10 @@ class GenerateModuleCommand extends Command
         $this->input = $input;
         $this->output = $output;
 
-        $oScaffold = $this->_buildScaffold();
-        $this->_generateModule($oScaffold);
+        $oScaffold = $this->buildScaffold();
+        $this->generateModule($oScaffold);
 
-        $output->writeLn('Module generated successfully');
+        $output->writeln('Module generated successfully');
     }
 
     /**
@@ -83,18 +85,20 @@ class GenerateModuleCommand extends Command
      *
      * @param object $oScaffold
      */
-    protected function _generateModule($oScaffold)
+    protected function generateModule($oScaffold)
     {
-        $oSmarty = $this->_getSmarty();
+        $oSmarty = $this->getSmarty();
         $oSmarty->assign('oScaffold', $oScaffold);
 
         if ($oScaffold->sVendor) {
-            $this->_generateVendorDir($oScaffold->sVendor);
+            $this->generateVendorDir($oScaffold->sVendor);
         }
 
-        $sModuleDir = $this->_getModuleDir($oScaffold->sVendor, $oScaffold->sModuleName);
-        $this->_copyAndParseDir(
-            $this->_sTemplatesDir, $sModuleDir, array(
+        $sModuleDir = $this->getModuleDir($oScaffold->sVendor, $oScaffold->sModuleName);
+        $this->copyAndParseDir(
+            $this->sTemplatesDir,
+            $sModuleDir,
+            array(
                 '_prefix_' => strtolower($oScaffold->sVendor . $oScaffold->sModuleName)
             )
         );
@@ -108,10 +112,10 @@ class GenerateModuleCommand extends Command
      * @param string $sTo Directory to
      * @param array $aNameMap What should be changed in file name?
      */
-    protected function _copyAndParseDir($sFrom, $sTo, array $aNameMap = array())
+    protected function copyAndParseDir($sFrom, $sTo, array $aNameMap = array())
     {
-        $oFileInfos = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($sFrom, \RecursiveDirectoryIterator::SKIP_DOTS)
+        $oFileInfos = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($sFrom, RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
         if (!file_exists($sTo)) {
@@ -125,7 +129,7 @@ class GenerateModuleCommand extends Command
                 'replace' => array_merge(array($sTo), array_values($aNameMap))
             );
             $sNewPath = str_replace($aReplace['search'], $aReplace['replace'], $sFilePath);
-            $this->_copyAndParseFile($sFilePath, $sNewPath);
+            $this->copyAndParseFile($sFilePath, $sNewPath);
         }
     }
 
@@ -136,13 +140,13 @@ class GenerateModuleCommand extends Command
      * @param $sFrom
      * @param $sTo
      */
-    protected function _copyAndParseFile($sFrom, $sTo)
+    protected function copyAndParseFile($sFrom, $sTo)
     {
-        $this->_createMissingFolders($sTo);
+        $this->createMissingFolders($sTo);
 
         $sTo = preg_replace('/\.tpl$/', '', $sTo);
         if (preg_match('/\.tpl$/', $sFrom)) {
-            $oSmarty = $this->_getSmarty();
+            $oSmarty = $this->getSmarty();
             $sContent = $oSmarty->fetch($sFrom);
         } else {
             $sContent = file_get_contents($sFrom);
@@ -156,7 +160,7 @@ class GenerateModuleCommand extends Command
      *
      * @param string $sFilePath
      */
-    protected function _createMissingFolders($sFilePath)
+    protected function createMissingFolders($sFilePath)
     {
         $sPath = dirname($sFilePath);
 
@@ -170,9 +174,9 @@ class GenerateModuleCommand extends Command
      *
      * @param string $sVendor
      */
-    protected function _generateVendorDir($sVendor)
+    protected function generateVendorDir($sVendor)
     {
-        $sVendorDir = $this->_sModuleDir . $sVendor . DIRECTORY_SEPARATOR;
+        $sVendorDir = $this->sModuleDir . $sVendor . DIRECTORY_SEPARATOR;
         if (!file_exists($sVendorDir)) {
             mkdir($sVendorDir);
 
@@ -184,34 +188,34 @@ class GenerateModuleCommand extends Command
     /**
      * Build scaffold object from user inputs
      *
-     * @return \stdClass
+     * @return stdClass
      */
-    protected function _buildScaffold()
+    protected function buildScaffold()
     {
-        $oScaffold = new \stdClass();
-        $oScaffold->sVendor = strtolower($this->_getUserInput('Vendor Prefix', true));
+        $oScaffold = new stdClass();
+        $oScaffold->sVendor = strtolower($this->getUserInput('Vendor Prefix', true));
 
         $blFirstRequest = true;
 
         do {
-
             if (!$blFirstRequest) {
-                $this->output->writeLn('Module path or id is taken with given title');
+                $this->output->writeln('Module path or id is taken with given title');
             } else {
                 $blFirstRequest = false;
             }
 
-            $oScaffold->sModuleTitle = $this->_getUserInput('Module Title');
+            $oScaffold->sModuleTitle = $this->getUserInput('Module Title');
             $oScaffold->sModuleName = str_replace(' ', '', ucwords($oScaffold->sModuleTitle));
             $oScaffold->sModuleId = $oScaffold->sVendor . strtolower($oScaffold->sModuleName);
+        } while (
+            !$this->modulePathAvailable($oScaffold->sVendor, $oScaffold->sModuleName)
+            || !$this->moduleIdAvailable($oScaffold->sModuleId)
+        );
 
-        } while (!$this->_modulePathAvailable($oScaffold->sVendor, $oScaffold->sModuleName)
-            || !$this->_moduleIdAvailable($oScaffold->sModuleId));
-
-        $oScaffold->sModuleDir = $this->_getModuleDir($oScaffold->sVendor, $oScaffold->sModuleName);
-        $oScaffold->sAuthor = $this->_getUserInput('Author', true);
-        $oScaffold->sUrl = $this->_getUserInput('Url', true);
-        $oScaffold->sEmail = $this->_getUserInput('Email', true);
+        $oScaffold->sModuleDir = $this->getModuleDir($oScaffold->sVendor, $oScaffold->sModuleName);
+        $oScaffold->sAuthor = $this->getUserInput('Author', true);
+        $oScaffold->sUrl = $this->getUserInput('Url', true);
+        $oScaffold->sEmail = $this->getUserInput('Email', true);
 
         return $oScaffold;
     }
@@ -224,9 +228,9 @@ class GenerateModuleCommand extends Command
      *
      * @return string
      */
-    protected function _getModuleDir($sVendor, $sModuleName)
+    protected function getModuleDir($sVendor, $sModuleName)
     {
-        $sModuleDir = $this->_sModuleDir;
+        $sModuleDir = $this->sModuleDir;
         if ($sVendor) {
             $sModuleDir .= strtolower($sVendor) . DIRECTORY_SEPARATOR;
         }
@@ -242,9 +246,9 @@ class GenerateModuleCommand extends Command
      *
      * @return bool
      */
-    protected function _modulePathAvailable($sVendor, $sModuleName)
+    protected function modulePathAvailable($sVendor, $sModuleName)
     {
-        return !is_dir($this->_getModuleDir($sVendor, $sModuleName));
+        return !is_dir($this->getModuleDir($sVendor, $sModuleName));
     }
 
     /**
@@ -254,7 +258,7 @@ class GenerateModuleCommand extends Command
      *
      * @return bool
      */
-    protected function _moduleIdAvailable($sModuleId)
+    protected function moduleIdAvailable($sModuleId)
     {
         return !array_key_exists($sModuleId, Registry::getConfig()->getConfigParam('aModulePaths'));
     }
@@ -267,7 +271,7 @@ class GenerateModuleCommand extends Command
      *
      * @return string
      */
-    protected function _getUserInput($sText, $bAllowEmpty = false)
+    protected function getUserInput($sText, $bAllowEmpty = false)
     {
         $questionHelper = $this->getHelper('question');
 
@@ -285,8 +289,8 @@ class GenerateModuleCommand extends Command
      *
      * @return Smarty
      */
-    protected function _getSmarty()
+    protected function getSmarty()
     {
-        return $this->_oSmarty;
+        return $this->smarty;
     }
 }

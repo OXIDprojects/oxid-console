@@ -1,77 +1,25 @@
 #!/usr/bin/env php
 <?php
 
-/**
- * @copyright OXID eSales AG, All rights reserved
- * @author OXID Professional services
- *
- * See LICENSE file for license details.
- */
+use OxidProfessionalServices\OxidConsole\Core\Application;
+use Symfony\Component\Console\Input\ArgvInput;
 
-use Symfony\Component\Console\Application;
-use OxidProfessionalServices\OxidConsole\Core\CommandCollector;
-use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
+print "this is called by $argv[0]\n";
+$binFolder = dirname($argv[0]);
+$autoloadFile = $binFolder.'/../autoload.php';
 
-function loadBootstrap() {
-    $possiblePathsForBootstrap = [
-        implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', 'source', 'bootstrap.php']),
-        implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', '..', 'source', 'bootstrap.php']),
-        implode(DIRECTORY_SEPARATOR, ['', 'var', 'www', 'oxideshop', 'source', 'bootstrap.php']),
-    ];
+require_once $autoloadFile;
+$projectRoot = realpath(dirname(dirname($binFolder)));
+print "project root is $projectRoot\n";
+chdir($projectRoot);
 
-    if (($customPathToBootstrap = getenv('BOOTSTRAP_PATH')) !== false)
-        array_unshift($possiblePathsForBootstrap, $customPathToBootstrap);
-
-    foreach ($possiblePathsForBootstrap as $fileToRequire) {
-        if (file_exists($fileToRequire)) {
-            require_once $fileToRequire;
-            break;
-        }
-    }
-
-    if (!defined('VENDOR_PATH')) {
-        echo "Unable to locate valid 'bootstrap.php' in order to load OXID eShop framework.\n";
-        echo "Please specify 'BOOTSTRAP_PATH' as environmental variable to use it directly.\n";
-        exit(1);
-    }
-}
+$_POST['shp'] = (int) (new ArgvInput())->getParameterOption(
+    '--shop',
+    1
+);
 
 try {
-    /*
-     * TODO code above is to be replaced by:
-     */
-
-    loadBootstrap();
-
-    $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
-    $aLanguages = $oConfig->getConfigParam('aLanguages');
-    $aLanguageParams = $oConfig->getConfigParam('aLanguageParams');
-
-    if (false === $aLanguagesParams) {
-        echo 'Config Param for aLanguagesParams is broken. Setting default Values to de';
-        $oConfig->saveShopConfVar('aarr', 'aLanguageParams', ['de' => ['baseId' => 0 , 'active' => 1 , 'sort' => 1]]);
-    }
-    if (false === $aLanguages) {
-        echo 'Config Param for aLanguages is broken. Setting default Values to de';
-        $oConfig->saveShopConfVar('aarr', 'aLanguages', ['de' => 'Deutsch']);
-    }
-
-    $v = new VersionHelper;
-    $version = $v->getVersion('oxid-professional-services/oxid-console');
-
-    //adding a value to avoid php warnings when oxid core try to compare that value
-    $_SERVER['HTTP_HOST'] = 'localhost';
-
-    $commandCollector = new CommandCollector();
-    $application = new Application('OXID Console', $version);
-    $commands = $commandCollector->getAllCommands();
-    foreach ($commands as $command) {
-        try {
-            $application->add($command);
-        } catch (Throwable $e) {
-            print get_class($command) . " not loadad " . $e->getMessage() . "\n" . $e->getTraceAsString();
-        }
-    }
+    $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $ex) {
     //console should print errors always

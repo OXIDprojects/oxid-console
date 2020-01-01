@@ -10,10 +10,11 @@
 
 namespace OxidProfessionalServices\OxidConsole\Core\Migration;
 
-use \ReflectionClass;
+use ReflectionClass;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidEsales\Eshop\Core\Registry;
 use OxidProfessionalServices\OxidConsole\Core\Exception\MigrationException;
+use ReflectionException;
 
 /**
  * Migration query class. All migration queries must extend this class
@@ -26,7 +27,7 @@ abstract class AbstractQuery
     /**
      * Regexp used for regexp timestamp validation
      */
-    const REGEXP_TIMESTAMP = '/^\d{14}$/';
+    private const REGEXP_TIMESTAMP = '/^\d{14}$/';
 
     /**
      * Regexp used for regexp file name validation
@@ -34,22 +35,22 @@ abstract class AbstractQuery
      * First match: timestamp
      * Second match: class name without "migration" appended
      */
-    const REGEXP_FILE = '/(\d{14})_([a-zA-Z][a-zA-Z0-9]+)\.php$/';
+    public const REGEXP_FILE = '/(\d{14})_([a-zA-Z][a-zA-Z0-9]+)\.php$/';
 
     /**
      * @var string Timestamp
      */
-    protected $_sTimestamp;
+    protected $timestamp;
 
     /**
      * @var string Migration query file name
      */
-    protected $_sFilename;
+    protected $filename;
 
     /**
      * @var string Class name in lower case
      */
-    protected $_sClassName;
+    protected $className;
 
     /**
      * Constructor
@@ -57,7 +58,7 @@ abstract class AbstractQuery
      * Extracts timestamp from filename of migration query
      *
      * @throws MigrationException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __construct()
     {
@@ -73,7 +74,7 @@ abstract class AbstractQuery
         $this->setTimestamp($aMatches[1]);
         $this->setClassName($aMatches[2] . 'migration');
 
-        $this->_validateClassName();
+        $this->validateClassName();
     }
 
     /**
@@ -81,7 +82,7 @@ abstract class AbstractQuery
      *
      * @throws MigrationException
      */
-    protected function _validateClassName()
+    protected function validateClassName()
     {
         if (strtolower(get_class($this)) != $this->getClassName()) {
             throw new MigrationException(
@@ -113,7 +114,7 @@ abstract class AbstractQuery
             throw new MigrationException('Wrong timestamp format passed');
         }
 
-        $this->_sTimestamp = $sTimestamp;
+        $this->timestamp = $sTimestamp;
     }
 
     /**
@@ -123,7 +124,7 @@ abstract class AbstractQuery
      */
     public function getTimestamp()
     {
-        return $this->_sTimestamp;
+        return $this->timestamp;
     }
 
     /**
@@ -133,7 +134,7 @@ abstract class AbstractQuery
      */
     public function setFilename($sFilename)
     {
-        $this->_sFilename = $sFilename;
+        $this->filename = $sFilename;
     }
 
     /**
@@ -143,7 +144,7 @@ abstract class AbstractQuery
      */
     public function getFilename()
     {
-        return $this->_sFilename;
+        return $this->filename;
     }
 
     /**
@@ -153,7 +154,7 @@ abstract class AbstractQuery
      */
     public function setClassName($sClassName)
     {
-        $this->_sClassName = strtolower($sClassName);
+        $this->className = strtolower($sClassName);
     }
 
     /**
@@ -163,7 +164,7 @@ abstract class AbstractQuery
      */
     public function getClassName()
     {
-        return $this->_sClassName;
+        return $this->className;
     }
 
     /**
@@ -195,7 +196,7 @@ abstract class AbstractQuery
      *
      * @return bool
      */
-    protected static function _tableExists($sTable)
+    protected static function tableExists($sTable)
     {
         $oConfig = Registry::getConfig();
         $sDbName = $oConfig->getConfigParam('dbName');
@@ -217,7 +218,7 @@ abstract class AbstractQuery
      *
      * @return bool
      */
-    protected static function _columnExists($sTable, $sColumn)
+    protected static function columnExists($sTable, $sColumn)
     {
         $oConfig = Registry::getConfig();
         $sDbName = $oConfig->getConfigParam('dbName');

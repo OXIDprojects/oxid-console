@@ -19,7 +19,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-
 use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
 use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
@@ -27,6 +26,7 @@ use OxidProfessionalServices\OxidConsole\Command\GenerateModuleCommand;
 use OxidProfessionalServices\OxidConsole\Command\MigrateCommand;
 use OxidProfessionalServices\OxidConsole\Command\ActivateModuleCommand;
 use OxidProfessionalServices\OxidConsole\Command\DeactivateModuleCommand;
+use Throwable;
 
 /**
  * Class responsible for collecting instances of available `Commands`
@@ -50,8 +50,9 @@ class CommandCollector
     public function getAllCommands()
     {
         // Avoid fatal errors for "Class 'oxConsoleCommand' not found" in case of old Commands present
-        if (!class_exists('oxConsoleCommand'))
+        if (!class_exists('oxConsoleCommand')) {
             class_alias(Command::class, 'oxConsoleCommand');
+        }
 
         $commands = $this->getCommandsFromCore();
         $commandsFromModules = $this->getCommandsFromModules();
@@ -83,10 +84,11 @@ class CommandCollector
         ];
     }
 
-    private function getCommandsFromComposer(){
+    private function getCommandsFromComposer()
+    {
 
 
-        $localRepository = new InstalledFilesystemRepository(new JsonFile(VENDOR_PATH.'/composer/installed.json'));
+        $localRepository = new InstalledFilesystemRepository(new JsonFile(VENDOR_PATH . '/composer/installed.json'));
 
         $commandsClasses = [];
 
@@ -102,7 +104,7 @@ class CommandCollector
             $consoleCommands = isset($oxideshop['console-commands']) && is_array($oxideshop['console-commands']) ?
                 $oxideshop['console-commands'] : [];
             foreach ($consoleCommands as $commandClass) {
-                $commandsClasses[] = new $commandClass;
+                $commandsClasses[] = new $commandClass();
             }
             //end of deprecated code
 
@@ -114,7 +116,12 @@ class CommandCollector
         foreach ($symfonyContainer->findTaggedServiceIds('console.command') as $id => $tags) {
             $definition = $symfonyContainer->getDefinition($id);
             $class = $definition->getClass();
-            $commandsClasses[] = new $class;
+            try {
+                //TODO maybe get the command with DI container
+                $commandsClasses[] = new $class();
+            } catch (Throwable $ex) {
+                print "WARNING: can not create command $id " . $ex->getMessage();
+            }
         }
 
         return $commandsClasses;
@@ -133,13 +140,14 @@ class CommandCollector
 
 
         if (! class_exists(ModuleList::class)) {
-            print "ERROR: Oxid ModuleList class can not be loaded, please run vendor/bin/oe-eshop-unified_namespace_generator";
+            print "ERROR: Oxid ModuleList class can not be loaded,
+             please try to run vendor/bin/oe-eshop-unified_namespace_generator";
         } else {
             try {
                 $moduleList = oxNew(ModuleList::class);
                 $modulesDir = $oConfig->getModulesDir();
                 $moduleList->getModulesFromDir($modulesDir);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 print "Shop is not able to list modules\n";
                 print $exception->getMessage();
                 return [];
@@ -178,11 +186,13 @@ class CommandCollector
         $modulesRootPath = $config->getModulesDir();
         $modulePaths = $config->getConfigParam('aModulePaths');
 
-        if (!is_dir($modulesRootPath))
+        if (!is_dir($modulesRootPath)) {
             return [];
+        }
 
-        if (!is_array($modulePaths))
+        if (!is_array($modulePaths)) {
             return [];
+        }
 
         $fullModulePaths = array_map(function ($modulePath) use ($modulesRootPath) {
             return $modulesRootPath . $modulePath;
@@ -242,18 +252,18 @@ class CommandCollector
         $classesBefore = get_declared_classes();
         try {
             require_once $pathToPhpFile;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             print "Can not add Command $pathToPhpFile:\n";
             print $exception->getMessage() . "\n";
         }
         $classesAfter = get_declared_classes();
         $newClasses = array_diff($classesAfter, $classesBefore);
-        if(count($newClasses) > 1) {
+        if (count($newClasses) > 1) {
             //try to find the correct class name to use
             //this avoids warnings when module developer use there own command base class, that is not instantiable
-            $name = basename($pathToPhpFile,'.php');
+            $name = basename($pathToPhpFile, '.php');
             foreach ($newClasses as $newClass) {
-                if ($newClass == $name){
+                if ($newClass == $name) {
                     return [$newClass];
                 }
             }
@@ -305,13 +315,16 @@ class CommandCollector
     {
         $objects = array_map(function ($class) {
             try {
-                return new $class;
-            } catch (\Throwable $ex) {
+                return new $class();
+            } catch (Throwable $ex) {
                 print "Can not add command from class $class:\n";
                 print $ex->getMessage() . "\n";
             }
+            return null;
         }, $classes);
-        $objects = array_filter($objects, function($o){return !is_null($o);} );
+        $objects = array_filter($objects, function ($o) {
+            return !is_null($o);
+        });
         return $objects;
     }
 }

@@ -2,6 +2,9 @@
 
 ## [v6.0.0]
 
+### Changed
+- (6.0.0-beta2) compatibillity with oxid 6.2 
+
 ### Removed
 - remove fix: states command - install module internals 2.x to install the command
 

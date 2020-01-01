@@ -10,6 +10,11 @@
 
 namespace OxidProfessionalServices\OxidConsole\Core\Migration;
 
+use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
+use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 use Symfony\Component\Console\Output\OutputInterface;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidProfessionalServices\OxidConsole\Core\Exception\MigrationException;
@@ -28,27 +33,27 @@ class MigrationHandler
     /**
      * @var bool Object already created?
      */
-    protected static $_oCreated = false;
+    protected static $created = false;
 
     /**
      * @var string Full path of cache file
      */
-    protected $_sCacheFilePath;
+    protected $cacheFilePath;
 
     /**
      * @var string Directory where migration paths are stored
      */
-    protected $_sMigrationQueriesDir;
+    protected $migrationQueriesDir;
 
     /**
      * @var array Executed queries
      */
-    protected $_aExecutedQueryNames = array();
+    protected $executedQueryNames = array();
 
     /**
      * @var AbstractQuery[]
      */
-    protected $_aQueries = array();
+    protected $queries = array();
 
     /**
      * Constructor.
@@ -56,20 +61,21 @@ class MigrationHandler
      * Loads migration queries cache and builds migration queries objects
      *
      * @throws MigrationException
-     * @throws \OxidEsales\Eshop\Core\Exception\DatabaseConnectionException
-     * @throws \OxidEsales\Eshop\Core\Exception\DatabaseErrorException
+     * @throws DatabaseConnectionException
+     * @throws DatabaseErrorException
      */
     public function __construct()
     {
-        if (static::$_oCreated) {
+        if (static::$created) {
             throw new MigrationException('Only one instance for MigrationHandler allowed');
         }
 
         // Create BC alias for oxMigrationQuery class (old migrations)
-        if (!class_exists('oxMigrationQuery'))
+        if (!class_exists('oxMigrationQuery')) {
             class_alias(AbstractQuery::class, 'oxMigrationQuery');
+        }
 
-        static::$_oCreated = true;
+        static::$created = true;
 
         $createSql = '
             CREATE TABLE IF NOT EXISTS `oxmigrationstatus` (
@@ -82,28 +88,29 @@ class MigrationHandler
         $oDb = DatabaseProvider::getDb(DatabaseProvider::FETCH_MODE_ASSOC);
         $oDb->execute($createSql);
 
-        $this->_aExecutedQueryNames = $oDb->getAll('SELECT * FROM oxmigrationstatus');
-        $this->_sMigrationQueriesDir = OX_BASE_PATH . 'migration' . DIRECTORY_SEPARATOR;
+        $this->executedQueryNames = $oDb->getAll('SELECT * FROM oxmigrationstatus');
+        $this->migrationQueriesDir = OX_BASE_PATH . 'migration' . DIRECTORY_SEPARATOR;
 
-        $this->_buildMigrationQueries();
+        $this->buildMigrationQueries();
     }
 
     /**
      * Run migration
      *
-     * @param string|null    $sTimestamp The time at which the migrations aims. Only migrations up to this point are being executed
+     * @param string|null    $timestamp The time at which the migrations aims. Only migrations
+     * up to this point are being executed
      * @param OutputInterface|null $oOutput    Out handler for console output
      */
-    public function run($sTimestamp = null, OutputInterface $oOutput = null)
+    public function run($timestamp = null, OutputInterface $oOutput = null)
     {
-        if (null === $sTimestamp) {
-            $sTimestamp = AbstractQuery::getCurrentTimestamp();
+        if (null === $timestamp) {
+            $timestamp = AbstractQuery::getCurrentTimestamp();
         }
 
         foreach ($this->getQueries() as $oQuery) {
-            $oQuery->getTimestamp() < $sTimestamp
-                ? $this->_goUp($oQuery, $oOutput)
-                : $this->_goDown($oQuery, $oOutput);
+            $oQuery->getTimestamp() < $timestamp
+                ? $this->goUp($oQuery, $oOutput)
+                : $this->goDown($oQuery, $oOutput);
         }
     }
 
@@ -115,14 +122,14 @@ class MigrationHandler
      *
      * @return bool
      */
-    protected function _goUp(AbstractQuery $oQuery, outputInterface $oOutput = null)
+    protected function goUp(AbstractQuery $oQuery, outputInterface $oOutput = null)
     {
         if ($this->isExecuted($oQuery)) {
             return false;
         }
 
         if ($oOutput) {
-            $oOutput->writeLn(
+            $oOutput->writeln(
                 sprintf(
                     '[DEBUG] Migrating up %s %s',
                     $oQuery->getTimestamp(),
@@ -145,14 +152,14 @@ class MigrationHandler
      *
      * @return bool
      */
-    protected function _goDown(AbstractQuery $oQuery, OutputInterface $oOutput = null)
+    protected function goDown(AbstractQuery $oQuery, OutputInterface $oOutput = null)
     {
         if (!$this->isExecuted($oQuery)) {
             return false;
         }
 
         if ($oOutput) {
-            $oOutput->writeLn(
+            $oOutput->writeln(
                 sprintf(
                     '[DEBUG] Migrating down %s %s',
                     $oQuery->getTimestamp(),
@@ -176,7 +183,7 @@ class MigrationHandler
      */
     public function isExecuted(AbstractQuery $oQuery)
     {
-        foreach ($this->_aExecutedQueryNames as $executedQuery) {
+        foreach ($this->executedQueryNames as $executedQuery) {
             if ($oQuery->getFilename() == $executedQuery['version']) {
                 return true;
             }
@@ -215,20 +222,20 @@ class MigrationHandler
      *
      * @return bool
      */
-    protected function _buildMigrationQueries()
+    protected function buildMigrationQueries()
     {
-        if (!is_dir($this->_sMigrationQueriesDir)) {
+        if (!is_dir($this->migrationQueriesDir)) {
             return false;
         }
 
-        $oDirectory = new \RecursiveDirectoryIterator($this->_sMigrationQueriesDir);
-        $oFlattened = new \RecursiveIteratorIterator($oDirectory);
+        $oDirectory = new RecursiveDirectoryIterator($this->migrationQueriesDir);
+        $oFlattened = new RecursiveIteratorIterator($oDirectory);
 
-        $aFiles = new \RegexIterator($oFlattened, AbstractQuery::REGEXP_FILE);
+        $aFiles = new RegexIterator($oFlattened, AbstractQuery::REGEXP_FILE);
         foreach ($aFiles as $sFilePath) {
             include_once $sFilePath;
 
-            $sClassName = $this->_getClassNameFromFilePath($sFilePath);
+            $sClassName = $this->getClassNameFromFilePath($sFilePath);
 
             /** @var AbstractQuery $oQuery */
             $oQuery = oxNew($sClassName);
@@ -248,7 +255,7 @@ class MigrationHandler
      *
      * @return string Class name in lower case most cases
      */
-    protected function _getClassNameFromFilePath($sFilePath)
+    protected function getClassNameFromFilePath($sFilePath)
     {
         $sFileName = basename($sFilePath);
         $aMatches = array();
@@ -267,7 +274,7 @@ class MigrationHandler
      */
     public function setQueries(array $aQueries)
     {
-        $this->_aQueries = $aQueries;
+        $this->queries = $aQueries;
     }
 
     /**
@@ -277,9 +284,9 @@ class MigrationHandler
      */
     public function getQueries()
     {
-        ksort($this->_aQueries);
+        ksort($this->queries);
 
-        return $this->_aQueries;
+        return $this->queries;
     }
 
     /**
@@ -289,7 +296,7 @@ class MigrationHandler
      */
     public function addQuery($oQuery)
     {
-        $this->_aQueries[$oQuery->getTimestamp()] = $oQuery;
+        $this->queries[$oQuery->getTimestamp()] = $oQuery;
     }
 
     /**
@@ -299,7 +306,7 @@ class MigrationHandler
      */
     public function setExecutedQueryNames(array $aExecutedQueryNames)
     {
-        $this->_aExecutedQueryNames = $aExecutedQueryNames;
+        $this->executedQueryNames = $aExecutedQueryNames;
     }
 
     /**
@@ -309,6 +316,6 @@ class MigrationHandler
      */
     public function getExecutedQueryNames()
     {
-        return $this->_aExecutedQueryNames;
+        return $this->executedQueryNames;
     }
 }
