@@ -18,8 +18,8 @@ $binFolder = dirname($argv[0]);
 $autoloadFile = $binFolder.'/../autoload.php';
 
 require_once $autoloadFile;
-$projectRoot = dirname($binFolder);
-chdir($projextRoot);
+$projectRoot = realpath(dirname(dirname($binFolder)));
+chdir($projectRoot);
 
 $shopId = (int) (new ArgvInput())->getParameterOption(
     '--shop',
