@@ -67,6 +67,7 @@ jobs:
     - name: run module internals
       continue-on-error: true
       run: |
+        cd /var/www/oxid
         composer require "oxid-community/moduleinternals:dev-master"
         vendor/bin/oxid
         vendor/bin/oxid module:activate moduleinternals
