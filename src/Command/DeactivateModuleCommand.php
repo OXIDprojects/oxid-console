@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OXID Console.
  *
@@ -22,11 +23,11 @@
 
 namespace OxidProfessionalServices\OxidConsole\Command;
 
+use OxidEsales\Eshop\Core\Exception\StandardException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use OxidProfessionalServices\OxidConsole\Core\ShopConfig;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Module\ModuleInstaller;
@@ -68,7 +69,7 @@ class DeactivateModuleCommand extends Command
      * @param string $shopId
      * @param OutputInterface $output
      *
-     * @throws \OxidEsales\Eshop\Core\Exception\StandardException
+     * @throws StandardException
      */
     public function deactivateModule($moduleId, $shopId, $output)
     {
