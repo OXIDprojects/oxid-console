@@ -11,6 +11,8 @@ jobs:
       run: composer validate   
     - name: validate php syntax
       run: find . -not -path "./vendor/*" -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+    - name: validate bin php syntax
+      run: php -l bin/oxid
     - name: install phpcs
       run: curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
     - name: phpcs psr12
