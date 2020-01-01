@@ -25,6 +25,7 @@ use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateModuleCommand;
 use OxidProfessionalServices\OxidConsole\Command\MigrateCommand;
 use OxidProfessionalServices\OxidConsole\Command\ActivateModuleCommand;
+use OxidProfessionalServices\OxidConsole\Command\DeactivateModuleCommand;
 use Throwable;
 
 /**
@@ -78,7 +79,8 @@ class CommandCollector
             new GenerateMigrationCommand(),
             new GenerateModuleCommand(),
             new MigrateCommand(),
-            new ActivateModuleCommand()
+            new ActivateModuleCommand(),
+            new DeactivateModuleCommand()
         ];
     }
 
