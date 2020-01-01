@@ -13,8 +13,9 @@ use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
 
 use Symfony\Component\Console\Input\ArgvInput;
 $autoloadFileExist = false;
+$binFolder=basedir($argv[0]);
 $autoloadFiles = [
-    __DIR__ . '/../../../../autoload.php',
+    __DIR__ . $binFolder.'/../autoload.php',
     __DIR__ . '/../vendor/autoload.php',
     __DIR__ . '/../../vendor/autoload.php',
     __DIR__ . '/../../../vendor/autoload.php',
