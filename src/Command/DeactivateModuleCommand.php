@@ -46,12 +46,7 @@ class DeactivateModuleCommand extends Command
         $this
             ->setName('module:deactivate')
             ->setDescription('Deactivate module in shop')
-            ->addOption(
-                'shop',
-                's',
-                InputOption::VALUE_REQUIRED,
-                "Specify which shop id should be used for the module deactivation"
-            )->addArgument(
+            ->addArgument(
                 'moduleid',
                 InputArgument::REQUIRED,
                 "Module name which should be deactivated"
