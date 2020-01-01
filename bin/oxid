@@ -13,28 +13,14 @@ use OxidProfessionalServices\OxidConsole\Core\Composer\VersionHelper;
 
 use Symfony\Component\Console\Input\ArgvInput;
 $autoloadFileExist = false;
-print "this is called by $argv[0]";
+print "this is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
-$normalPlace = $binFolder.'/../autoload.php';
-$autoloadFiles = [
-    $normalPlace,
-    __DIR__ . '/../vendor/autoload.php',
-    __DIR__ . '/../../vendor/autoload.php',
-    __DIR__ . '/../../../vendor/autoload.php',
-    __DIR__ . '/../../../../vendor/autoload.php',
-];
-foreach ($autoloadFiles as $autoloadFile) {
-    print "scanning for $autoloadFile \n";
-    if (file_exists($autoloadFile)) {
-        require_once $autoloadFile;
-        $autoloadFileExist = true;
-        break;
-    }
-}
-if (!$autoloadFileExist) {
-    print "autoload.php file was not found, check composer!";
-    exit(1);
-}
+$autoloadFile = $binFolder.'/../autoload.php';
+
+require_once $autoloadFile;
+$projectRoot = dirname($binFolder);
+chdir($projextRoot);
+
 $shopId = (int) (new ArgvInput())->getParameterOption(
     '--shop',
     1
