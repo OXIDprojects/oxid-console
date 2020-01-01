@@ -19,6 +19,7 @@ $autoloadFile = $binFolder.'/../autoload.php';
 
 require_once $autoloadFile;
 $projectRoot = realpath(dirname(dirname($binFolder)));
+print "project root is $projectRoot\n";
 chdir($projectRoot);
 
 $shopId = (int) (new ArgvInput())->getParameterOption(
