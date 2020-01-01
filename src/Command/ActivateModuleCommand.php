@@ -48,12 +48,7 @@ class ActivateModuleCommand extends Command
         $this
             ->setName('module:activate')
             ->setDescription('Activate module in shop')
-            ->addOption(
-                'shop',
-                's',
-                InputOption::VALUE_REQUIRED,
-                "Specify which shop id should be used for the module activation"
-            )->addArgument(
+            ->addArgument(
                 'moduleid',
                 InputArgument::REQUIRED,
                 "Module name which should be activated"
