@@ -28,8 +28,7 @@ function shutdown() {
     $e = error_get_last();
     if ($e) {      
         print "Oxid Professional Services Console is sorry to be interrupted by an error:";
-        print $e->getMessage();
-        outputError($e);    
+        print_r($e);
     }
     print "Oxid Professional Services Console is done\n";
 }
