@@ -3,59 +3,47 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-$errorShown = false;
-    
-function outputError($e) {
-    $errorShown = true;
-    print "Oxid Professional Services Console is sorry about: \n";
-    $trace = $e->getTrace();
-    $cause = $trace[0];
-
-    $result = 'Exception: "';
-    $result .= $e->getMessage();
-    $result .= '" @ ';
-    $result .= $cause['file'].':'.$cause['line']."\n";
-    if($cause['class'] != '') {
-      $result .= $cause['class'];
-      $result .= '->';
-    }
-    $result .= $cause['function'];
-    $result .= "();\n";
-    
-    //console should print errors always
-    print $e->getTraceAsString() . "\n";
-    //shop exception handler may take care about error code and logging
-
-}
-
-function shutdown()
+class ErrorHandler()
 {
-    $e = error_get_last();
-    if ($e) {
-        if (!$errorShown) {
-            print "Oxid Professional Services Console is sorry to be interrupted by an error:";
-            $trace = $e->getTrace();
-            $cause = $trace[0];
+    private $errorShown = false;
 
-            $result = 'Exception: "';
-            $result .= $e->getMessage();
-            $result .= '" @ ';
-            $result .= $cause['file'].':'.$cause['line']."\n";
-            if($cause['class'] != '') {
-              $result .= $cause['class'];
-              $result .= '->';
-            }
-            $result .= $cause['function'];
-            $result .= "();\n";
+    public function outputError($e) {
+        $this->errorShown = true;
+        print "Oxid Professional Services Console is sorry about: \n";
+        $trace = $e->getTrace();
+        $cause = $trace[0];
 
-            //console should print errors always
-            print $e->getTraceAsString() . "\n";
-            //shop exception handler may take care about error code and logging        }
+        $result = 'Exception: "';
+        $result .= $e->getMessage();
+        $result .= '" @ ';
+        $result .= $cause['file'].':'.$cause['line']."\n";
+        if($cause['class'] != '') {
+          $result .= $cause['class'];
+          $result .= '->';
+        }
+        $result .= $cause['function'];
+        $result .= "();\n";
+
+        //console should print errors always
+        print $e->getTraceAsString() . "\n";
+        //shop exception handler may take care about error code and logging
+
     }
-    print "Oxid Professional Services Console is done\n";
+    
+    public function shutdown()
+    {
+        $e = error_get_last();
+        if ($e) {
+            if (!$this->errorShown) {
+                print "Oxid Professional Services Console is sorry to be interrupted by an error:";
+                $this->outputError($e);
+            }
+        print "Oxid Professional Services Console is done\n";
+    }
+
 }
 
-register_shutdown_function('shutdown');
+register_shutdown_function(['ErrorHandler','shutdown']);
 
 print "Oxid Professional Services consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
@@ -69,6 +57,7 @@ try {
     $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $e) {
-    outputError($e);
+    $handler = new ErrorHandler()
+    $handler->outputError($e);
     throw $e;
 }
