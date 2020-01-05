@@ -3,48 +3,41 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-class ErrorHandler
-{
-    private static $errorShown = false;
+public function outputError($e) {
+    print "Oxid Professional Services Console is sorry about: \n";
+    $trace = $e->getTrace();
+    $cause = $trace[0];
 
-    public static function outputError($e) {
-        self::$errorShown = true;
-        print "Oxid Professional Services Console is sorry about: \n";
-        $trace = $e->getTrace();
-        $cause = $trace[0];
-
-        $result = 'Exception: "';
-        $result .= $e->getMessage();
-        $result .= '" @ ';
-        $result .= $cause['file'].':'.$cause['line']."\n";
-        if($cause['class'] != '') {
-          $result .= $cause['class'];
-          $result .= '->';
-        }
-        $result .= $cause['function'];
-        $result .= "();\n";
-
-        //console should print errors always
-        print $e->getTraceAsString() . "\n";
-        //shop exception handler may take care about error code and logging
-
+    $result = 'Exception: "';
+    $result .= $e->getMessage();
+    $result .= '" @ ';
+    $result .= $cause['file'].':'.$cause['line']."\n";
+    if($cause['class'] != '') {
+      $result .= $cause['class'];
+      $result .= '->';
     }
+    $result .= $cause['function'];
+    $result .= "();\n";
+
+    //console should print errors always
+    print $e->getTraceAsString() . "\n";
+    //shop exception handler may take care about error code and logging
+}
     
-    public static function shutdown()
-    {
-        $e = error_get_last();
-        if ($e) {
-            if (!$this->errorShown) {
-                print "Oxid Professional Services Console is sorry to be interrupted by an error:";
-                self::outputError($e);
-            }
+public function shutdown()
+{
+    $e = error_get_last();
+    if ($e) {
+        if (!$this->errorShown) {
+            print "Oxid Professional Services Console is sorry to be interrupted by an error:";
+            print $e->getMessage();
+            outputError($e);
         }
-        print "Oxid Professional Services Console is done\n";
     }
-
+    print "Oxid Professional Services Console is done\n";
 }
 
-register_shutdown_function([ErrorHandler::class,'shutdown']);
+register_shutdown_function("shutdown");
 
 print "Oxid Professional Services consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
@@ -53,11 +46,10 @@ $autoloadFile = $binFolder.'/../autoload.php';
 require_once $autoloadFile;
 $projectRoot = realpath(dirname(dirname($binFolder)));
 
-
 try {
     $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $e) {
-    ErrorHandler::outputError($e);
+    outputError($e);
     throw $e;
 }
