@@ -2,7 +2,6 @@
 <?php
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
-use Symfony\Component\Console\Input\ArgvInput;
 
 print "Oxid PS consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
