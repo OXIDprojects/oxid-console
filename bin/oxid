@@ -38,6 +38,7 @@ class ErrorHandler
                 print "Oxid Professional Services Console is sorry to be interrupted by an error:";
                 $this->outputError($e);
             }
+        }
         print "Oxid Professional Services Console is done\n";
     }
 
