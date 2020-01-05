@@ -10,6 +10,14 @@ $autoloadFile = $binFolder.'/../autoload.php';
 require_once $autoloadFile;
 $projectRoot = realpath(dirname(dirname($binFolder)));
 
+function shutdown()
+{
+    print "Oxid Professional Services Console is done\n";
+}
+
+register_shutdown_function('shutdown');
+
+
 try {
     $application = new Application($projectRoot);
     $application->run();
@@ -34,9 +42,3 @@ try {
     //shop exception handler may take care about error code and logging
     throw $ex;
 }
-function shutdown()
-{
-    print "Oxid Professional Services Console is done\n";
-}
-
-register_shutdown_function('shutdown');
