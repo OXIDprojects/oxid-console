@@ -72,3 +72,10 @@ jobs:
         vendor/bin/oxid module:activate moduleinternals
         vendor/bin/oxid fix:states -a
         ls -al source/log
+    - name: done
+      if: failure()
+      run: |
+        cd /var/www/oxid
+        ls -al source/log
+        cat source/log/*
+        
