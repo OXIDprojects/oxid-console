@@ -59,7 +59,7 @@ class Application extends BaseApplication
 
         //adding a value to avoid php warnings when oxid core try to compare that value
         $_SERVER['HTTP_HOST'] = 'localhost';
-        echo "collecting comands.. \n"; 
+        echo "collecting comands.. \n";
         $commandCollector = new CommandCollector();
         $application = $this;
         $commands = $commandCollector->getAllCommands();
@@ -100,6 +100,7 @@ class Application extends BaseApplication
             echo "Please specify 'BOOTSTRAP_PATH' as environmental variable to use it directly.\n";
             exit(1);
         }
+        echo "oxid bootstrap done. \n";
     }
 
     /**
