@@ -61,7 +61,7 @@ class ActivateModuleCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $moduleId = $input->getArgument('moduleid');
-        $this->activateModule($moduleId, $shopId, $output);
+        $this->activateModule($moduleId, $output);
     }
 
     /**
