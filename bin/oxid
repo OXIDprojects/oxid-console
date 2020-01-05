@@ -3,32 +3,10 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-print "Oxid Professional Services consle  is called by $argv[0]\n";
-$binFolder = dirname($argv[0]);
-$autoloadFile = $binFolder.'/../autoload.php';
-
-require_once $autoloadFile;
-$projectRoot = realpath(dirname(dirname($binFolder)));
-
-function shutdown()
-{
-    $error = error_get_last();
-    if ($error) {
-       print "Oxid Professional Services Console is sorry to end with an error from:\n";
-       debug_print_backtrace();
-    }
-    print "Oxid Professional Services Console is closing:\n";
-    debug_print_backtrace();
-    print "Oxid Professional Services Console is done\n";
-}
-
-register_shutdown_function('shutdown');
-
-
-try {
-    $application = new Application($projectRoot);
-    $application->run();
-} catch (Throwable $e) {
+$errorShown = false;
+    
+function outputError($e) {
+    $errorShown = true;
     print "Oxid Professional Services Console is sorry about: \n";
     $trace = $e->getTrace();
     $cause = $trace[0];
@@ -47,5 +25,35 @@ try {
     //console should print errors always
     print $e->getTraceAsString() . "\n";
     //shop exception handler may take care about error code and logging
+
+}
+
+function shutdown()
+{
+    $error = error_get_last();
+    if ($error) {
+        if (!$errorShown) {
+            print "Oxid Professional Services Console is sorry to be interrupted by an error.\nIn detail ";
+            outputError($e);
+        }
+    }
+    print "Oxid Professional Services Console is done\n";
+}
+
+register_shutdown_function('shutdown');
+
+print "Oxid Professional Services consle  is called by $argv[0]\n";
+$binFolder = dirname($argv[0]);
+$autoloadFile = $binFolder.'/../autoload.php';
+
+require_once $autoloadFile;
+$projectRoot = realpath(dirname(dirname($binFolder)));
+
+
+try {
+    $application = new Application($projectRoot);
+    $application->run();
+} catch (Throwable $e) {
+    outputError($e);
     throw $e;
 }
