@@ -58,7 +58,7 @@ try {
     $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $e) {
-    $handler = new ErrorHandler()
+    $handler = new ErrorHandler();
     $handler->outputError($e);
     throw $e;
 }
