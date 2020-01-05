@@ -3,7 +3,7 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-print "Oxid PS consle  is called by $argv[0]\n";
+print "Oxid Professional Services consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
 $autoloadFile = $binFolder.'/../autoload.php';
 
@@ -14,9 +14,25 @@ try {
     $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $ex) {
+    print "Oxid Professional Services Console is sorry about: \n";
+    $trace = $e->getTrace();
+    $cause = $trace[0];
+
+    $result = 'Exception: "';
+    $result .= $e->getMessage();
+    $result .= '" @ ';
+    $result .= $cause['file'].':'.$cause['line'].'\n';
+    if($cause['class'] != '') {
+      $result .= $cause['class'];
+      $result .= '->';
+    }
+    $result .= $cause['function'];
+    $result .= '();<br />';
+    
     //console should print errors always
-    print $ex->getMessage() . "\n";
     print $ex->getTraceAsString();
     //shop exception handler may take care about error code and logging
     throw $ex;
 }
+
+print "Oxid Professional Services Console is done\n";
