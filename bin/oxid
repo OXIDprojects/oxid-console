@@ -12,6 +12,13 @@ $projectRoot = realpath(dirname(dirname($binFolder)));
 
 function shutdown()
 {
+    $error = error_get_last();
+    if ($error) {
+       print "Oxid Professional Services Console is sorry to end with an error from:\n";
+       debug_print_backtrace();
+    }
+    print "Oxid Professional Services Console is closing:\n";
+    debug_print_backtrace();
     print "Oxid Professional Services Console is done\n";
 }
 
