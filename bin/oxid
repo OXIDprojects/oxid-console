@@ -21,7 +21,7 @@ register_shutdown_function('shutdown');
 try {
     $application = new Application($projectRoot);
     $application->run();
-} catch (Throwable $ex) {
+} catch (Throwable $e) {
     print "Oxid Professional Services Console is sorry about: \n";
     $trace = $e->getTrace();
     $cause = $trace[0];
@@ -38,7 +38,7 @@ try {
     $result .= "();\n";
     
     //console should print errors always
-    print $ex->getTraceAsString() . "\n";
+    print $e->getTraceAsString() . "\n";
     //shop exception handler may take care about error code and logging
-    throw $ex;
+    throw $e;
 }
