@@ -79,7 +79,7 @@ class Application extends BaseApplication
             1
         );
 
-        $this->logger->info("Loading Oxid bootstrap...\n");
+        print "Loading Oxid bootstrap...\n";
         $possiblePathsForBootstrap = [
             $this->projectRoot . '/source/bootstrap.php',
             ];
@@ -183,7 +183,7 @@ class Application extends BaseApplication
             ($shopId != $shopIdCalculator->getShopId())
             || ($shopId != Registry::getConfig()->getShopId())
         ) {
-            throw new Exception('Failed to switch to subshop id ' . $shopId . " Calculate ID: "
+            throw new \Exception('Failed to switch to subshop id ' . $shopId . " Calculate ID: "
                 . $shopIdCalculator->getShopId()
                 . " Config ShopId: " . Registry::getConfig()->getShopId());
         }
