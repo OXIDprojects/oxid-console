@@ -8,7 +8,7 @@ class ErrorHandler
     private static $errorShown = false;
 
     public static function outputError($e) {
-        self::errorShown = true;
+        self::$errorShown = true;
         print "Oxid Professional Services Console is sorry about: \n";
         $trace = $e->getTrace();
         $cause = $trace[0];
