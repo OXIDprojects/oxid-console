@@ -5,10 +5,10 @@ use OxidProfessionalServices\OxidConsole\Core\Application;
 
 class ErrorHandler
 {
-    private $errorShown = false;
+    private static $errorShown = false;
 
-    public function outputError($e) {
-        $this->errorShown = true;
+    public static function outputError($e) {
+        self::errorShown = true;
         print "Oxid Professional Services Console is sorry about: \n";
         $trace = $e->getTrace();
         $cause = $trace[0];
@@ -30,13 +30,13 @@ class ErrorHandler
 
     }
     
-    public function shutdown()
+    public static function shutdown()
     {
         $e = error_get_last();
         if ($e) {
             if (!$this->errorShown) {
                 print "Oxid Professional Services Console is sorry to be interrupted by an error:";
-                $this->outputError($e);
+                self::outputError($e);
             }
         }
         print "Oxid Professional Services Console is done\n";
@@ -44,7 +44,7 @@ class ErrorHandler
 
 }
 
-register_shutdown_function(['ErrorHandler','shutdown']);
+register_shutdown_function([ErrorHandler::class,'shutdown']);
 
 print "Oxid Professional Services consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
@@ -58,7 +58,6 @@ try {
     $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $e) {
-    $handler = new ErrorHandler();
-    $handler->outputError($e);
+    ErrorHandler::outputError($e);
     throw $e;
 }
