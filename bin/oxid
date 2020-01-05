@@ -21,13 +21,13 @@ try {
     $result = 'Exception: "';
     $result .= $e->getMessage();
     $result .= '" @ ';
-    $result .= $cause['file'].':'.$cause['line'].'\n';
+    $result .= $cause['file'].':'.$cause['line']."\n";
     if($cause['class'] != '') {
       $result .= $cause['class'];
       $result .= '->';
     }
     $result .= $cause['function'];
-    $result .= '();<br />';
+    $result .= "();\n";
     
     //console should print errors always
     print $ex->getTraceAsString();
