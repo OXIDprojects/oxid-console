@@ -3,7 +3,7 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-public function outputError($e) {
+function outputError($e) {
     print "Oxid Professional Services Console is sorry about: \n";
     $trace = $e->getTrace();
     $cause = $trace[0];
@@ -24,7 +24,7 @@ public function outputError($e) {
     //shop exception handler may take care about error code and logging
 }
     
-public function shutdown()
+function shutdown()
 {
     $e = error_get_last();
     if ($e) {
