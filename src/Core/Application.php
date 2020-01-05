@@ -63,6 +63,7 @@ class Application extends BaseApplication
         $commandCollector = new CommandCollector();
         $application = $this;
         $commands = $commandCollector->getAllCommands();
+        echo "commands collected\n";
         foreach ($commands as $command) {
             try {
                 $application->add($command);
@@ -70,6 +71,7 @@ class Application extends BaseApplication
                 print get_class($command) . " not loadad " . $e->getMessage() . "\n" . $e->getTraceAsString();
             }
         }
+        echo "commands added\n";
     }
 
     public function loadBootstrap()
