@@ -30,7 +30,7 @@ try {
     $result .= "();\n";
     
     //console should print errors always
-    print $ex->getTraceAsString();
+    print $ex->getTraceAsString() . "\n";
     //shop exception handler may take care about error code and logging
     throw $ex;
 }
