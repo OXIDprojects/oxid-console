@@ -29,9 +29,13 @@ class Application extends BaseApplication
     {
         $this->projectRoot = $projectRoot;
         $name = 'Oxid Professional Services Console';
+
         $v = new VersionHelper($projectRoot);
         $version = $v->getVersion('oxid-professional-services/oxid-console');
         parent::__construct($name, $version);
+
+        print "Oxid project root is found at $projectRoot\n";
+        chdir($projectRoot);
 
         $this->loadBootstrap();
 
@@ -69,6 +73,11 @@ class Application extends BaseApplication
 
     public function loadBootstrap()
     {
+        $_POST['shp'] = (int) (new ArgvInput())->getParameterOption(
+            '--shop',
+            1
+        );
+
         $possiblePathsForBootstrap = [
             $this->projectRoot . '/source/bootstrap.php',
             ];
