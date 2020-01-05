@@ -4,26 +4,19 @@
 use OxidProfessionalServices\OxidConsole\Core\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
-print "this is called by $argv[0]\n";
+print "Oxid PS consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
 $autoloadFile = $binFolder.'/../autoload.php';
 
 require_once $autoloadFile;
 $projectRoot = realpath(dirname(dirname($binFolder)));
-print "project root is $projectRoot\n";
-chdir($projectRoot);
-
-$_POST['shp'] = (int) (new ArgvInput())->getParameterOption(
-    '--shop',
-    1
-);
 
 try {
     $application = new Application($projectRoot);
     $application->run();
 } catch (Throwable $ex) {
     //console should print errors always
-    print $ex->getMessage();
+    print $ex->getMessage() . "\n";
     print $ex->getTraceAsString();
     //shop exception handler may take care about error code and logging
     throw $ex;
