@@ -3,7 +3,7 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-class ErrorHandler()
+class ErrorHandler
 {
     private $errorShown = false;
 
