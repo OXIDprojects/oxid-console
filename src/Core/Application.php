@@ -5,6 +5,7 @@ namespace OxidProfessionalServices\OxidConsole\Core;
 use OxidEsales\EshopCommunity\Internal\Framework\Console\AbstractShopAwareCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
