@@ -34,7 +34,7 @@ function shutdown()
     if ($error) {
         if (!$errorShown) {
             print "Oxid Professional Services Console is sorry to be interrupted by an error.\nIn detail ";
-            outputError($e);
+            outputError($error);
         }
     }
     print "Oxid Professional Services Console is done\n";
