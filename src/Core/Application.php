@@ -79,6 +79,7 @@ class Application extends BaseApplication
             1
         );
 
+        $this->logger->info("Loading Oxid bootstrap...\n");
         $possiblePathsForBootstrap = [
             $this->projectRoot . '/source/bootstrap.php',
             ];
