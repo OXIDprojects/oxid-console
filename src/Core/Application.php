@@ -33,9 +33,7 @@ class Application extends BaseApplication
 
         $v = new VersionHelper($projectRoot);
         $version = $v->getVersion('oxid-professional-services/oxid-console');
-        parent::__construct($name, $version);
-
-        
+        parent::__construct($name, $version);   
     }
 
     public function doRun(InputInterface $input, OutputInterface $output)
