@@ -202,7 +202,7 @@ class CommandCollector
         
         return array_filter($fullModulePaths, function ($fullModulePath) {
             if (! is_dir($fullModulePath)) {
-                retrun false;
+                return false;
             }
             if (file_exists($fullModulePath . '/services.yaml')) {
                 return false;
