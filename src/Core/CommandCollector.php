@@ -19,6 +19,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Yaml\Yaml;
 use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
 use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
@@ -105,6 +106,7 @@ class CommandCollector
             $consoleCommands = isset($oxideshop['console-commands']) && is_array($oxideshop['console-commands']) ?
                 $oxideshop['console-commands'] : [];
             foreach ($consoleCommands as $commandClass) {
+                print "$commandClass is defined in composer.json of module this is depricated\n";
                 $commandsClasses[] = new $commandClass();
             }
             //end of deprecated code
@@ -158,11 +160,7 @@ class CommandCollector
         $pathToPhpFiles = $this->getPhpFilesMatchingPatternForCommandFromGivenPaths(
             $paths
         );
-        echo "scanning module files\n";
-        print_r($pathToPhpFiles);
         $classes = $this->getAllClassesFromPhpFiles($pathToPhpFiles);
-        print " found classes :";
-        print_r($classes);
         $comanndClasses = $this->getCommandCompatibleClasses($classes);
         return $this->getObjectsFromClasses($comanndClasses);
     }
@@ -201,9 +199,15 @@ class CommandCollector
         $fullModulePaths = array_map(function ($modulePath) use ($modulesRootPath) {
             return $modulesRootPath . $modulePath;
         }, array_values($modulePaths));
-
+        
         return array_filter($fullModulePaths, function ($fullModulePath) {
-            return is_dir($fullModulePath);
+            if (! is_dir($fullModulePath)) {
+                retrun false;
+            }
+            if (file_exists($fullModulePath . '/services.yaml')) {
+                return false;
+            }
+            return true;
         });
     }
 
@@ -254,16 +258,13 @@ class CommandCollector
     private function getAllClassesFromPhpFile($pathToPhpFile)
     {
         $name = basename($pathToPhpFile, '.php');
-        echo "searching for command $name";
-        if (class_exists($name)) {
-            echo "$name was loaded by autoloader";
-            return [$name];
-        }
+        echo "depricated command: command $name should be registered in services.yaml";
 
         $classesBefore = get_declared_classes();
         try {
-            echo "scanning $pathToPhpFile";
+            echo "scanning $pathToPhpFile...";
             require_once $pathToPhpFile;
+            echo ", file loaded.\n";
         } catch (Throwable $exception) {
             print "Can not add Command $pathToPhpFile:\n";
             print $exception->getMessage() . "\n";
