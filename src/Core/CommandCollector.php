@@ -53,10 +53,12 @@ class CommandCollector
         if (!class_exists('oxConsoleCommand')) {
             class_alias(Command::class, 'oxConsoleCommand');
         }
-
+        echo "get build in commands\n";
         $commands = $this->getCommandsFromCore();
+        echo "get commands from modules\n";
         $commandsFromModules = $this->getCommandsFromModules();
-        $commandsFromComposer = $this->getCommandsFromComposer();
+        $commandsFromComposer = [];
+        //$this->getCommandsFromComposer();
         return array_merge(
             $commands,
             $commandsFromModules,
