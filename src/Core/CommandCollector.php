@@ -57,6 +57,7 @@ class CommandCollector
         $commands = $this->getCommandsFromCore();
         echo "get commands from modules\n";
         $commandsFromModules = [];//$this->getCommandsFromModules();
+        throw new \Exception("console app should catch and show this");
         $commandsFromComposer = $this->getCommandsFromComposer();
         return array_merge(
             $commands,
