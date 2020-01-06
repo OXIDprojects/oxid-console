@@ -56,11 +56,11 @@ class CommandCollector
         echo "get build in commands\n";
         $commands = $this->getCommandsFromCore();
         echo "get commands from modules\n";
-        //$commandsFromModules = $this->getCommandsFromModules();
+        $commandsFromModules = [];//$this->getCommandsFromModules();
         $commandsFromComposer = $this->getCommandsFromComposer();
         return array_merge(
             $commands,
-           // $commandsFromModules,
+            $commandsFromModules,
             $commandsFromComposer
         );
     }
