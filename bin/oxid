@@ -20,13 +20,13 @@ function outputError($e) {
     $result .= "();\n";
 
     //console should print errors always
-    print $e->getTraceAsString() . "\n";
+    print $result . "\n";
     //shop exception handler may take care about error code and logging
 }
 
 function shutdown() {
     $error = error_get_last();
-    if ($error['type'] === E_ERROR) {
+    //if ($error['type'] === E_ERROR) {
         // fatal error has occured
         $trace = array_reverse($GLOBALS['dbg_stack']);
         array_pop($trace);
@@ -37,7 +37,7 @@ function shutdown() {
            . ':' . (isset($item['line']) ? $item['line'] : '<unknown line>')
            . ' calling ' . $item['function'] . '()' . "\n";
         }    
-    }
+    //}
 }
 register_shutdown_function('shutdown');
 function write_dbg_stack() {
