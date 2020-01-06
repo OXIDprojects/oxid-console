@@ -60,6 +60,7 @@ jobs:
         composer require "oxid-community/moduleinternals:dev-master"
         vendor/bin/oxid list
     - name: run module internals
+      run : |
         vendor/bin/oxid module:activate moduleinternals
         vendor/bin/oxid list
         vendor/bin/oxid fix:states -a
