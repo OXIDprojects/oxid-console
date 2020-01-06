@@ -160,6 +160,8 @@ class CommandCollector
         $pathToPhpFiles = $this->getPhpFilesMatchingPatternForCommandFromGivenPaths(
             $paths
         );
+        echo "scanning module files";
+        print_r($pathToPhpFiles);
         $classes = $this->getAllClassesFromPhpFiles($pathToPhpFiles);
         $comanndClasses = $this->getCommandCompatibleClasses($classes);
         return $this->getObjectsFromClasses($comanndClasses);
@@ -251,8 +253,16 @@ class CommandCollector
      */
     private function getAllClassesFromPhpFile($pathToPhpFile)
     {
+        $name = basename($pathToPhpFile, '.php');
+        echo "searching for command $name";
+        if (class_exists($name)) {
+            echo "$name was loaded by autoloader";
+            return [$name];
+        }
+
         $classesBefore = get_declared_classes();
         try {
+            echo "scanning $pathToPhpFile";
             require_once $pathToPhpFile;
         } catch (Throwable $exception) {
             print "Can not add Command $pathToPhpFile:\n";
