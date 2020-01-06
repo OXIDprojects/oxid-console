@@ -44,6 +44,8 @@ $projectRoot = realpath(dirname(dirname($binFolder)));
 
 try {
     $application = new Application($projectRoot);
+    $application->setCatchExceptions(false);
+    $application->setAutoExit(false);
     $application->run();
 } catch (Throwable $e) {
     outputError($e);
