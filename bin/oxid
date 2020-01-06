@@ -23,17 +23,27 @@ function outputError($e) {
     print $e->getTraceAsString() . "\n";
     //shop exception handler may take care about error code and logging
 }
-    
+$calls=[];    
 function shutdown() {
+    global $calls;
     $e = error_get_last();
     if ($e) {      
         print "Oxid Professional Services Console is sorry to be interrupted by an error:";
         print_r($e);
+        print_r($calls);
     }
     print "Oxid Professional Services Console is done\n";
 }
 
 register_shutdown_function("shutdown");
+declare(ticks = 1);
+function tracer() {
+    global $calls;
+    $calls = debug_backtrace();
+}
+
+register_tick_function('tracer');
+
 
 print "Oxid Professional Services consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
