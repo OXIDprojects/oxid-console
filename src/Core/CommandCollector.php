@@ -19,6 +19,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Yaml\Yaml;
 use OxidProfessionalServices\OxidConsole\Command\CacheClearCommand;
 use OxidProfessionalServices\OxidConsole\Command\DatabaseUpdateCommand;
 use OxidProfessionalServices\OxidConsole\Command\GenerateMigrationCommand;
@@ -53,10 +54,9 @@ class CommandCollector
         if (!class_exists('oxConsoleCommand')) {
             class_alias(Command::class, 'oxConsoleCommand');
         }
-
         $commands = $this->getCommandsFromCore();
-        $commandsFromModules = $this->getCommandsFromModules();
         $commandsFromComposer = $this->getCommandsFromComposer();
+        $commandsFromModules = $this->getCommandsFromModules();
         return array_merge(
             $commands,
             $commandsFromModules,
@@ -104,6 +104,7 @@ class CommandCollector
             $consoleCommands = isset($oxideshop['console-commands']) && is_array($oxideshop['console-commands']) ?
                 $oxideshop['console-commands'] : [];
             foreach ($consoleCommands as $commandClass) {
+                print "$commandClass is defined in composer.json of module this is depricated\n";
                 $commandsClasses[] = new $commandClass();
             }
             //end of deprecated code
@@ -138,10 +139,9 @@ class CommandCollector
     {
         $oConfig = Registry::getConfig();
 
-
         if (! class_exists(ModuleList::class)) {
             print "ERROR: Oxid ModuleList class can not be loaded,
-             please try to run vendor/bin/oe-eshop-unified_namespace_generator";
+                please try to run vendor/bin/oe-eshop-unified_namespace_generator";
         } else {
             try {
                 $moduleList = oxNew(ModuleList::class);
@@ -197,9 +197,15 @@ class CommandCollector
         $fullModulePaths = array_map(function ($modulePath) use ($modulesRootPath) {
             return $modulesRootPath . $modulePath;
         }, array_values($modulePaths));
-
+        
         return array_filter($fullModulePaths, function ($fullModulePath) {
-            return is_dir($fullModulePath);
+            if (! is_dir($fullModulePath)) {
+                return false;
+            }
+            if (file_exists($fullModulePath . '/services.yaml')) {
+                return false;
+            }
+            return true;
         });
     }
 
@@ -249,12 +255,18 @@ class CommandCollector
      */
     private function getAllClassesFromPhpFile($pathToPhpFile)
     {
+        $name = basename($pathToPhpFile, '.php');
+        echo "depricated command: command $name should be registered in services.yaml";
+
         $classesBefore = get_declared_classes();
         try {
+            echo "scanning $pathToPhpFile...";
             require_once $pathToPhpFile;
+            echo ", file loaded.\n";
         } catch (Throwable $exception) {
             print "Can not add Command $pathToPhpFile:\n";
             print $exception->getMessage() . "\n";
+            return [];
         }
         $classesAfter = get_declared_classes();
         $newClasses = array_diff($classesAfter, $classesBefore);

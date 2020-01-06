@@ -34,7 +34,11 @@ class Application extends BaseApplication
         $v = new VersionHelper($projectRoot);
         $version = $v->getVersion('oxid-professional-services/oxid-console');
         parent::__construct($name, $version);
+    }
 
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $projectRoot = $this->projectRoot;
         print "Oxid project root is found at $projectRoot\n";
         chdir($projectRoot);
 
@@ -72,6 +76,7 @@ class Application extends BaseApplication
             }
         }
         echo "commands added\n";
+        parent::doRun($input, $output);
     }
 
     public function loadBootstrap()
