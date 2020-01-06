@@ -267,6 +267,7 @@ class CommandCollector
         } catch (Throwable $exception) {
             print "Can not add Command $pathToPhpFile:\n";
             print $exception->getMessage() . "\n";
+            return [];
         }
         $classesAfter = get_declared_classes();
         $newClasses = array_diff($classesAfter, $classesBefore);
