@@ -56,9 +56,8 @@ class CommandCollector
         echo "get build in commands\n";
         $commands = $this->getCommandsFromCore();
         echo "get commands from modules\n";
-        $commandsFromModules = [];//$this->getCommandsFromModules();
-        throw new \Exception("console app should catch and show this");
         $commandsFromComposer = $this->getCommandsFromComposer();
+        $commandsFromModules = $this->getCommandsFromModules();
         return array_merge(
             $commands,
             $commandsFromModules,
@@ -140,10 +139,9 @@ class CommandCollector
     {
         $oConfig = Registry::getConfig();
 
-
         if (! class_exists(ModuleList::class)) {
             print "ERROR: Oxid ModuleList class can not be loaded,
-             please try to run vendor/bin/oe-eshop-unified_namespace_generator";
+                please try to run vendor/bin/oe-eshop-unified_namespace_generator";
         } else {
             try {
                 $moduleList = oxNew(ModuleList::class);
@@ -160,7 +158,7 @@ class CommandCollector
         $pathToPhpFiles = $this->getPhpFilesMatchingPatternForCommandFromGivenPaths(
             $paths
         );
-        echo "scanning module files";
+        echo "scanning module files\n";
         print_r($pathToPhpFiles);
         $classes = $this->getAllClassesFromPhpFiles($pathToPhpFiles);
         $comanndClasses = $this->getCommandCompatibleClasses($classes);
