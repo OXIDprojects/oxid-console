@@ -22,7 +22,7 @@ jobs:
     needs: stand_alone_checks
     strategy:
       matrix:
-        tag: [v2_6.1_php7.1, v2_6.1_php7.2, v2_6.2-rc_php7.2, v2_6.2-rc_php7.1, v2_dev-master_php7.2]         
+        tag: [v3_6.1_php7.1, v3_6.1_php7.2, v3_6.2-rc_php7.2, v3_6.2-rc_php7.1, v3_dev-master_php7.2]         
     runs-on: ubuntu-latest
     container:
       image: oxidprojects/oxid-test:${{matrix.tag}}
@@ -33,19 +33,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: setup oxid
-      run: bash /var/www/oxid/scripts/setupOxid.sh
+      run: bash /var/www/oxideshop/scripts/setupOxid.sh
     - name: install this package into oxid
-      run: bash /var/www/oxid/scripts/setupPackage.sh
-    - name: try to install phpstan-phpunit
-      run: composer require --work-dir=/var/www/oxid --dev phpstan/phpstan-phpunit
-      continue-on-error: true
-    - name: phpstan
-      continue-on-error: true
-      run: |
-        MD=$(pwd)
-        cd /var/www/oxid/
-        touch autoload.oxid.php
-        vendor/bin/phpstan analys --configuration phpstan.neon $MD
+      run: bash /var/www/oxideshop/scripts/setupPackage.sh
     - name: phpstan loose
       continue-on-error: true
       run: |
@@ -60,23 +50,24 @@ jobs:
         cd /var/www/oxid
         curl -OL https://circleci.com/api/v1.1/project/github/weirdan/psalm/232/artifacts/0/home/docker/project/build/psalm.phar
         php psalm.phar --stats --show-info=true $MD
-    - name: run
-      continue-on-error: true
+    - name: run console 
       run: |
         cd /var/www/oxid/
         vendor/bin/oxid list
-    - name: run module internals
+    - name: install module internals
       run: |
         cd /var/www/oxid
         composer require "oxid-community/moduleinternals:dev-master"
         vendor/bin/oxid list
+    - name: run module internals
         vendor/bin/oxid module:activate moduleinternals
+        vendor/bin/oxid list
         vendor/bin/oxid fix:states -a
         ls -al source/log
     - name: done
       if: failure()
       run: |
-        cd /var/www/oxid
+        cd /var/www/oxideshop
         ls -al source/log
         cat source/log/*
         
