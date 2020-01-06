@@ -161,6 +161,8 @@ class CommandCollector
         echo "scanning module files\n";
         print_r($pathToPhpFiles);
         $classes = $this->getAllClassesFromPhpFiles($pathToPhpFiles);
+        print " found classes :";
+        print_r($classes);
         $comanndClasses = $this->getCommandCompatibleClasses($classes);
         return $this->getObjectsFromClasses($comanndClasses);
     }
