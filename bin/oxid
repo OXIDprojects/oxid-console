@@ -30,20 +30,13 @@ function shutdown() {
         // fatal error has occured
         $trace = array_reverse($GLOBALS['dbg_stack']);
         array_pop($trace);
-        if(php_sapi_name() == 'cli') {
-            echo 'Backtrace for: \'' . $error['message'] . '\' at ' . $error['file'] . ':' . $error['line'] . ':' . "\n";
-            foreach($trace as $item)
-                echo '  ' . (isset($item['file']) ? $item['file'] : '<unknown file>') . ':' . (isset($item['line']) ? $item['line'] : '<unknown line>') . ' calling ' . $item['function'] . '()' . "\n";
-        } else {
-            echo '<p class="error_backtrace">' . "\n";
-            echo '  Backtrace for: \'' . $error['message'] . '\' at ' . $error['file'] . ':' . $error['line'] . ':' . "\n";
-            echo '  <ol>' . "\n";
-            foreach($trace as $item)
-                echo '    <li>' . (isset($item['file']) ? $item['file'] : '<unknown file>') . ':' . (isset($item['line']) ? $item['line'] : '<unknown line>') . ' calling ' . $item['function'] . '()</li>' . "\n";
-            echo '  </ol>' . "\n";
-            echo '</p>' . "\n";
-        }
         
+        echo 'Backtrace for: \'' . $error['message'] . '\' at ' . $error['file'] . ':' . $error['line'] . ':' . "\n";
+        foreach($trace as $item) {
+           echo '  ' . (isset($item['file']) ? $item['file'] : '<unknown file>')
+           . ':' . (isset($item['line']) ? $item['line'] : '<unknown line>')
+           . ' calling ' . $item['function'] . '()' . "\n";
+        }    
     }
 }
 register_shutdown_function('shutdown');
