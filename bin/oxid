@@ -3,30 +3,10 @@
 
 use OxidProfessionalServices\OxidConsole\Core\Application;
 
-function outputError($e) {
-    print "Oxid Professional Services Console is sorry about: \n";
-    $trace = $e->getTrace();
-    $cause = $trace[0];
-
-    $result = 'Exception: "';
-    $result .= $e->getMessage();
-    $result .= '" @ ';
-    $result .= $cause['file'].':'.$cause['line']."\n";
-    if($cause['class'] != '') {
-      $result .= $cause['class'];
-      $result .= '->';
-    }
-    $result .= $cause['function'];
-    $result .= "();\n";
-
-    //console should print errors always
-    print $result . "\n";
-    //shop exception handler may take care about error code and logging
-}
 
 function shutdown() {
     $error = error_get_last();
-    //if ($error['type'] === E_ERROR) {
+    if ($error['type'] === E_ERROR) {
         // fatal error has occured
         $trace = array_reverse($GLOBALS['dbg_stack']);
         array_pop($trace);
@@ -37,7 +17,7 @@ function shutdown() {
            . ':' . (isset($item['line']) ? $item['line'] : '<unknown line>')
            . ' calling ' . $item['function'] . '()' . "\n";
         }    
-    //}
+    }
 }
 register_shutdown_function('shutdown');
 function write_dbg_stack() {
@@ -45,7 +25,9 @@ function write_dbg_stack() {
 }
 register_tick_function('write_dbg_stack');
 declare(ticks=1);
-
+//using the console is for developers
+//all errors should be shown to them
+ini_set('display_error',1);
 print "Oxid Professional Services consle  is called by $argv[0]\n";
 $binFolder = dirname($argv[0]);
 $autoloadFile = $binFolder.'/../autoload.php';
@@ -53,12 +35,5 @@ $autoloadFile = $binFolder.'/../autoload.php';
 require_once $autoloadFile;
 $projectRoot = realpath(dirname(dirname($binFolder)));
 
-try {
-    $application = new Application($projectRoot);
-    $application->setCatchExceptions(false);
-    $application->setAutoExit(false);
-    $application->run();
-} catch (Throwable $e) {
-    outputError($e);
-    throw $e;
-}
+$application = new Application($projectRoot);
+$application->run();
