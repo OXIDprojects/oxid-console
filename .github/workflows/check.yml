@@ -61,6 +61,7 @@ jobs:
         vendor/bin/oxid list
     - name: run module internals
       run : |
+        cd /var/www/oxideshop
         vendor/bin/oxid module:activate moduleinternals
         vendor/bin/oxid list
         vendor/bin/oxid fix:states -a
