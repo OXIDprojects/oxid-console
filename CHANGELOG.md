@@ -5,13 +5,13 @@ improve support with new oxid versions 6.2 and force commands to be written in c
 
 ### Changed
 - (6.0.0-beta2) compatibillity with oxid 6.2 
-- depricated warnings for modules using composer extra settings for command registration
-- depricated warning for modules using no registration via services.yaml
-- depricated warning for using shop config (for console compatibility)
+- (6.0.0-beta4) depricated warnings for modules using composer extra settings for command registration
+- (6.0.0-beta4) depricated warning for modules using no registration via services.yaml
+- (6.0.0-beta4) depricated warning for using shop config (for console compatibility)
 
 ### Removed
 - remove fix: states command - install module internals 2.x to install the command
-- no filesystem based command loading for modules with services.yaml
+- (6.0.0-beta4) no filesystem based command loading for modules with services.yaml
 
 ## [v5.3.0]
 ### Changed
