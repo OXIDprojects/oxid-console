@@ -63,7 +63,7 @@ jobs:
         cd /var/www/oxideshop
         vendor/bin/oxid module:activate moduleinternals
         vendor/bin/oxid list
-        vendor/bin/oxid fix:states -a
+        vendor/bin/oxid -vvv fix:states -a
         ls -al source/log
     - name: done
       if: failure()
