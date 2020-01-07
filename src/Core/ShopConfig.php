@@ -42,6 +42,8 @@ class ShopConfig extends Config
      */
     public function __construct($iShopId)
     {
+        print "Using this shop config class is depricated\n";
+        print "Please extract what you need from this class to a lib or to your application\n";
         $this->iShopId = $iShopId;
         $this->init();
     }
