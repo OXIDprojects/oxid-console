@@ -104,7 +104,7 @@ class CommandCollector
             $consoleCommands = isset($oxideshop['console-commands']) && is_array($oxideshop['console-commands']) ?
                 $oxideshop['console-commands'] : [];
             foreach ($consoleCommands as $commandClass) {
-                print "$commandClass is defined in composer.json of module this is depricated\n";
+                print "$commandClass is defined in composer.json of module this is deprecated\n";
                 $commandsClasses[] = new $commandClass();
             }
             //end of deprecated code
@@ -197,7 +197,7 @@ class CommandCollector
         $fullModulePaths = array_map(function ($modulePath) use ($modulesRootPath) {
             return $modulesRootPath . $modulePath;
         }, array_values($modulePaths));
-        
+
         return array_filter($fullModulePaths, function ($fullModulePath) {
             if (! is_dir($fullModulePath)) {
                 return false;
