@@ -42,7 +42,7 @@ class Application extends BaseApplication
         print "Oxid project root is found at $projectRoot\n";
         chdir($projectRoot);
 
-        $this->loadBootstrap($input);
+        $this->loadBootstrap($input, $output);
 
         $oConfig = Registry::getConfig();
         $aLanguages = $oConfig->getConfigParam('aLanguages');
