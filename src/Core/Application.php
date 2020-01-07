@@ -42,7 +42,7 @@ class Application extends BaseApplication
         print "Oxid project root is found at $projectRoot\n";
         chdir($projectRoot);
 
-        $this->loadBootstrap();
+        $this->loadBootstrap($input);
 
         $oConfig = Registry::getConfig();
         $aLanguages = $oConfig->getConfigParam('aLanguages');
@@ -78,13 +78,20 @@ class Application extends BaseApplication
         echo "commands added\n";
         parent::doRun($input, $output);
     }
-
-    public function loadBootstrap()
+  
+   /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return null
+     */
+    public function loadBootstrap(InputInterface $input, OutputInterface $output)
     {
-        $_POST['shp'] = (int) (new ArgvInput())->getParameterOption(
-            '--shop',
-            1
-        );
+        //set shp patameter only if input parameter is set
+        //to allow commands to check this and maybe iterate over all shops if shop parameter is obmitted
+        if (true === $input->hasParameterOption(['--shop','-s'])) {
+            $_GET['shp'] = $input->getParameterOption(['--shop','-s']);
+            $_GET['actshop'] = $input->getParameterOption(['--shop','-s']);
+        }
 
         print "Loading Oxid bootstrap...\n";
         $possiblePathsForBootstrap = [
@@ -108,6 +115,7 @@ class Application extends BaseApplication
             exit(1);
         }
         echo "oxid bootstrap done. \n";
+        return;
     }
 
     /**
@@ -138,10 +146,6 @@ class Application extends BaseApplication
      */
     public function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
     {
-        if (true === $input->hasParameterOption(['--shop','-s'])) {
-            $_GET['shp'] = $input->getParameterOption(['--shop','-s']);
-            $_GET['actshop'] = $input->getParameterOption(['--shop','-s']);
-        }
 
         //todo check if command wants to run for all shops
         // oder instance of ShopAwareInterface then runthis command for every shop
