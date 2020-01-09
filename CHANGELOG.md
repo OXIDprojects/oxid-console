@@ -10,6 +10,7 @@ improve support with new oxid versions 6.2 and force commands to be written in c
 - (6.0.0-beta4) depricated warning for using shop config (for console compatibility)
 
 ### Removed
+- cache clear command does not support -s for clearing smarty cache because -s is used for the shop id
 - remove fix: states command - install module internals 2.x to install the command
 - (6.0.0-beta4) no filesystem based command loading for modules with services.yaml
 
