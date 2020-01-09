@@ -49,10 +49,14 @@ jobs:
         cd /var/www/oxideshop
         curl -OL https://circleci.com/api/v1.1/project/github/weirdan/psalm/232/artifacts/0/home/docker/project/build/psalm.phar
         php psalm.phar --stats --show-info=true $MD
-    - name: run console 
+    - name: run console
+      run: |
+          cd /var/www/oxideshop
+          vendor/bin/oxid list
+    - name: clear cache
       run: |
         cd /var/www/oxideshop
-        vendor/bin/oxid list
+        vendor/bin/oxid cache:clear
     - name: install module internals
       run: |
         cd /var/www/oxideshop
