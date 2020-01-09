@@ -33,7 +33,7 @@ class CacheClearCommand extends Command
         $this
             ->setName('cache:clear')
             ->setDescription('Clear OXID cache')
-            ->addOption('smarty', 's', InputOption::VALUE_NONE, "Clears out smarty cache")
+            ->addOption('smarty', null, InputOption::VALUE_NONE, "Clears out smarty cache")
             ->addOption('files', 'f', InputOption::VALUE_NONE, "Clears out files cache")
             ->addOption('oxcache', 'o', InputOption::VALUE_NONE, "Clears out oxCache (for EE)")
             ->setHelp(<<<'EOF'
