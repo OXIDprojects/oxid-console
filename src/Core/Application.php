@@ -125,14 +125,16 @@ class Application extends BaseApplication
     {
         $inputDefinition = parent::getDefaultInputDefinition();
 
-        $inputDefinition->addOption(
-            new InputOption(
-                '--shop',
-                '-s',
-                InputOption::VALUE_OPTIONAL,
-                'Shop Id (EE Relevant)'
-            )
-        );
+        if (!$this->hasOption('shop') && !$this->hasShortcut('s')) {
+            $inputDefinition->addOption(
+                new InputOption(
+                    '--shop',
+                    '-s',
+                    InputOption::VALUE_OPTIONAL,
+                    'Shop Id (EE Relevant)'
+                )
+            );
+        }
 
         return $inputDefinition;
     }
