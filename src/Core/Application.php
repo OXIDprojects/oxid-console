@@ -119,13 +119,22 @@ class Application extends BaseApplication
     }
 
     /**
-     * @return \Symfony\Component\Console\Input\InputDefinition
+     * @param Command $command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     * @throws Throwable
      */
-    protected function getDefaultInputDefinition()
+    public function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
     {
-        $inputDefinition = parent::getDefaultInputDefinition();
 
-        if (!$this->hasOption('shop') && !$this->hasShortcut('s')) {
+        if ($command->getDefinition()->hasShortcut('s') || $command->getDefinition()->hasOption('shop')) {
+            $logger = new ConsoleLogger($output);
+            $logger->critical('your command is using option shop or shortcut s which is already used by the console');
+        } else {
+            //adding shop paramter to the definition so it is availible in the list command
+            //and can be used by commands
+            $inputDefinition = $this->getDefinition();
             $inputDefinition->addOption(
                 new InputOption(
                     '--shop',
@@ -136,24 +145,6 @@ class Application extends BaseApplication
             );
         }
 
-        return $inputDefinition;
-    }
-
-    /**
-     * @param Command $command
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int
-     * @throws Throwable
-     */
-    public function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
-    {
-
-        //todo check if command wants to run for all shops
-        // oder instance of ShopAwareInterface then runthis command for every shop
-        //if (method_exists($command,'runMePerShop')){
-            //foreach ()
-        //}
         return parent::doRunCommand($command, $input, $output);
     }
 
