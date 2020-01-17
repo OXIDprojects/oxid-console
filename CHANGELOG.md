@@ -2,6 +2,13 @@
 
 ## [v6.0.0]
 improve support with new oxid versions 6.2 and force commands to be written in compatible way to support other consoles
+This console may become depricated soon. You may want to update your oxid console to this release as intermediate step as it will warn you about compatibillity issues while still supporting your legacy comands. 
+
+### Added
+deprication warnings for modules defined in way that is incompatible with oe console
+
+### Fixed
+- (6.0.0-beta9) some fixes (commands with namespaces but legacy definition)
 
 ### Changed
 - (6.0.0-beta2) compatibillity with oxid 6.2 
