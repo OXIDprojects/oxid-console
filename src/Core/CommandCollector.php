@@ -15,6 +15,8 @@ use Composer\Repository\ComposerRepository;
 use Composer\Repository\InstalledFilesystemRepository;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Module\ModuleList;
+use ReflectionClass;
+use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -275,7 +277,15 @@ class CommandCollector
             //this avoids warnings when module developer use there own command base class, that is not instantiable
             $name = basename($pathToPhpFile, '.php');
             foreach ($newClasses as $newClass) {
-                if ($newClass == $name) {
+                // The filename does not contain the namespace of a class, so use the short-name of the class for
+                // comparison
+                try {
+                    $newClassWithoutNamespace = (new ReflectionClass($newClass))->getShortName();
+                } catch (ReflectionException $exception) {
+                    $newClassWithoutNamespace = $newClass;
+                }
+
+                if ($newClassWithoutNamespace == $name) {
                     return [$newClass];
                 }
             }
