@@ -8,7 +8,7 @@ This console may become depricated soon. You may want to update your oxid consol
 deprication warnings for modules defined in way that is incompatible with oe console
 
 ### Fixed
-- Uncaught Error: Undefined class constant 'REGEXP_TIMESTAMP' AbstractQuery.php https://github.com/OXIDprojects/oxid-console/pull/30
+- (6.0.0-beta10) Uncaught Error: Undefined class constant 'REGEXP_TIMESTAMP' AbstractQuery.php https://github.com/OXIDprojects/oxid-console/pull/30
 - (6.0.0-beta9) some fixes (commands with namespaces but legacy definition)
 
 ### Changed
