@@ -176,7 +176,7 @@ abstract class AbstractQuery
      */
     public static function isValidTimestamp($sTimestamp)
     {
-        return preg_match(static::REGEXP_TIMESTAMP, $sTimestamp);
+        return preg_match(self::REGEXP_TIMESTAMP, $sTimestamp);
     }
 
     /**
