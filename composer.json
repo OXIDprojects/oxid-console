@@ -9,7 +9,7 @@
     },
     "require": {
         "oxid-esales/oxideshop-ce": "^v6.0.0",
-        "php": "^7.1",
+        "php": "^7.0",
         "ext-json": "*"
     },
     "minimum-stability": "dev",
