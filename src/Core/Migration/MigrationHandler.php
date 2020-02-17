@@ -249,14 +249,15 @@ class MigrationHandler
                 please try to run vendor/bin/oe-eshop-unified_namespace_generator";
             } else {
                 try {
-                    // TODO: We need to use shop internal service(Shop 6.2 ref -> /Internal/Framework/Module/Configuration/Dao/ShopConfigurationDaoInterface.php) to get active modules path
+                    // TODO: We need to use shop internal service to get active modules path
                     $moduleList = oxNew(ModuleList::class);
                     $modulesDir = $oConfig->getModulesDir();
                     $activeModules = $moduleList->getActiveModuleInfo();
 
                     if (is_array($activeModules) and count($activeModules) > 0) {
                         foreach ($activeModules as $activeModule) {
-                            $migrationQueryDir = $modulesDir . $activeModule . DIRECTORY_SEPARATOR . 'migration' . DIRECTORY_SEPARATOR;
+                            $migrationQueryDir = $modulesDir . $activeModule . DIRECTORY_SEPARATOR .
+                                'migration' . DIRECTORY_SEPARATOR;
                             if (!is_dir($migrationQueryDir)) {
                                 continue;
                             }
