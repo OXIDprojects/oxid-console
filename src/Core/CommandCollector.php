@@ -258,7 +258,7 @@ class CommandCollector
     private function getAllClassesFromPhpFile($pathToPhpFile)
     {
         $name = basename($pathToPhpFile, '.php');
-        echo "depricated command: command $name should be registered in services.yaml";
+        echo "deprecated command: command $name should be registered in services.yaml";
 
         $classesBefore = get_declared_classes();
         try {
