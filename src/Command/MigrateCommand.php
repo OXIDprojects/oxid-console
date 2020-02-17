@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use OxidEsales\Eshop\Core\Registry;
 use OxidProfessionalServices\OxidConsole\Core\Exception\ConsoleException;
@@ -37,7 +38,12 @@ class MigrateCommand extends Command
             ->setName('migration:run')
             ->setAliases(['migrate'])
             ->setDescription('Run database migration scripts')
-            ->addArgument('timestamp', InputArgument::OPTIONAL, "Migration to use for execution");
+            ->addArgument('timestamp', InputArgument::OPTIONAL, "Migration to use for execution")
+            ->addOption('skip-module-migration', null, InputOption::VALUE_NONE, "Skip migration files from modules")
+            ->setHelp(<<<'EOF'
+Command <info>%command.name%</info> will skip migration files from modules.
+EOF
+            );
     }
 
     /**
@@ -52,6 +58,7 @@ class MigrateCommand extends Command
             exit(1);
         }
 
+        $output->writeln('NOTE: Running module migration feature is currently experimental feature and you can skip this operation by passing \'--skip-module-migration\' option.');
         $output->writeln('Running migration scripts');
 
         $debugOutput = $input->getOption('verbose')
@@ -59,6 +66,11 @@ class MigrateCommand extends Command
             : new NullOutput();
 
         /** @var MigrationHandler $oMigrationHandler */
+        if ($input->getOption('skip-module-migration')) {
+            $output->writeln('Skipping Module Migration...');
+            MigrationHandler::$skipModuleMigration = true;
+        }
+
         $oMigrationHandler = Registry::get(MigrationHandler::class);
         $oMigrationHandler->run($timestamp, $debugOutput);
 

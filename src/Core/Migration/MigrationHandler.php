@@ -15,9 +15,12 @@ use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use AppendIterator;
 use Symfony\Component\Console\Output\OutputInterface;
 use OxidEsales\Eshop\Core\DatabaseProvider;
 use OxidProfessionalServices\OxidConsole\Core\Exception\MigrationException;
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Module\ModuleList;
 
 /**
  * Migration handler for migration queries
@@ -54,6 +57,11 @@ class MigrationHandler
      * @var AbstractQuery[]
      */
     protected $queries = array();
+
+    /**
+     * @var bool skip module migration
+     */
+    public static $skipModuleMigration = false;
 
     /**
      * Constructor.
@@ -229,9 +237,41 @@ class MigrationHandler
         }
 
         $oDirectory = new RecursiveDirectoryIterator($this->migrationQueriesDir);
-        $oFlattened = new RecursiveIteratorIterator($oDirectory);
+        $oIterators = new AppendIterator();
+        $oIterators->append(new RecursiveIteratorIterator($oDirectory));
 
-        $aFiles = new RegexIterator($oFlattened, AbstractQuery::REGEXP_FILE);
+        // Include module migration files
+        if (!self::$skipModuleMigration) {
+            $oConfig = Registry::getConfig();
+
+            if (!class_exists(ModuleList::class)) {
+                print "ERROR: Oxid ModuleList class can not be loaded,
+                please try to run vendor/bin/oe-eshop-unified_namespace_generator";
+            } else {
+                try {
+                    // TODO: We need to use shop internal service(Shop 6.2 ref -> /Internal/Framework/Module/Configuration/Dao/ShopConfigurationDaoInterface.php) to get active modules path
+                    $moduleList = oxNew(ModuleList::class);
+                    $modulesDir = $oConfig->getModulesDir();
+                    $activeModules = $moduleList->getActiveModuleInfo();
+
+                    if (is_array($activeModules) and count($activeModules) > 0) {
+                        foreach ($activeModules as $activeModule) {
+                            $migrationQueryDir = $modulesDir . $activeModule . DIRECTORY_SEPARATOR . 'migration' . DIRECTORY_SEPARATOR;
+                            if (!is_dir($migrationQueryDir)) {
+                                continue;
+                            }
+                            $oDirectory = new RecursiveDirectoryIterator($migrationQueryDir);
+                            $oIterators->append(new RecursiveIteratorIterator($oDirectory));
+                        }
+                    }
+                } catch (Throwable $exception) {
+                    print "Shop is not able to list modules\n";
+                    print $exception->getMessage();
+                }
+            }
+        }
+
+        $aFiles = new RegexIterator($oIterators, AbstractQuery::REGEXP_FILE);
         foreach ($aFiles as $sFilePath) {
             include_once $sFilePath;
 
