@@ -58,8 +58,8 @@ EOF
             exit(1);
         }
 
-        $output->writeln('NOTE: Running module migration feature is currently experimental feature.
-        You can skip this operation by passing \'--skip-module-migration\' option.');
+        $output->writeln("NOTE: Running module migrations is currently an experimental feature.");
+        $output->writeln("      You can skip this by using '--skip-module-migration'.");
         $output->writeln('Running migration scripts');
 
         $debugOutput = $input->getOption('verbose')

@@ -212,9 +212,9 @@ class AddDemoCulumnToOxUserMigration extends oxMigrationQuery
 
 
 ## Run Module Migration
-*Note: Currently this if experimental feature*
+*Note: Currently this is experimental feature*
 
-We have now experimental feature to run migration files from module itself. Now we can put module related migration file inside 'migration' directory of module. 
+We have now an experimental feature to run migration files from modules itself. Now we can put module-related migration files inside the 'migration' directory of the module. 
 
 Module
     -- migration

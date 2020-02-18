@@ -245,11 +245,11 @@ class MigrationHandler
             $oConfig = Registry::getConfig();
 
             if (!class_exists(ModuleList::class)) {
-                print "ERROR: Oxid ModuleList class can not be loaded,
-                please try to run vendor/bin/oe-eshop-unified_namespace_generator";
+                throw new MigrationException('ERROR: Oxid ModuleList class can not be loaded,
+                please try to run vendor/bin/oe-eshop-unified_namespace_generator');
             } else {
                 try {
-                    // TODO: We need to use shop internal service to get active modules path
+                    // TODO: We need to use shop internal services to get active modules path
                     $moduleList = oxNew(ModuleList::class);
                     $modulesDir = $oConfig->getModulesDir();
                     $activeModules = $moduleList->getActiveModuleInfo();
@@ -265,9 +265,8 @@ class MigrationHandler
                             $oIterators->append(new RecursiveIteratorIterator($oDirectory));
                         }
                     }
-                } catch (Throwable $exception) {
-                    print "Shop is not able to list modules\n";
-                    print $exception->getMessage();
+                } catch (MigrationException $exception) {
+                    throw $exception;
                 }
             }
         }
