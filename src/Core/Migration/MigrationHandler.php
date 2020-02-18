@@ -245,28 +245,24 @@ class MigrationHandler
             $oConfig = Registry::getConfig();
 
             if (!class_exists(ModuleList::class)) {
-                throw new MigrationException('ERROR: Oxid ModuleList class can not be loaded,
-                please try to run vendor/bin/oe-eshop-unified_namespace_generator');
+                throw new MigrationException('ERROR: Oxid ModuleList class can not be loaded, '
+                    . 'please try to run vendor/bin/oe-eshop-unified_namespace_generator');
             } else {
-                try {
-                    // TODO: We need to use shop internal services to get active modules path
-                    $moduleList = oxNew(ModuleList::class);
-                    $modulesDir = $oConfig->getModulesDir();
-                    $activeModules = $moduleList->getActiveModuleInfo();
+                // TODO: We need to use shop internal services to get active modules path
+                $moduleList = oxNew(ModuleList::class);
+                $modulesDir = $oConfig->getModulesDir();
+                $activeModules = $moduleList->getActiveModuleInfo();
 
-                    if (is_array($activeModules) and count($activeModules) > 0) {
-                        foreach ($activeModules as $activeModule) {
-                            $migrationQueryDir = $modulesDir . $activeModule . DIRECTORY_SEPARATOR .
-                                'migration' . DIRECTORY_SEPARATOR;
-                            if (!is_dir($migrationQueryDir)) {
-                                continue;
-                            }
-                            $oDirectory = new RecursiveDirectoryIterator($migrationQueryDir);
-                            $oIterators->append(new RecursiveIteratorIterator($oDirectory));
+                if (is_array($activeModules) and count($activeModules) > 0) {
+                    foreach ($activeModules as $activeModule) {
+                        $migrationQueryDir = $modulesDir . $activeModule . DIRECTORY_SEPARATOR .
+                            'migration' . DIRECTORY_SEPARATOR;
+                        if (!is_dir($migrationQueryDir)) {
+                            continue;
                         }
+                        $oDirectory = new RecursiveDirectoryIterator($migrationQueryDir);
+                        $oIterators->append(new RecursiveIteratorIterator($oDirectory));
                     }
-                } catch (MigrationException $exception) {
-                    throw $exception;
                 }
             }
         }
