@@ -1,6 +1,6 @@
 # OXID PS Console
 
-OXID PS Console is a symfony console application for OXID Shop.
+OXID PS Console is a Symfony console application for OXID eShop.
 It is community and project driven with write and read access like in a public wiki (like Wikipedia).
 
 
@@ -11,10 +11,11 @@ The following commands are available:
 * `views:update` - Regenerate database views
 * `module:activate` - Activate module in shop
 * `module:generate` - Generate new module scaffold
+* `module:fix` - Fix the module chain based on the metadata contents
 * `migration:generate` - Generate new migration file
 * `migration:run` - Run migration scripts
 
-For backwords compatibility the following commands are still available (*but are deprecated*):
+For backwards compatibility the following commands are still available (*but are deprecated*):
 * `db:update` - Updates database views
 * `g:migration` - Generate new migration file
 * `g:module` - Generate new module scaffold
