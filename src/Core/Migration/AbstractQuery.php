@@ -27,7 +27,7 @@ abstract class AbstractQuery
     /**
      * Regexp used for regexp timestamp validation
      */
-    private const REGEXP_TIMESTAMP = '/^\d{14}$/';
+    const REGEXP_TIMESTAMP = '/^\d{14}$/';
 
     /**
      * Regexp used for regexp file name validation
@@ -35,7 +35,7 @@ abstract class AbstractQuery
      * First match: timestamp
      * Second match: class name without "migration" appended
      */
-    public const REGEXP_FILE = '/(\d{14})_([a-zA-Z][a-zA-Z0-9]+)\.php$/';
+    const REGEXP_FILE = '/(\d{14})_([a-zA-Z][a-zA-Z0-9]+)\.php$/';
 
     /**
      * @var string Timestamp
