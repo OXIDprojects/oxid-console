@@ -10,13 +10,13 @@ function shutdown() {
         // fatal error has occured
         $trace = array_reverse($GLOBALS['dbg_stack']);
         array_pop($trace);
-        
+
         echo 'Backtrace for: \'' . $error['message'] . '\' at ' . $error['file'] . ':' . $error['line'] . ':' . "\n";
         foreach($trace as $item) {
            echo '  ' . (isset($item['file']) ? $item['file'] : '<unknown file>')
            . ':' . (isset($item['line']) ? $item['line'] : '<unknown line>')
            . ' calling ' . $item['function'] . '()' . "\n";
-        }    
+        }
     }
 }
 register_shutdown_function('shutdown');

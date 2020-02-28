@@ -23,7 +23,7 @@ use OxidEsales\Eshop\Core\ConfigFile;
 class Application extends BaseApplication
 {
     protected $projectRoot = '';
-   
+
     /**
      * @param string $projectRoot the root directory of the project that contains vendor and source folder
      */
@@ -79,7 +79,7 @@ class Application extends BaseApplication
         echo "commands added\n";
         parent::doRun($input, $output);
     }
-  
+
    /**
      * @param InputInterface $input
      * @param OutputInterface $output
