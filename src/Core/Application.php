@@ -23,7 +23,7 @@ use OxidEsales\Eshop\Core\ConfigFile;
 class Application extends BaseApplication
 {
     protected $projectRoot = '';
-   
+
     /**
      * @param string $projectRoot the root directory of the project that contains vendor and source folder
      */
@@ -40,7 +40,10 @@ class Application extends BaseApplication
     public function doRun(InputInterface $input, OutputInterface $output)
     {
         $projectRoot = $this->projectRoot;
-        print "Oxid project root is found at $projectRoot\n";
+        $output->writeln(
+            "OXID project root is found at $projectRoot",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
         chdir($projectRoot);
 
         $this->loadBootstrap($input, $output);
@@ -64,11 +67,17 @@ class Application extends BaseApplication
 
         //adding a value to avoid php warnings when oxid core try to compare that value
         $_SERVER['HTTP_HOST'] = 'localhost';
-        echo "collecting comands.. \n";
+        $output->writeln(
+            "collecting comands...",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
         $commandCollector = new CommandCollector();
         $application = $this;
         $commands = $commandCollector->getAllCommands();
-        echo "commands collected\n";
+        $output->writeln(
+            "commands collected",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
         foreach ($commands as $command) {
             try {
                 $application->add($command);
@@ -76,10 +85,13 @@ class Application extends BaseApplication
                 print get_class($command) . " not loadad " . $e->getMessage() . "\n" . $e->getTraceAsString();
             }
         }
-        echo "commands added\n";
+        $output->writeln(
+            "commands added",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
         parent::doRun($input, $output);
     }
-  
+
    /**
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -94,7 +106,10 @@ class Application extends BaseApplication
             $_GET['actshop'] = $input->getParameterOption(['--shop','-s']);
         }
 
-        print "Loading Oxid bootstrap...\n";
+        $output->writeln(
+            "Loading OXID bootstrap...",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
         $possiblePathsForBootstrap = [
             $this->projectRoot . '/source/bootstrap.php',
             ];
@@ -115,7 +130,10 @@ class Application extends BaseApplication
             echo "Please specify 'BOOTSTRAP_PATH' as environmental variable to use it directly.\n";
             exit(1);
         }
-        echo "oxid bootstrap done. \n";
+        $output->writeln(
+            "OXID bootstrap done",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
         return;
     }
 
