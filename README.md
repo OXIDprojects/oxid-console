@@ -28,7 +28,8 @@ For backwards compatibility the following commands are still available (*but are
 |-------------------|----------------------|------------------|---------------|
 | <4.9.0, <5.2.0    | 1.1.5                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/3e28bba67649c01156c6e97f1b99aa7538b1a32e) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.1.5.zip) |
 | \>=4.9.0, >=5.2.0 | 1.2.6                | [Source Code](https://github.com/OXIDprojects/oxid-console/tree/f7dedca4d831bf5cb52e1b17024f2b70cf789b2c) | [Download ZIP](https://github.com/OXIDprojects/oxid-console/archive/v1.2.6.zip) |
-| \>=6.0.0          | 6.x                  | [Source Code](https://github.com/OXIDprojects/oxid-console/)|please use composer to download| 
+| =6.1.x            | 6.0                  | [Source Code](https://github.com/OXIDprojects/oxid-console/)|please use composer to install see next section| 
+| =6.2.x            | -                    | use with care oxid console is not designed to be used with oxid 6.2 for now| 
 
 ## Installation
 Use Composer to add the console to your project
