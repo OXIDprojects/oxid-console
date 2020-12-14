@@ -27,7 +27,7 @@ class ShopConfig extends Config
     /**
      * @var int
      */
-    protected $iShopId;
+    protected $_iShopId;
 
     /**
      * the config params before child theme overloaded them
@@ -44,7 +44,7 @@ class ShopConfig extends Config
     {
         print "Using this shop config class is depricated\n";
         print "Please extract what you need from this class to a lib or to your application\n";
-        $this->iShopId = $iShopId;
+        $this->_iShopId = $iShopId;
         $this->init();
     }
 
@@ -142,16 +142,6 @@ class ShopConfig extends Config
         }
     }
 
-    /**
-     * Get shop id
-     *
-     * @return int
-     */
-    public function getShopId()
-    {
-        return $this->iShopId;
-    }
-
 
     /**
      *  Getting all the stored variable type info from database
@@ -187,8 +177,8 @@ class ShopConfig extends Config
      */
     public function saveShopConfVar($sVarType, $sVarName, $sVarVal, $sShopId = null, $sModule = '')
     {
-        $sShopId = $sShopId === null ? $this->iShopId : $sShopId;
-        if ($sShopId == $this->iShopId) {
+        $sShopId = $sShopId === null ? $this->_iShopId : $sShopId;
+        if ($sShopId == $this->_iShopId) {
             $storedType = $this->getShopConfType($sVarName, $sModule);
             if ($sModule == Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme')) {
                 $storedValue = $this->aConfigParamsParentTheme[$sVarName];
