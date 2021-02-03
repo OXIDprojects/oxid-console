@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v6.0.1]
+
+### Fixed
+- bin/oxid can be called from within the vendor directory
+
 ## [v6.0.0]
 improve support with new oxid versions 6.2 and force commands to be written in compatible way to support other consoles
 This console may become deprecated soon. You may want to update your oxid console to this release as intermediate step as it will warn you about compatibillity issues while still supporting your legacy comands. 
