@@ -49,7 +49,7 @@ EOF
         $config = Registry::getConfig();
         //avoid problems if views are already broken
         $config->setConfigParam('blSkipViewUsage', true);
-        
+
         /** @var DbMetaDataHandler $oDbHandler */
         $oDbHandler = oxNew(DbMetaDataHandler::class);
 
