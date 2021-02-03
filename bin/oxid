@@ -32,7 +32,7 @@ $binFolder = dirname($argv[0]);
 $autoloadFile = $binFolder.'/../autoload.php';
 
 require_once $autoloadFile;
-$projectRoot = realpath(dirname(dirname($binFolder)));
+$projectRoot = realpath(dirname(dirname(realpath($binFolder))));
 
 $application = new Application($projectRoot);
 $application->run();
