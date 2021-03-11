@@ -42,7 +42,7 @@ class Application extends BaseApplication
         $projectRoot = $this->projectRoot;
         $output->writeln(
             "OXID project root is found at $projectRoot",
-            OutputInterface::VERBOSITY_VERBOSE
+            OutputInterface::VERBOSITY_DEBUG
         );
         chdir($projectRoot);
 
@@ -69,14 +69,14 @@ class Application extends BaseApplication
         $_SERVER['HTTP_HOST'] = 'localhost';
         $output->writeln(
             "collecting comands...",
-            OutputInterface::VERBOSITY_VERBOSE
+            OutputInterface::VERBOSITY_DEBUG
         );
         $commandCollector = new CommandCollector();
         $application = $this;
         $commands = $commandCollector->getAllCommands();
         $output->writeln(
             "commands collected",
-            OutputInterface::VERBOSITY_VERBOSE
+            OutputInterface::VERBOSITY_DEBUG
         );
         foreach ($commands as $command) {
             try {
@@ -87,7 +87,7 @@ class Application extends BaseApplication
         }
         $output->writeln(
             "commands added",
-            OutputInterface::VERBOSITY_VERBOSE
+            OutputInterface::VERBOSITY_DEBUG
         );
         parent::doRun($input, $output);
     }
@@ -108,7 +108,7 @@ class Application extends BaseApplication
 
         $output->writeln(
             "Loading OXID bootstrap...",
-            OutputInterface::VERBOSITY_VERBOSE
+            OutputInterface::VERBOSITY_DEBUG
         );
         $possiblePathsForBootstrap = [
             $this->projectRoot . '/source/bootstrap.php',
@@ -132,7 +132,7 @@ class Application extends BaseApplication
         }
         $output->writeln(
             "OXID bootstrap done",
-            OutputInterface::VERBOSITY_VERBOSE
+            OutputInterface::VERBOSITY_DEBUG
         );
         return;
     }
