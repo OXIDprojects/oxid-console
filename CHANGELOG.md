@@ -1,5 +1,10 @@
 # Changelog for OXID Console
 
+## [v6.0.2 - unreleased]
+
+### Fixed
+- no more warning if a command is not supported because of mandetory constructor arguments
+
 ## [v6.0.1]
 
 ### Fixed
