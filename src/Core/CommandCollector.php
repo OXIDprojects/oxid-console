@@ -120,7 +120,14 @@ class CommandCollector
             $definition = $symfonyContainer->getDefinition($id);
             $class = $definition->getClass();
             try {
-                //TODO maybe get the command with DI container
+                //fixme: maybe get the command with DI container
+                $ReflectionClass = new ReflectionClass($class);
+                $constructor = $ReflectionClass->getConstructor();
+                $list = $constructor->getParameters();
+                if ($list && $list[0] && !$list[0]->isOptional()) {
+                    //Commands with mandatory parameters are not yet supported
+                    continue;
+                }
                 $commandsClasses[] = new $class();
             } catch (Throwable $ex) {
                 print "WARNING: can not create command $id " . $ex->getMessage();
