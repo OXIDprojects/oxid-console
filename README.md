@@ -213,6 +213,19 @@ class AddDemoCulumnToOxUserMigration extends oxMigrationQuery
 *Note: It is better to use generator for migration queries creation*
 
 
+## Run Module Migration
+*Note: Currently this is an experimental feature*
+
+We have now an experimental feature to run migration files from modules itself. Now we can put module-related migration files inside the 'migration' directory of the module. 
+
+Module
+    -- migration
+        -- XXX.PHP
+        
+You can pass '--skip-module-migration' option to skip to run module migration files. 
+```
+ migration:run --skip-module-migration
+```
 # Related Projects
 * https://github.com/OXIDprojects/oxid-module-internals
 * https://github.com/OXIDprojects/oxid_modules_config
